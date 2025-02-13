@@ -1,0 +1,22 @@
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #1e40af;
+  --background-color: #f3f4f6;
+  --text-color: #1f2937;
+  --error-color: #dc2626;
+  --success-color: #059669;
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
