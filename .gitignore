@@ -19,6 +19,8 @@ obj/
 .vs/
 /backend/*.db
 /backend/appsettings.Development.json
+/backend/Migrations
+/backendMigrations/*
 
 # Environment
 .env
