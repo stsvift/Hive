@@ -46,5 +46,4 @@ npm run dev
 
 ## Лицензия
 
-MIT
->>>>>>> bd26cfe (Initial commit)
+GNU GPL
