@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+* {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.authContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+  background-image: url('/src/assets/auth-bg.png'); /* Use an absolute path */
+  background-size: cover;
+  background-position: center;
+}
+
+.title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.authForm {
+  background: rgba(0, 0, 0, 0.4); /* 40% opaque black background */
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 350px;
+}
+
+.authForm h2 {
+  margin-bottom: 1.5rem;
+  color: white;
+  text-align: center;
+}
+
+.authForm .error {
+  background-color: rgba(255, 77, 77, 0.8); /* Red background with opacity */
+  color: white;
+  padding: 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.authForm input {
+  display: block;
+  width: 100%;
+  padding: 1rem; /* Increase padding */
+  margin-bottom: 1.5rem;
+  border: none; /* Remove border */
+  border-radius: 20px;
+  background-color: rgba(253, 118, 203, 0.2); /* FD76CB with 20% opacity */
+  color: white;
+}
+
+.authForm input::placeholder {
+  color: white; /* White placeholder text */
+}
+
+.authForm input:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 172, 48, 0.8); /* Glowing effect */
+}
+
+.authForm button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #FFAC30; /* FFAC30 color */
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.authForm button:hover {
+  background-color: #e69a2a;
+}
+
+.switchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.switchText {
+  color: white;
+  margin-right: 0.5rem;
+}
+
+.switchLink {
+  color: #FFAC30; /* Match the button background color */
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.switchLink:hover {
+  text-decoration: underline;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #FFAC30; /* Match the button background color */
+  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: fadeInOut 5s ease-in-out;
+  font-weight: 700;
+  text-align: center;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}

@@ -31,6 +31,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Регистрация AuthService
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<FolderService>();
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<NoteService>();
 
 // Настройка CORS для разрешения запросов с локального клиента
 builder.Services.AddCors(options =>

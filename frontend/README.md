@@ -23,17 +23,7 @@
 npm install
 ```
 
-2. Настройка переменных окружения:
-```bash
-cp .env.example .env
-```
-
-3. Отредактируйте .env файл:
-```env
-VITE_API_URL=https://localhost:5001
-```
-
-4. Запуск проекта:
+2. Запуск проекта:
 ```bash
 npm run dev
 ```

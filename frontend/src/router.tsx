@@ -1,18 +1,32 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import Home from './pages/Memory';
+import Auth from './pages/Auth';
 
-const isAuthenticated = localStorage.getItem('token');
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem('token');
+  return token ? <>{children}</> : <Navigate to="/login" />;
+};
 
-const AppRouter = () => (
-    <Router>
-        <Routes>
-            <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-        </Routes>
-    </Router>
-);
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Auth isLogin />} />
+        <Route path="/register" element={<Auth />} />
+        <Route path="/" element={
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        } />
+        <Route path="/memory" element={
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        } />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
-export default AppRouter;
+export default App;
