@@ -81,7 +81,7 @@ namespace backend.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-                await _taskService.DeleteTaskAsync(id, userId);
+                await _taskService.DeleteTaskAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException)

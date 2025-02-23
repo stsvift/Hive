@@ -2,6 +2,7 @@ using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace backend.Services;
 
@@ -119,5 +120,37 @@ public class TaskService
             _logger.LogError(ex, "Error toggling task completion");
             throw;
         }
+    }
+
+    public async Task<List<UserTask>> GetTasksByDateAsync(int userId, DateTime date)
+    {
+        try
+        {
+            _logger.LogInformation($"Looking for tasks with date {date.Date}"); // добавляем логирование
+            var tasks = await _context.Tasks
+                .Where(t => t.UserId == userId && 
+                           t.Deadline.HasValue && 
+                           t.Deadline.Value.Date == date.Date)
+                .OrderBy(t => t.Deadline)
+                .ToListAsync();
+            
+            _logger.LogInformation($"SQL Query: {_context.Tasks.Where(t => t.UserId == userId && t.Deadline.HasValue && t.Deadline.Value.Date == date.Date).ToQueryString()}"); 
+            
+            return tasks;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting tasks for date {Date} and user {UserId}", date, userId);
+            throw;
+        }
+    }
+
+    public async Task<List<UserTask>> GetAllTasksAsync(int userId)
+    {
+        _logger.LogInformation($"Getting all tasks for user {userId}");
+        return await _context.Tasks
+            .Where(t => t.UserId == userId)
+            .OrderBy(t => t.Deadline)
+            .ToListAsync();
     }
 }

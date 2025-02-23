@@ -26,16 +26,22 @@
 
 .authForm {
   background: rgba(0, 0, 0, 0.4); /* 40% opaque black background */
-  padding: 3rem;
+  padding: 2.5rem;
   border-radius: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 350px;
+  width: 380px;
+  transition: height 0.3s ease-in-out;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .authForm h2 {
   margin-bottom: 1.5rem;
   color: white;
   text-align: center;
+  animation: fadeInDown 0.5s ease-out;
 }
 
 .authForm .error {
@@ -50,12 +56,28 @@
 .authForm input {
   display: block;
   width: 100%;
-  padding: 1rem; /* Increase padding */
-  margin-bottom: 1.5rem;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 0; /* Remove margin-bottom since we're using gap */
   border: none; /* Remove border */
   border-radius: 20px;
   background-color: rgba(253, 118, 203, 0.2); /* FD76CB with 20% opacity */
   color: white;
+  box-sizing: border-box; /* Ensure padding is included in width */
+  font-size: 1rem;
+  opacity: 0;
+  animation: slideInStagger 0.4s ease-out forwards;
+}
+
+.authForm input:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.authForm input:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.authForm input:nth-child(3) {
+  animation-delay: 0.3s;
 }
 
 .authForm input::placeholder {
@@ -67,14 +89,25 @@
   box-shadow: 0 0 10px rgba(255, 172, 48, 0.8); /* Glowing effect */
 }
 
-.authForm button {
+.authForm form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  padding: 0.75rem;
-  background-color: #FFAC30; /* FFAC30 color */
+}
+
+.authForm button {
+  width: 80%;
+  padding: 1.2rem;
+  background-color: #ffac30; /* FFAC30 color */
   color: white;
   border: none;
   border-radius: 20px;
   cursor: pointer;
+  margin: 1rem auto 1.5rem;
+  font-size: 1rem;
+  opacity: 0;
+  animation: scaleIn 0.4s ease-out 0.4s forwards;
 }
 
 .authForm button:hover {
@@ -85,7 +118,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 1.5rem;
+  margin-top: auto; /* Push to bottom of flex container */
+  padding-top: 1rem;
+  opacity: 0;
+  animation: fadeInUp 0.4s ease-out 0.5s forwards;
 }
 
 .switchText {
@@ -94,7 +130,7 @@
 }
 
 .switchLink {
-  color: #FFAC30; /* Match the button background color */
+  color: #ffac30; /* Match the button background color */
   cursor: pointer;
   text-decoration: none;
 }
@@ -108,18 +144,165 @@
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #FFAC30; /* Match the button background color */
+  background-color: #ffac30; /* Match the button background color */
   color: white;
   padding: 1rem;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  animation: fadeInOut 5s ease-in-out;
+  animation: shake 0.4s ease-in-out, fadeInOut 5s ease-in-out;
   font-weight: 700;
   text-align: center;
 }
 
 @keyframes fadeInOut {
-  0%, 100% { opacity: 0; }
-  10%, 90% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+}
+
+.loginMode {
+  height: 420px;
+  animation: formTransition 0.4s ease-out;
+}
+
+.registerMode {
+  height: 500px;
+  animation: formTransition 0.4s ease-out;
+}
+
+.inputsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  position: relative;
+}
+
+.slideIn {
+  animation: none; /* Removing default slideIn animation */
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+input,
+button {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.authForm.loginMode input,
+.authForm.loginMode button {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.authForm.registerMode input,
+.authForm.registerMode button {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Анимация для заголовка */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Анимации для инпутов */
+@keyframes slideInStagger {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Анимация для кнопки */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Анимация для переключателя форм */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Анимация перехода между формами */
+@keyframes formTransition {
+  from {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Анимация для ошибки */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-53%);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(-47%);
+  }
 }

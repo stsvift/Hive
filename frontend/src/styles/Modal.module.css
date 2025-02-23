@@ -1,54 +1,149 @@
-.modal {
+.modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .modalContent {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2.5rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 480px;
+  color: white;
+  box-shadow: 0 8px 32px 0 rgba(255, 172, 48, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.modalContent form {
+.formGroup {
+  margin-bottom: 1.5rem;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: calc(100% - 2rem); /* Учитываем отступы по бокам */
+  margin: 0 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.modalActions {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  padding: 0;
+  width: calc(100% - 4rem); 
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.modalContent input,
-.modalContent textarea {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
-.buttons button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+.modalActions button {
+  flex: 1;
+  max-width: 200px; 
+  min-width: 140px;
+  padding: 1rem 2rem;
   border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.buttons button[type="submit"] {
-  background: #2563eb;
+.modalActions button[type="button"] {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.modalActions button[type="submit"] {
+  background: linear-gradient(135deg, #ffac30 0%, #fd76cb 100%);
   color: white;
 }
 
-.buttons button[type="button"] {
-  background: #e5e7eb;
+.modalActions button:hover {
+  transform: translateY(-2px);
+}
+
+.modalActions button[type="button"]:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modalActions button[type="submit"]:hover {
+  opacity: 0.9;
+  box-shadow: 0 5px 15px rgba(255, 172, 48, 0.3);
+}
+
+/* Стили для поля с датой */
+.formGroup input[type="date"] {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.formGroup input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.formGroup input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 0.8;
+}
+
+.formGroup input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+}
+
+.dateTimeInputs {
+  display: flex;
+  gap: 1rem;
+  margin: 0.5rem 1rem;
+}
+
+.dateTimeInputs input {
+  flex: 1;
+  min-width: 0;
+  margin: 0; 
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.dateTimeInputs input:focus {
+  outline: none;
+  border-color: #ffac30;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Стили для инпута времени */
+.dateTimeInputs input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.dateTimeInputs input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 0.8;
 }

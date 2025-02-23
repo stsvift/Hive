@@ -19,18 +19,49 @@ public class DashboardController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("upcoming-tasks")]
-    public async Task<IActionResult> GetUpcomingTasks()
+    [HttpGet("today-tasks")]
+    public async Task<IActionResult> GetTodayTasks()
     {
         try
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            var tasks = await _taskService.GetUpcomingTasksAsync(userId);
+            var today = DateTime.Today;
+            _logger.LogInformation($"Fetching tasks for user {userId} for date {today}"); 
+            var tasks = await _taskService.GetTasksByDateAsync(userId, today);
+            _logger.LogInformation($"Found {tasks.Count} tasks");  
             return Ok(tasks);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при получении задач");
+            _logger.LogError(ex, "Ошибка при получении задач на сегодня");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+        }
+    }
+
+    [HttpGet("task-stats")]
+    public async Task<IActionResult> GetTaskStats()
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            _logger.LogInformation($"Getting task stats for user {userId}");
+            
+            var tasks = await _taskService.GetAllTasksAsync(userId);
+            var completedTasks = tasks.Count(t => t.IsCompleted);
+            var activeTasks = tasks.Count - completedTasks;
+            
+            _logger.LogInformation($"Stats - Total: {tasks.Count}, Completed: {completedTasks}, Active: {activeTasks}");
+            
+            return Ok(new
+            {
+                activeTasks,
+                completedTasks,
+                totalTasks = tasks.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при получении статистики задач");
             return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
         }
     }
