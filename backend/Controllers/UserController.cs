@@ -45,5 +45,40 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
             }
         }
+
+        [HttpPost("avatar")]
+        [Authorize]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                if (file == null || file.Length == 0)
+                    return BadRequest(new { message = "No file uploaded" });
+
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "../frontend/public/uploads/avatars");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = $"{userId}_{DateTime.Now.Ticks}{Path.GetExtension(file.FileName)}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var user = await _userService.GetUserByIdAsync(userId);
+                user.AvatarUrl = $"/uploads/avatars/{fileName}";
+                await _userService.UpdateUserAsync(user);
+
+                return Ok(new { avatarUrl = user.AvatarUrl });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading avatar");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
     }
 }

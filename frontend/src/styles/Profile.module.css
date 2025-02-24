@@ -30,17 +30,31 @@
 }
 
 .avatar {
+  position: relative;
   width: 150px;
   height: 150px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 1rem;
-  border: 3px solid transparent;
-  background: linear-gradient(116deg, #ffac30 1%, #fd76cb 99%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
+  cursor: pointer;
+  margin: 20px auto;
+  transition: opacity 0.3s;
+}
+
+.avatar:hover {
+  opacity: 0.8;
+}
+
+.avatar:hover::after {
+  content: 'Изменить фото';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 14px;
+  text-align: center;
 }
 
 .avatar img {
@@ -214,6 +228,10 @@
 
 .logoutButton:active {
   transform: translateY(0);
+}
+
+.uploadInput {
+  display: none;
 }
 
 @media (max-width: 768px) {

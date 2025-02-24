@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { dashboardService } from '../api/dashboard'
 import { memoryService } from '../api/memory'
@@ -24,6 +24,8 @@ const Profile = () => {
   const [lastActivity, setLastActivity] = useState<
     Array<{ type: string; date: string; title: string }>
   >([])
+  const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -97,6 +99,37 @@ const Profile = () => {
     navigate('/login')
   }
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleAvatarChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await fetch('/api/users/avatar', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setAvatarUrl(data.avatarUrl)
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+    }
+  }
+
   if (isLoading) return <Loader text={loadingText} />
 
   return (
@@ -108,8 +141,15 @@ const Profile = () => {
         </div>
 
         <div className={styles.userInfo}>
-          <div className={styles.avatar}>
-            <img src="/default-avatar.png" alt="Avatar" />
+          <div className={styles.avatar} onClick={handleAvatarClick}>
+            <img src={avatarUrl} alt="Avatar" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
           </div>
           <h2>{userData?.name || 'Пользователь'}</h2>
         </div>
