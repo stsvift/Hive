@@ -44,12 +44,13 @@ export interface WidgetProps {
 }
 
 export interface MemoryWidgetProps {
-  type: WidgetType
+  type: 'folder' | 'note' | 'task'
   title: string
-  children: ReactNode
+  children: React.ReactNode
   onEdit?: () => void
   onDelete?: () => void
   deadline?: string
+  onClick?: () => void
 }
 
 export interface UserResponse {

@@ -3,9 +3,11 @@ import MainLayout from './layouts/MainLayout'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Memory from './pages/Memory'
+import Note from './pages/Note'
 import NotFound from './pages/NotFound'
-import Profile from './pages/Profile'
 import Noti from './pages/Noti'
+import Profile from './pages/Profile'
+import Task from './pages/Task'
 
 interface PrivateRouteProps {
   children: React.ReactNode
@@ -42,6 +44,22 @@ const Router = () => {
           element={
             <PrivateRoute>
               <Memory />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/notes/:id"
+          element={
+            <PrivateRoute>
+              <Note />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/tasks/:id"
+          element={
+            <PrivateRoute>
+              <Task />
             </PrivateRoute>
           }
         />

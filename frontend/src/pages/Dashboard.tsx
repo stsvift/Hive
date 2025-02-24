@@ -36,7 +36,7 @@ const Dashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
-      setLoadingText('Поиск ваших сот')
+      setLoadingText('Поиск вашего улья')
       setNavVisible(false)
       try {
         const token = localStorage.getItem('token')
@@ -165,7 +165,9 @@ const Dashboard = () => {
                         <span className={styles.taskTitle}>{task.title}</span>
                         <button
                           className={styles.detailsButton}
-                          onClick={() => (window.location.href = `/memory`)}
+                          onClick={() =>
+                            (window.location.href = `/memory/task/${task.id}`)
+                          }
                         >
                           Подробнее
                         </button>

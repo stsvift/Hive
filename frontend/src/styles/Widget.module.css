@@ -1,11 +1,11 @@
 /* Base Widget Styles */
 .widget {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  animation: fadeIn 0.5s ease-out;
+  background: var(--bg-tertiary);
+  backdrop-filter: var(--blur-effect);
+  border-radius: var(--radius-large);
+  padding: var(--space-md);
+  transition: all var(--transition-normal);
+  animation: fadeIn var(--transition-slow) ease-out;
   transform: translateY(0);
   position: relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -17,11 +17,7 @@
   inset: 0;
   border-radius: 20px;
   padding: 2px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 172, 48, 0),
-    rgba(255, 172, 48, 0.5)
-  );
+  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -32,7 +28,7 @@
 
 .widget:hover {
   transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255, 172, 48, 0.2);
+  box-shadow: var(--shadow-hover);
 }
 
 .widget:hover::before {
@@ -40,7 +36,7 @@
 }
 
 .widget:hover .widgetHeader h3 {
-  background: linear-gradient(135deg, #ffac30, #fd76cb);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -107,15 +103,15 @@
 
 .deadline {
   font-size: 0.9rem;
-  color: #ffac30;
+  color: var(--primary-start);
   padding: 8px 16px;
   background: rgba(255, 172, 48, 0.08);
-  border-radius: 12px;
+  border-radius: var(--radius-medium);
   margin-bottom: 1rem;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(255, 172, 48, 0.2);
+  border: 1px solid var(--border-primary);
   backdrop-filter: blur(4px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -126,7 +122,7 @@
 }
 
 .taskDescription {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
@@ -137,7 +133,7 @@
 
 /* Description Styles */
 .description {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   line-height: 1.5;
   word-break: break-word;
 }
@@ -148,7 +144,7 @@
   justify-content: center;
   gap: 12px;
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-primary);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -171,13 +167,13 @@
 }
 
 .editButton {
-  color: #ffac30;
-  border-color: rgba(255, 172, 48, 0.3);
+  color: var(--primary-start);
+  border-color: var(--border-primary);
 }
 
 .deleteButton {
-  color: #ff4d4d;
-  border-color: rgba(255, 77, 77, 0.3);
+  color: var(--error);
+  border-color: var(--border-primary);
 }
 
 .editButton:hover {
@@ -229,4 +225,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.clickable:hover {
+  transform: scale(1.02);
 }

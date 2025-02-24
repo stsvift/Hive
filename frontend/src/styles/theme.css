@@ -1,0 +1,61 @@
+:root {
+  /* Primary Colors */
+  --primary-gradient: linear-gradient(116deg, #ffac30 1%, #fd76cb 99%);
+  --primary-start: #ffac30;
+  --primary-end: #fd76cb;
+
+  /* Background Colors */
+  --bg-primary: #000000;
+  --bg-secondary: rgba(255, 255, 255, 0.05);
+  --bg-tertiary: rgba(255, 255, 255, 0.1);
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+
+  /* Border Colors */
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.2);
+
+  /* Status Colors */
+  --success: #4caf50;
+  --warning: #ffac30;
+  --error: #ff4d4d;
+
+  /* Effects */
+  --blur-effect: blur(10px);
+  --shadow-primary: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 8px 20px rgba(253, 118, 203, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Border Radius */
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --radius-large: 20px;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 2.5rem;
+}
+
+/* Light Theme */
+[data-theme='light'] {
+  --bg-primary: #ffffff;
+  --bg-secondary: rgba(0, 0, 0, 0.05);
+  --bg-tertiary: rgba(0, 0, 0, 0.1);
+
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.7);
+  --text-tertiary: rgba(0, 0, 0, 0.5);
+
+  --border-primary: rgba(0, 0, 0, 0.1);
+  --border-secondary: rgba(0, 0, 0, 0.2);
+}

@@ -4,8 +4,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  background-color: var(--bg-primary);
+  backdrop-filter: var(--blur-effect);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,15 +13,15 @@
 }
 
 .modalContent {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 2.5rem;
+  background: var(--bg-secondary);
+  backdrop-filter: var(--blur-effect);
+  border-radius: var(--radius-large);
+  padding: var(--space-xl);
   width: 100%;
   max-width: 480px;
-  color: white;
-  box-shadow: 0 8px 32px 0 rgba(255, 172, 48, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-primary);
+  border: 1px solid var(--border-primary);
 }
 
 .formGroup {
@@ -35,12 +35,12 @@
   width: calc(100% - 2rem); /* Учитываем отступы по бокам */
   margin: 0 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: white;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-medium);
+  color: var(--text-primary);
   font-size: 16px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
   box-sizing: border-box;
 }
 
@@ -50,14 +50,14 @@
   gap: 1.5rem;
   margin-top: 2.5rem;
   padding: 0;
-  width: calc(100% - 4rem); 
+  width: calc(100% - 4rem);
   margin-left: auto;
   margin-right: auto;
 }
 
 .modalActions button {
   flex: 1;
-  max-width: 200px; 
+  max-width: 200px;
   min-width: 140px;
   padding: 1rem 2rem;
   border: none;
@@ -68,13 +68,13 @@
   transition: all 0.3s ease;
 }
 
-.modalActions button[type="button"] {
+.modalActions button[type='button'] {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
-.modalActions button[type="submit"] {
-  background: linear-gradient(135deg, #ffac30 0%, #fd76cb 100%);
+.modalActions button[type='submit'] {
+  background: var(--primary-gradient);
   color: white;
 }
 
@@ -82,32 +82,32 @@
   transform: translateY(-2px);
 }
 
-.modalActions button[type="button"]:hover {
+.modalActions button[type='button']:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.modalActions button[type="submit"]:hover {
+.modalActions button[type='submit']:hover {
   opacity: 0.9;
   box-shadow: 0 5px 15px rgba(255, 172, 48, 0.3);
 }
 
 /* Стили для поля с датой */
-.formGroup input[type="date"] {
+.formGroup input[type='date'] {
   background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.formGroup input[type="date"]::-webkit-calendar-picker-indicator {
+.formGroup input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(1);
   opacity: 0.5;
   cursor: pointer;
 }
 
-.formGroup input[type="date"]::-webkit-calendar-picker-indicator:hover {
+.formGroup input[type='date']::-webkit-calendar-picker-indicator:hover {
   opacity: 0.8;
 }
 
-.formGroup input[type="checkbox"] {
+.formGroup input[type='checkbox'] {
   width: auto;
   margin-right: 10px;
 }
@@ -121,7 +121,7 @@
 .dateTimeInputs input {
   flex: 1;
   min-width: 0;
-  margin: 0; 
+  margin: 0;
   padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -138,12 +138,12 @@
 }
 
 /* Стили для инпута времени */
-.dateTimeInputs input[type="time"]::-webkit-calendar-picker-indicator {
+.dateTimeInputs input[type='time']::-webkit-calendar-picker-indicator {
   filter: invert(1);
   opacity: 0.5;
   cursor: pointer;
 }
 
-.dateTimeInputs input[type="time"]::-webkit-calendar-picker-indicator:hover {
+.dateTimeInputs input[type='time']::-webkit-calendar-picker-indicator:hover {
   opacity: 0.8;
 }

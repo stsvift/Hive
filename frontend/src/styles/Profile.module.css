@@ -1,10 +1,10 @@
 .profileContainer {
-  padding: 2rem;
+  padding: var(--space-lg);
   max-width: 1200px;
   margin: 0 auto;
   min-height: 90vh;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .header {
@@ -15,7 +15,7 @@
 .header h1 {
   font-size: 48px;
   font-weight: bold;
-  background: linear-gradient(116deg, #ffac30 1%, #fd76cb 99%);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -65,19 +65,19 @@
 .statsCard,
 .preferencesCard,
 .activityCard {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-medium);
+  padding: var(--space-md);
+  backdrop-filter: var(--blur-effect);
+  border: 1px solid var(--border-primary);
+  transition: transform var(--transition-normal);
 }
 
 .statsCard:hover,
 .preferencesCard:hover,
 .activityCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(253, 118, 203, 0.15);
+  box-shadow: var(--shadow-hover);
 }
 
 .statsCard h3,

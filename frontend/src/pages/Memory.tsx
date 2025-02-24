@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { memoryService } from '../api/memory'
 import ContextMenu from '../components/ContextMenu'
 import HexagonBackground from '../components/HexagonBackground'
@@ -10,6 +11,7 @@ import styles from '../styles/Memory.module.css'
 import { IFolder, INote, ITask } from '../types'
 
 const Memory = () => {
+  const navigate = useNavigate()
   const { setNavVisible } = useNavigation()
   const [folders, setFolders] = useState<IFolder[]>([])
   const [notes, setNotes] = useState<INote[]>([])
@@ -23,7 +25,7 @@ const Memory = () => {
   const [editingItem, setEditingItem] = useState<any>(null)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isFoldersExpanded, setIsFoldersExpanded] = useState(false)
+  const [isFoldersExpanded, setIsFoldersExpanded] = useState(true)
   const [isTasksExpanded, setIsTasksExpanded] = useState(false)
   const [isNotesExpanded, setIsNotesExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -126,6 +128,7 @@ const Memory = () => {
 
   const handleEditSubmit = async (data: any) => {
     setIsLoading(true)
+    setLoadingText('Просим пчелку внести изменения')
     try {
       if (editModalType === 'folder') {
         const folderData = {
@@ -197,6 +200,7 @@ const Memory = () => {
   }
 
   const handleToggleTask = async (id: number) => {
+    setLoadingText('Обновляем статус соты')
     try {
       await memoryService.toggleTaskComplete(id)
       await loadData()
@@ -507,13 +511,17 @@ const Memory = () => {
                   deadline={formatDate(task.deadline)}
                   onEdit={() => handleEdit(task, 'task')}
                   onDelete={() => handleDelete('task', task.id)}
+                  onClick={() => navigate(`/tasks/${task.id}`)}
                 >
                   <div className={styles.taskWrapper}>
                     <label className={styles.checkboxContainer}>
                       <input
                         type="checkbox"
                         checked={task.isCompleted}
-                        onChange={() => handleToggleTask(task.id)}
+                        onChange={e => {
+                          e.stopPropagation()
+                          handleToggleTask(task.id)
+                        }}
                       />
                       <span className={styles.checkmark}></span>
                     </label>
@@ -605,6 +613,7 @@ const Memory = () => {
                   title={note.title}
                   onEdit={() => handleEdit(note, 'note')}
                   onDelete={() => handleDelete('note', note.id)}
+                  onClick={() => navigate(`/notes/${note.id}`)}
                 >
                   <div className={styles.noteContent}>
                     <p>{note.content}</p>
