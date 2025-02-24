@@ -11,6 +11,18 @@ const Auth = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
+  const resetForm = () => {
+    setEmail('')
+    setPassword('')
+    setName('')
+    setError('')
+  }
+
+  const toggleForm = () => {
+    resetForm()
+    setIsLogin(!isLogin)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -50,40 +62,48 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className={styles.slideIn}>
           <div className={styles.inputsContainer}>
             {!isLogin && (
-              <div className={styles.slideIn}>
-                <input
-                  type="text"
-                  placeholder="Имя"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Имя"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
             )}
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              required
             />
             <input
               type="password"
               placeholder="Пароль"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              required
             />
           </div>
           <button type="submit" className={styles.slideIn}>
             {isLogin ? 'Вспомнить' : 'Создать'}
           </button>
+          <div className={styles.switchContainer}>
+            <span className={styles.switchText}>
+              {isLogin ? 'Нет аккаунта? ' : 'Уже есть аккаунт? '}
+            </span>
+            <a
+              href="#"
+              className={styles.switchLink}
+              onClick={e => {
+                e.preventDefault()
+                toggleForm()
+              }}
+            >
+              {isLogin ? 'Создать аккаунт' : 'Войти'}
+            </a>
+          </div>
         </form>
-        <div className={styles.switchContainer}>
-          <span className={styles.switchText}>
-            {isLogin ? 'Первый раз тут?' : 'Уже знакомы?'}
-          </span>
-          <a className={styles.switchLink} onClick={() => setIsLogin(!isLogin)}>
-            {isLogin ? 'Создать воспоминания' : 'Войти'}
-          </a>
-        </div>
       </div>
       {error && <div className={styles.toast}>{error}</div>}
     </div>

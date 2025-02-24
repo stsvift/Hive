@@ -20,7 +20,7 @@ const Note = () => {
         setNote(noteData)
       } catch (error) {
         console.error('Error loading note:', error)
-      } finally {
+     } finally {
         setIsLoading(false)
       }
     }
