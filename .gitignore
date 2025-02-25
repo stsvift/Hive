@@ -58,3 +58,6 @@ out/
 *.dll
 *.exe
 *.pdb
+
+frontend/public/uploads/
+frontend/public/uploads/*
