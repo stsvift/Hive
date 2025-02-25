@@ -26,12 +26,26 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // User indexes
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasIndex(e => e.Username);
         });
 
+        // Task indexes
+        modelBuilder.Entity<UserTask>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FolderId).IsRequired(false);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.Deadline);
+            entity.HasIndex(e => e.FolderId);
+            entity.HasIndex(e => new { e.UserId, e.IsCompleted });
+        });
+
+        // Note indexes
         modelBuilder.Entity<Note>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -40,20 +54,19 @@ public class AppDbContext : DbContext
                 .WithMany(f => f.Notes)
                 .HasForeignKey(n => n.FolderId)
                 .OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.FolderId);
+            entity.HasIndex(e => e.CreatedAt);
         });
 
+        // Folder indexes
         modelBuilder.Entity<Folder>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.HasMany(f => f.Notes)
                 .WithOne()
                 .HasForeignKey(n => n.FolderId);
-        });
-
-        modelBuilder.Entity<UserTask>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.FolderId).IsRequired(false);
+            entity.HasIndex(e => e.UserId);
         });
     }
 

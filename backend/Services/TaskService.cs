@@ -2,6 +2,7 @@ using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 using System.Threading.Tasks;
 
 namespace backend.Services;
@@ -10,27 +11,45 @@ public class TaskService
 {
     private readonly AppDbContext _context;
     private readonly ILogger<TaskService> _logger;
+    private readonly IMemoryCache _cache;
 
-    public TaskService(AppDbContext context, ILogger<TaskService> logger)
+    public TaskService(AppDbContext context, ILogger<TaskService> logger, IMemoryCache cache)
     {
         _context = context;
         _logger = logger;
+        _cache = cache;
     }
 
     public async Task<List<UserTask>> GetUserTasksAsync(int userId)
     {
-        try
+        string cacheKey = $"tasks-{userId}";
+        
+        if (!_cache.TryGetValue(cacheKey, out List<UserTask> tasks))
         {
-            return await _context.Tasks
+            tasks = await _context.Tasks
+                .AsNoTracking()
                 .Where(t => t.UserId == userId)
                 .OrderByDescending(t => t.CreatedAt)
+                .Select(t => new UserTask 
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    IsCompleted = t.IsCompleted,
+                    Deadline = t.Deadline,
+                    CreatedAt = t.CreatedAt,
+                    UserId = t.UserId,
+                    FolderId = t.FolderId
+                })
                 .ToListAsync();
+
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+
+            _cache.Set(cacheKey, tasks, cacheOptions);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tasks for user {UserId}", userId);
-            throw;
-        }
+
+        return tasks;
     }
 
     public async Task<List<UserTask>> GetUpcomingTasksAsync(int userId)

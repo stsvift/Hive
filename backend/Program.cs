@@ -6,6 +6,7 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ if (string.IsNullOrEmpty(connectionString))
 {
     throw new Exception("Connection string is not configured");
 }
+
+// Add services to the container
+builder.Services.AddMemoryCache();
 
 // Настройка подключения к базе данных
 builder.Services.AddDbContext<AppDbContext>(options =>
