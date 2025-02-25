@@ -7,6 +7,7 @@ import Loader from '../components/Loader'
 import { useNavigation } from '../context/NavigationContext'
 import styles from '../styles/Profile.module.css'
 import { INote, ITask, UserResponse } from '../types'
+import AvatarEditModal from '../components/AvatarEditModal';
 
 const Profile = () => {
   const navigate = useNavigate()
@@ -24,8 +25,9 @@ const Profile = () => {
   const [lastActivity, setLastActivity] = useState<
     Array<{ type: string; date: string; title: string }>
   >([])
-  const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png')
+  const [avatarUrl, setAvatarUrl] = useState<string>('/default-avatar.png')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [editingImage, setEditingImage] = useState<File | null>(null);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -86,6 +88,26 @@ const Profile = () => {
     loadUserData()
   }, [navigate])
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/users/profile', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAvatarUrl(data.avatarUrl || '/default-avatar.png');
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
@@ -103,32 +125,36 @@ const Profile = () => {
     fileInputRef.current?.click()
   }
 
-  const handleAvatarChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setEditingImage(file);
+    }
+  };
 
-    const formData = new FormData()
-    formData.append('file', file)
+  const handleSaveAvatar = async (blob: Blob) => {
+    const formData = new FormData();
+    formData.append('file', blob, 'avatar.jpg');
 
     try {
-      const response = await fetch('/api/users/avatar', {
+      const response = await fetch('http://localhost:5000/api/users/avatar', {
         method: 'POST',
         body: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        setAvatarUrl(data.avatarUrl)
+        const data = await response.json();
+        setAvatarUrl(`${data.avatarUrl}?t=${Date.now()}`);
       }
     } catch (error) {
-      console.error('Error uploading avatar:', error)
+      console.error('Error uploading avatar:', error);
     }
-  }
+    
+    setEditingImage(null);
+  };
 
   if (isLoading) return <Loader text={loadingText} />
 
@@ -142,13 +168,20 @@ const Profile = () => {
 
         <div className={styles.userInfo}>
           <div className={styles.avatar} onClick={handleAvatarClick}>
-            <img src={avatarUrl} alt="Avatar" />
+            <img 
+              src={avatarUrl} 
+              alt="Avatar" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/default-avatar.png';
+              }}
+            />
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleAvatarChange}
               accept="image/*"
-              style={{ display: 'none' }}
+              className={styles.uploadInput}
             />
           </div>
           <h2>{userData?.name || 'Пользователь'}</h2>
@@ -211,6 +244,13 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        {editingImage && (
+          <AvatarEditModal
+            image={editingImage}
+            onSave={handleSaveAvatar}
+            onCancel={() => setEditingImage(null)}
+          />
+        )}
       </div>
     </>
   )

@@ -46,8 +46,30 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("profile")]
+        public async Task<ActionResult<object>> GetProfile()
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                var user = await _userService.GetUserByIdAsync(userId);
+                
+                if (user == null)
+                    return NotFound(new { message = "User not found" });
+
+                return Ok(new { 
+                    name = user.Username,
+                    avatarUrl = user.AvatarUrl
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user profile");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
         [HttpPost("avatar")]
-        [Authorize]
         public async Task<IActionResult> UploadAvatar(IFormFile file)
         {
             try
@@ -57,8 +79,7 @@ namespace backend.Controllers
                     return BadRequest(new { message = "No file uploaded" });
 
                 var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "../frontend/public/uploads/avatars");
-                if (!Directory.Exists(uploadPath))
-                    Directory.CreateDirectory(uploadPath);
+                Directory.CreateDirectory(uploadPath);
 
                 var fileName = $"{userId}_{DateTime.Now.Ticks}{Path.GetExtension(file.FileName)}";
                 var filePath = Path.Combine(uploadPath, fileName);
@@ -68,11 +89,10 @@ namespace backend.Controllers
                     await file.CopyToAsync(stream);
                 }
 
-                var user = await _userService.GetUserByIdAsync(userId);
-                user.AvatarUrl = $"/uploads/avatars/{fileName}";
-                await _userService.UpdateUserAsync(user);
+                var avatarUrl = $"/uploads/avatars/{fileName}";
+                await _userService.UpdateAvatarAsync(userId, avatarUrl);
 
-                return Ok(new { avatarUrl = user.AvatarUrl });
+                return Ok(new { avatarUrl });
             }
             catch (Exception ex)
             {
