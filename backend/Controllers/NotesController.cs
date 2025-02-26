@@ -52,4 +52,45 @@ public class NotesController : ControllerBase
             return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
         }
     }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Note>> UpdateNote(int id, Note note)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            note.UserId = userId;
+            var updatedNote = await _noteService.UpdateNoteAsync(id, note);
+            return Ok(updatedNote);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Заметка не найдена" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при обновлении заметки");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteNote(int id)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            await _noteService.DeleteNoteAsync(id, userId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Заметка не найдена" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при удалении заметки");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+        }
+    }
 }
