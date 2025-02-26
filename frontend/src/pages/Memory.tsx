@@ -87,12 +87,12 @@ const Memory = () => {
       const [foldersData, notesData, tasksData] = await Promise.all([
         memoryService.getFolders(),
         memoryService.getNotes(),
-        memoryService.getTasks()
-      ]);
-      console.log('Loaded tasks:', tasksData); // Add logging
-      setFolders(foldersData);
-      setNotes(notesData); 
-      setTasks(tasksData);
+        memoryService.getTasks(),
+      ])
+      console.log('Loaded tasks:', tasksData) // Add logging
+      setFolders(foldersData)
+      setNotes(notesData)
+      setTasks(tasksData)
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Ошибка при загрузке данных')
@@ -102,25 +102,25 @@ const Memory = () => {
   }
 
   const handleCreate = async (data: any) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       if (modalType === 'task') {
-        console.log('Creating task with data:', data);
-        await memoryService.createTask(data);
+        console.log('Creating task with data:', data)
+        await memoryService.createTask(data)
         // Force expand tasks section after creation
-        setIsTasksExpanded(true);
+        setIsTasksExpanded(true)
       } else if (modalType === 'note') {
-        await memoryService.createNote(data);
+        await memoryService.createNote(data)
       } else if (modalType === 'folder') {
-        await memoryService.createFolder(data);
+        await memoryService.createFolder(data)
       }
-      await loadData(); // Reload all data
-      setModalType(null);
+      await loadData() // Reload all data
+      setModalType(null)
     } catch (err) {
-      console.error('Error creating item:', err);
-      setError('Ошибка при создании');
+      console.error('Error creating item:', err)
+      setError('Ошибка при создании')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -155,20 +155,20 @@ const Memory = () => {
   }
 
   const handleDelete = async (type: string, id: number) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-        if (type === 'task') {
-            await memoryService.deleteTask(id);
-            await loadData(); // Reload data after delete
-        }
-        // ... handle other types
+      if (type === 'task') {
+        await memoryService.deleteTask(id)
+        await loadData() // Reload data after delete
+      }
+      // ... handle other types
     } catch (err) {
-        console.error('Error deleting item:', err);
-        setError('Ошибка при удалении');
+      console.error('Error deleting item:', err)
+      setError('Ошибка при удалении')
     } finally {
-        setIsLoading(false);
+      setIsLoading(false)
     }
-};
+  }
 
   const handleEdit = (item: any, type: 'folder' | 'note' | 'task') => {
     if (type === 'task') {
@@ -194,17 +194,27 @@ const Memory = () => {
   }
 
   const handleToggleTask = async (id: number) => {
-    setIsLoading(true);
     try {
-        await memoryService.toggleTaskComplete(id);
-        await loadData(); // Reload data after toggle
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
+        )
+      )
+      
+      // Отправляем запрос без отображения загрузочного экрана
+      await memoryService.toggleTaskComplete(id)
     } catch (err) {
-        console.error('Error toggling task:', err);
-        setError('Ошибка при обновлении задачи');
-    } finally {
-        setIsLoading(false);
+      console.error('Error toggling task:', err)
+      setError('Ошибка при обновлении задачи')
+      
+      // В случае ошибки возвращаем предыдущее состояние
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
+        )
+      )
     }
-};
+  }
 
   const [currentTime, setCurrentTime] = useState('')
 
