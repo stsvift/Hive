@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, register } from '../api/auth'
+import Spinner from '../components/Spinner'
 import styles from '../styles/Auth.module.css'
 
 const Auth = () => {
@@ -9,6 +10,7 @@ const Auth = () => {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
   const resetForm = () => {
@@ -26,6 +28,7 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
     try {
       if (isLogin) {
         const response = await login(email, password)
@@ -43,6 +46,8 @@ const Auth = () => {
       } else {
         setError('Произошла ошибка. Попробуйте еще раз.')
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -85,8 +90,19 @@ const Auth = () => {
               required
             />
           </div>
-          <button type="submit" className={styles.slideIn}>
-            {isLogin ? 'Вспомнить' : 'Создать'}
+          <button 
+            type="submit" 
+            className={styles.slideIn}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                {isLogin ? 'Вспоминаем' : 'Создаем'}
+                <Spinner />
+              </>
+            ) : (
+              isLogin ? 'Вспомнить' : 'Создать'
+            )}
           </button>
           <div className={styles.switchContainer}>
             <span className={styles.switchText}>

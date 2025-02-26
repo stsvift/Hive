@@ -113,6 +113,15 @@
   font-size: 1rem;
   opacity: 0;
   animation: scaleIn 0.4s ease-out 0.4s forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.authForm button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .authForm button:hover {
