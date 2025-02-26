@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace backend.Data;
 
@@ -63,16 +64,42 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Folder>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.HasMany(f => f.Notes)
+            entity.Property(e => e.Name).IsRequired();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasMany(e => e.Notes)
                 .WithOne()
-                .HasForeignKey(n => f.FolderId);
+                .HasForeignKey(n => n.FolderId);
+                
             entity.HasIndex(e => e.UserId);
+            
             entity.HasOne(f => f.ParentFolder)
                 .WithMany(f => f.SubFolders)
                 .HasForeignKey(f => f.ParentFolderId)
                 .OnDelete(DeleteBehavior.Restrict);
+                
             entity.HasIndex(e => e.ParentFolderId);
         });
+    }
+
+    public async Task EnsureDatabaseCreatedAsync()
+    {
+        try
+        {
+            if (Database.GetPendingMigrations().Any())
+            {
+                await Database.MigrateAsync();
+            }
+            else
+            {
+                await Database.EnsureCreatedAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error ensuring database is created");
+            throw;
+        }
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

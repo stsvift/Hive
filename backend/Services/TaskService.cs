@@ -24,29 +24,12 @@ public class TaskService
     {
         string cacheKey = $"tasks-{userId}";
         
-        if (!_cache.TryGetValue(cacheKey, out List<UserTask> tasks))
+        if (!_cache.TryGetValue(cacheKey, out List<UserTask>? tasks))
         {
             tasks = await _context.Tasks
                 .AsNoTracking()
                 .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.CreatedAt)
-                .Select(t => new UserTask 
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = t.Description,
-                    IsCompleted = t.IsCompleted,
-                    Deadline = t.Deadline,
-                    CreatedAt = t.CreatedAt,
-                    UserId = t.UserId,
-                    FolderId = t.FolderId
-                })
-                .ToListAsync();
-
-            var cacheOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-
-            _cache.Set(cacheKey, tasks, cacheOptions);
+                .ToListAsync() ?? new List<UserTask>();
         }
 
         return tasks;
@@ -165,5 +148,6 @@ public class TaskService
     {
         string cacheKey = $"tasks-{userId}";
         _cache.Remove(cacheKey);
+        await Task.CompletedTask;
     }
 }
