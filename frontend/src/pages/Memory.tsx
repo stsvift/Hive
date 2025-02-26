@@ -83,46 +83,44 @@ const Memory = () => {
   const loadData = async () => {
     setIsLoading(true)
     setLoadingText('Загружаем ваши соты')
-    setNavVisible(false)
     try {
       const [foldersData, notesData, tasksData] = await Promise.all([
         memoryService.getFolders(),
         memoryService.getNotes(),
-        memoryService.getTasks(),
-      ])
-      setFolders(foldersData)
-      setNotes(notesData)
-      setTasks(tasksData)
+        memoryService.getTasks()
+      ]);
+      console.log('Loaded tasks:', tasksData); // Add logging
+      setFolders(foldersData);
+      setNotes(notesData); 
+      setTasks(tasksData);
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Ошибка при загрузке данных')
     } finally {
       setIsLoading(false)
-      setNavVisible(true)
     }
   }
 
   const handleCreate = async (data: any) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      if (modalType === 'folder') {
-        setLoadingText('Пытаемся создать папку')
-        await memoryService.createFolder(data)
+      if (modalType === 'task') {
+        console.log('Creating task with data:', data);
+        await memoryService.createTask(data);
+        // Force expand tasks section after creation
+        setIsTasksExpanded(true);
       } else if (modalType === 'note') {
-        setLoadingText('Пробуем сохранить заметку')
-        await memoryService.createNote(data)
-      } else if (modalType === 'task') {
-        setLoadingText('Записываем в соты вашу задачу :)')
-        await memoryService.createTask(data)
+        await memoryService.createNote(data);
+      } else if (modalType === 'folder') {
+        await memoryService.createFolder(data);
       }
-      await loadData()
-      setModalType(null)
+      await loadData(); // Reload all data
+      setModalType(null);
     } catch (err) {
-      console.error('Error creating item:', err)
-      setError('Ошибка при создании')
+      console.error('Error creating item:', err);
+      setError('Ошибка при создании');
     } finally {
-      setIsLoading(false)
-      setLoadingText('')
+      setIsLoading(false);
     }
   }
 
@@ -157,24 +155,20 @@ const Memory = () => {
   }
 
   const handleDelete = async (type: string, id: number) => {
-    setIsLoading(true)
-    setLoadingText('Сота уничтожается :(')
+    setIsLoading(true);
     try {
-      if (type === 'folder') {
-        await memoryService.deleteFolder(id)
-      } else if (type === 'note') {
-        await memoryService.deleteNote(id)
-      } else if (type === 'task') {
-        await memoryService.deleteTask(id)
-      }
-      await loadData()
+        if (type === 'task') {
+            await memoryService.deleteTask(id);
+            await loadData(); // Reload data after delete
+        }
+        // ... handle other types
     } catch (err) {
-      console.error('Error deleting item:', err)
-      setError('Ошибка при удалении')
+        console.error('Error deleting item:', err);
+        setError('Ошибка при удалении');
     } finally {
-      setIsLoading(false)
+        setIsLoading(false);
     }
-  }
+};
 
   const handleEdit = (item: any, type: 'folder' | 'note' | 'task') => {
     if (type === 'task') {
@@ -200,15 +194,17 @@ const Memory = () => {
   }
 
   const handleToggleTask = async (id: number) => {
-    setLoadingText('Обновляем статус соты')
+    setIsLoading(true);
     try {
-      await memoryService.toggleTaskComplete(id)
-      await loadData()
+        await memoryService.toggleTaskComplete(id);
+        await loadData(); // Reload data after toggle
     } catch (err) {
-      console.error('Error toggling task:', err)
-      setError('Ошибка при обновлении задачи')
+        console.error('Error toggling task:', err);
+        setError('Ошибка при обновлении задачи');
+    } finally {
+        setIsLoading(false);
     }
-  }
+};
 
   const [currentTime, setCurrentTime] = useState('')
 

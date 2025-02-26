@@ -46,6 +46,11 @@ namespace backend.Controllers
                 task.CreatedAt = DateTime.UtcNow;
                 
                 var createdTask = await _taskService.CreateTaskAsync(task);
+                _logger.LogInformation($"Created task with ID: {createdTask.Id}");
+                
+                // Clear cache after creating new task
+                await _taskService.InvalidateTasksCacheAsync(userId);
+                
                 return CreatedAtAction(nameof(GetTasks), new { id = createdTask.Id }, createdTask);
             }
             catch (Exception ex)
@@ -62,15 +67,12 @@ namespace backend.Controllers
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
                 var task = await _taskService.ToggleTaskCompletionAsync(id, userId);
+                await _taskService.InvalidateTasksCacheAsync(userId);
                 return Ok(task);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { message = "Task not found" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error toggling task completion");
+                _logger.LogError(ex, "Error toggling task");
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
@@ -81,12 +83,9 @@ namespace backend.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-                await _taskService.DeleteTaskAsync(id);
+                await _taskService.DeleteTaskAsync(id, userId);
+                await _taskService.InvalidateTasksCacheAsync(userId);
                 return NoContent();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
             }
             catch (Exception ex)
             {
@@ -101,14 +100,10 @@ namespace backend.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-                task.Id = id;
                 task.UserId = userId;
                 var updatedTask = await _taskService.UpdateTaskAsync(id, task);
+                await _taskService.InvalidateTasksCacheAsync(userId);
                 return Ok(updatedTask);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
             }
             catch (Exception ex)
             {

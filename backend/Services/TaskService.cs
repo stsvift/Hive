@@ -101,44 +101,32 @@ public class TaskService
         }
     }
 
-    public async Task DeleteTaskAsync(int id)
+    public async Task DeleteTaskAsync(int id, int userId)
     {
-        try
-        {
-            var task = await _context.Tasks.FindAsync(id);
-            if (task != null)
-            {
-                _context.Tasks.Remove(task);
-                await _context.SaveChangesAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting task {TaskId}", id);
-            throw;
-        }
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            
+        if (task == null)
+            throw new KeyNotFoundException($"Task with id {id} not found");
+
+        _context.Tasks.Remove(task);
+        await _context.SaveChangesAsync();
+        await InvalidateTasksCacheAsync(userId);
     }
 
     public async Task<UserTask> ToggleTaskCompletionAsync(int id, int userId)
     {
-        try
-        {
-            var task = await _context.Tasks
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
-                
-            if (task == null)
-                throw new KeyNotFoundException($"Task with id {id} not found");
-
-            task.IsCompleted = !task.IsCompleted;
-            await _context.SaveChangesAsync();
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
             
-            return task;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error toggling task completion");
-            throw;
-        }
+        if (task == null)
+            throw new KeyNotFoundException($"Task with id {id} not found");
+
+        task.IsCompleted = !task.IsCompleted;
+        await _context.SaveChangesAsync();
+        await InvalidateTasksCacheAsync(userId);
+        
+        return task;
     }
 
     public async Task<List<UserTask>> GetTasksByDateAsync(int userId, DateTime date)
@@ -171,5 +159,11 @@ public class TaskService
             .Where(t => t.UserId == userId)
             .OrderBy(t => t.Deadline)
             .ToListAsync();
+    }
+
+    public async Task InvalidateTasksCacheAsync(int userId)
+    {
+        string cacheKey = $"tasks-{userId}";
+        _cache.Remove(cacheKey);
     }
 }
