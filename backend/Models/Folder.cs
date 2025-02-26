@@ -8,4 +8,7 @@ public class Folder
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public int UserId { get; set; }
     public List<Note> Notes { get; set; } = new();
+    public int? ParentFolderId { get; set; }
+    public Folder? ParentFolder { get; set; }
+    public ICollection<Folder> SubFolders { get; set; } = new List<Folder>();
 }

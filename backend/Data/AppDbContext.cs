@@ -65,8 +65,13 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasMany(f => f.Notes)
                 .WithOne()
-                .HasForeignKey(n => n.FolderId);
+                .HasForeignKey(n => f.FolderId);
             entity.HasIndex(e => e.UserId);
+            entity.HasOne(f => f.ParentFolder)
+                .WithMany(f => f.SubFolders)
+                .HasForeignKey(f => f.ParentFolderId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => e.ParentFolderId);
         });
     }
 
