@@ -87,9 +87,9 @@ export const memoryService = {
   },
 
   createFolder: async (data: Partial<IFolder>) => {
-    // Убедимся что parentFolderId передается даже если null (важно для бэкенда)
     const folderData = {
       ...data,
+      folderId: data.parentFolderId, // Добавляем это поле
       parentFolderId:
         data.parentFolderId !== undefined ? data.parentFolderId : null,
     }
@@ -114,7 +114,11 @@ export const memoryService = {
   },
 
   createNote: async (data: Partial<INote>) => {
-    const response = await axiosInstance.post('/notes', data)
+    const noteData = {
+      ...data,
+      folderId: data.parentFolderId, // Используем parentFolderId как folderId
+    }
+    const response = await axiosInstance.post('/notes', noteData)
     return response.data
   },
 
@@ -134,7 +138,11 @@ export const memoryService = {
   },
 
   createTask: async (data: Partial<ITask>) => {
-    const response = await axiosInstance.post('/tasks', data) // Verify endpoint matches backend
+    const taskData = {
+      ...data,
+      folderId: data.parentFolderId, // Используем parentFolderId как folderId
+    }
+    const response = await axiosInstance.post('/tasks', taskData)
     return response.data
   },
 
@@ -155,11 +163,12 @@ export const memoryService = {
   // New methods for folder navigation
   getFolder: async (folderId: number): Promise<IFolder> => {
     try {
+      console.log(`API call: getFolder(${folderId})`)
       const response = await axiosInstance.get(`/folders/${folderId}`)
       return response.data
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching folder ${folderId}:`, error)
-      throw error
+      throw error // Preserve the original error for proper handling
     }
   },
 
@@ -168,22 +177,28 @@ export const memoryService = {
       console.log(`API call: getFolderBreadcrumbs(${id})`)
       const response = await axiosInstance.get(`/folders/${id}/breadcrumbs`)
       return response.data
-    } catch (error) {
-      console.error(
-        'Breadcrumbs endpoint not available, using fallback:',
-        error
-      )
-      // Fallback implementation: Just return the current folder as the only breadcrumb
-      try {
-        const folderResponse = await axiosInstance.get(`/folders/${id}`)
-        return [folderResponse.data]
-      } catch (folderError) {
-        console.error(
-          'Failed to get folder for breadcrumb fallback:',
-          folderError
-        )
-        return [] // Return empty array as last resort
+    } catch (error: any) {
+      console.warn('Using fallback breadcrumbs implementation:', error)
+      
+      // Implement manual breadcrumb building
+      const breadcrumbs: IFolder[] = []
+      let currentId = id
+
+      while (currentId) {
+        try {
+          const folderResponse = await axiosInstance.get(`/folders/${currentId}`)
+          const folder = folderResponse.data
+          breadcrumbs.unshift(folder)
+          
+          if (!folder.parentFolderId) break
+          currentId = folder.parentFolderId
+        } catch (folderError) {
+          console.error('Error in fallback breadcrumbs:', folderError)
+          break
+        }
       }
+
+      return breadcrumbs.length > 0 ? breadcrumbs : [] // Return empty array if nothing found
     }
   },
 
@@ -241,6 +256,11 @@ export const memoryService = {
         return []
       }
     }
+  },
+
+  getFolderContentsCount: async (id: number) => {
+    const response = await axiosInstance.get(`/folders/${id}/contents-count`);
+    return response.data;
   },
 
   // Task specific methods

@@ -28,7 +28,7 @@ public class TaskService
         {
             tasks = await _context.Tasks
                 .AsNoTracking()
-                .Where(t => t.UserId == userId)
+                .Where(t => t.UserId == userId && t.FolderId == null) // Только корневые задачи
                 .ToListAsync() ?? new List<UserTask>();
         }
 
@@ -149,5 +149,18 @@ public class TaskService
         string cacheKey = $"tasks-{userId}";
         _cache.Remove(cacheKey);
         await Task.CompletedTask;
+    }
+
+    public async Task<UserTask?> GetUserTaskAsync(int id, int userId)
+    {
+        return await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+    }
+
+    public async Task<UserTask?> GetTaskAsync(int id)
+    {
+        return await _context.Tasks
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 }

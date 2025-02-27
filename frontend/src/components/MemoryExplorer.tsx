@@ -7,6 +7,7 @@ import DropdownMenu from './DropdownMenu'
 import Loader from './Loader'
 import LoadingError from './LoadingError'
 import { Modal } from './Modal'
+import ConfirmDialog from './ConfirmDialog'
 
 interface MemoryExplorerProps {
   folderId?: number | null
@@ -97,74 +98,64 @@ const MemoryExplorer = ({
 
       try {
         if (folderId !== null && folderId !== undefined) {
-          // Load folder content
+          // First, try to load the folder itself
+          let folderData
           try {
-            const folderData = await memoryService.getFolder(folderId)
+            folderData = await memoryService.getFolder(folderId)
             setCurrentFolder(folderData)
-            // Set temporary breadcrumb
-            setBreadcrumbs([folderData])
           } catch (err: any) {
-            console.error('Error loading folder data:', err)
-            setError('Ошибка при загрузке данных папки')
-            setContentLoading(false)
-            // Дополнительная проверка и логирование
-            if (err.response && err.response.status === 401) {
-              console.error('Ошибка авторизации при загрузке папки')
-              // Тут можно добавить код для принудительного выхода пользователя
-              localStorage.removeItem('token')
-              localStorage.removeItem('refreshToken')
-              navigate('/login')
+            console.error('Error loading folder:', err)
+            if (err.response?.status === 404) {
+              setError('Папка не найдена')
+            } else {
+              setError('Ошибка при загрузке папки')
             }
+            setContentLoading(false)
             return
           }
 
+          // Load folder contents in parallel
           try {
-            const breadcrumbsData = await memoryService.getFolderBreadcrumbs(
-              folderId
-            )
-            setBreadcrumbs(breadcrumbsData || [currentFolder!])
+            const [folders, notes, tasks] = await Promise.all([
+              memoryService.getFolderChildren(folderId).catch(() => []),
+              memoryService.getFolderNotes(folderId).catch(() => []),
+              memoryService.getFolderTasks(folderId).catch(() => [])
+            ])
+
+            const allItems: MemoryItem[] = [
+              ...folders.map(folder => ({
+                id: folder.id,
+                type: 'folder' as const,
+                name: folder.name,
+                description: folder.description,
+                parentFolderId: folder.parentFolderId,
+                createdAt: folder.createdAt,
+              })),
+              ...notes.map(note => ({
+                id: note.id,
+                type: 'note' as const,
+                name: note.title,
+                description: note.content,
+                parentFolderId: note.parentFolderId,
+                createdAt: note.createdAt,
+              })),
+              ...tasks.map(task => ({
+                id: task.id,
+                type: 'task' as const,
+                name: task.title,
+                description: task.description,
+                isCompleted: task.isCompleted,
+                deadline: task.deadline,
+                parentFolderId: task.parentFolderId,
+                createdAt: task.createdAt,
+              }))
+            ]
+
+            setItems(allItems)
           } catch (err) {
-            console.warn('Breadcrumbs endpoint not available:', err)
-            setBreadcrumbs([currentFolder!])
+            console.error('Error loading folder contents:', err)
+            setError('Ошибка при загрузке содержимого папки')
           }
-
-          // Load all items from the current folder
-          const [folders, notes, tasks] = await Promise.all([
-            memoryService.getFolderChildren(folderId),
-            memoryService.getFolderNotes(folderId),
-            memoryService.getFolderTasks(folderId),
-          ])
-
-          const allItems: MemoryItem[] = [
-            ...folders.map(folder => ({
-              id: folder.id,
-              type: 'folder' as const,
-              name: folder.name,
-              description: folder.description,
-              parentFolderId: folder.parentFolderId,
-              createdAt: folder.createdAt,
-            })),
-            ...notes.map(note => ({
-              id: note.id,
-              type: 'note' as const,
-              name: note.title,
-              description: note.content,
-              parentFolderId: note.parentFolderId,
-              createdAt: note.createdAt,
-            })),
-            ...tasks.map(task => ({
-              id: task.id,
-              type: 'task' as const,
-              name: task.title,
-              description: task.description,
-              isCompleted: task.isCompleted,
-              deadline: task.deadline,
-              parentFolderId: task.parentFolderId,
-              createdAt: task.createdAt,
-            })),
-          ]
-
-          setItems(allItems)
         } else {
           // Load root content
           setCurrentFolder(null)
@@ -208,7 +199,7 @@ const MemoryExplorer = ({
           setItems(rootItems)
         }
       } catch (err) {
-        console.error('Error loading content:', err)
+        console.error('Error in loadContent:', err)
         setError('Ошибка при загрузке данных')
       } finally {
         setContentLoading(false)
@@ -319,36 +310,58 @@ const MemoryExplorer = ({
     }
   }
 
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    type: 'folder' | 'note' | 'task';
+    id: number;
+    contentsCount?: { notesCount: number; tasksCount: number; subFoldersCount: number };
+  }>({ isOpen: false, type: 'folder', id: 0 });
+
   const handleDelete = async (type: 'folder' | 'note' | 'task', id: number) => {
-    setIsLoading(true)
-    if (setParentIsLoading) setParentIsLoading(true)
-    setLoadingText('Удаляем элемент')
+    if (type === 'folder') {
+      try {
+        const contents = await memoryService.getFolderContentsCount(id);
+        const hasContents = contents.notesCount > 0 || contents.tasksCount > 0 || contents.subFoldersCount > 0;
+        
+        if (hasContents) {
+          setDeleteConfirmation({ isOpen: true, type, id, contentsCount: contents });
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking folder contents:', err);
+      }
+    }
+    
+    await performDelete(type, id);
+  };
+
+  const performDelete = async (type: 'folder' | 'note' | 'task', id: number) => {
+    setIsLoading(true);
+    if (setParentIsLoading) setParentIsLoading(true);
+    setLoadingText('Удаляем элемент');
 
     try {
       switch (type) {
         case 'folder':
-          await memoryService.deleteFolder(id)
-          break
+          await memoryService.deleteFolder(id);
+          break;
         case 'note':
-          await memoryService.deleteNote(id)
-          break
+          await memoryService.deleteNote(id);
+          break;
         case 'task':
-          await memoryService.deleteTask(id)
-          break
+          await memoryService.deleteTask(id);
+          break;
       }
 
-      // Remove item from local state
-      setItems(prev =>
-        prev.filter(item => !(item.id === id && item.type === type))
-      )
+      setItems(prev => prev.filter(item => !(item.id === id && item.type === type)));
     } catch (err) {
-      console.error('Error deleting item:', err)
-      setError('Ошибка при удалении')
+      console.error('Error deleting item:', err);
+      setError('Ошибка при удалении');
     } finally {
-      setIsLoading(false)
-      if (setParentIsLoading) setParentIsLoading(false)
+      setIsLoading(false);
+      if (setParentIsLoading) setParentIsLoading(false);
     }
-  }
+  };
 
   const handleEdit = (item: MemoryItem) => {
     let editData
@@ -470,52 +483,41 @@ const MemoryExplorer = ({
     try {
       let newItem: MemoryItem | null = null
 
+      const itemData = {
+        ...data,
+        parentFolderId: folderId || null,
+        folderId: folderId || null, // Явно указываем folderId
+      }
+
       if (modalType === 'folder') {
-        const folderData = {
-          name: data.name || 'Новая папка', // Изменено с data.title на data.name
-          description: data.description || '',
-          parentFolderId: folderId || null,
-        }
-        const response = await memoryService.createFolder(folderData)
+        const response = await memoryService.createFolder(itemData)
         newItem = {
           id: response.id,
           type: 'folder',
-          name: folderData.name,
-          description: folderData.description,
+          name: itemData.name,
+          description: itemData.description,
           parentFolderId: folderId || null,
           createdAt: new Date().toISOString(),
         }
       } else if (modalType === 'note') {
-        const noteData = {
-          title: data.title || 'Новая заметка',
-          content: data.content || '',
-          parentFolderId: folderId || null,
-        }
-        const response = await memoryService.createNote(noteData)
+        const response = await memoryService.createNote(itemData)
         newItem = {
           id: response.id,
           type: 'note',
-          name: noteData.title,
-          description: noteData.content,
+          name: itemData.title,
+          description: itemData.content,
           parentFolderId: folderId || null,
           createdAt: new Date().toISOString(),
         }
       } else if (modalType === 'task') {
-        const taskData = {
-          title: data.title || 'Новая задача',
-          description: data.description || '',
-          deadline: data.deadline || null,
-          isCompleted: false,
-          parentFolderId: folderId || null,
-        }
-        const response = await memoryService.createTask(taskData)
+        const response = await memoryService.createTask(itemData)
         newItem = {
           id: response.id,
           type: 'task',
-          name: taskData.title,
-          description: taskData.description,
+          name: itemData.title,
+          description: itemData.description,
           isCompleted: false,
-          deadline: taskData.deadline,
+          deadline: itemData.deadline,
           parentFolderId: folderId || null,
           createdAt: new Date().toISOString(),
         }
@@ -1231,6 +1233,27 @@ const MemoryExplorer = ({
         type={editModalType || 'folder'}
         mode="edit"
         initialData={editingItem}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirmation.isOpen}
+        title="Подтверждение удаления"
+        message={
+          deleteConfirmation.contentsCount
+            ? `В этой папке содержится:
+              ${deleteConfirmation.contentsCount.subFoldersCount} папок,
+              ${deleteConfirmation.contentsCount.notesCount} заметок,
+              ${deleteConfirmation.contentsCount.tasksCount} задач.
+              Все эти элементы будут удалены безвозвратно.`
+            : 'Вы уверены, что хотите удалить этот элемент?'
+        }
+        onConfirm={() => {
+          performDelete(deleteConfirmation.type, deleteConfirmation.id);
+          setDeleteConfirmation(prev => ({ ...prev, isOpen: false }));
+        }}
+        onCancel={() => setDeleteConfirmation(prev => ({ ...prev, isOpen: false }))}
+        type="danger"
+        confirmText="Удалить"
       />
     </div>
   )

@@ -44,6 +44,13 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.Deadline);
             entity.HasIndex(e => e.FolderId);
             entity.HasIndex(e => new { e.UserId, e.IsCompleted });
+            entity.Property(e => e.Title).IsRequired();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            
+            entity.HasOne(t => t.Folder)
+                .WithMany(f => f.Tasks)
+                .HasForeignKey(t => t.FolderId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Note indexes
@@ -74,12 +81,39 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.UserId);
             
             entity.HasOne(f => f.ParentFolder)
-                .WithMany(f => f.SubFolders)
+                .WithMany(f => f.ChildFolders)  // Changed from SubFolders to ChildFolders
                 .HasForeignKey(f => f.ParentFolderId)
                 .OnDelete(DeleteBehavior.Restrict);
                 
             entity.HasIndex(e => e.ParentFolderId);
         });
+
+        modelBuilder.Entity<Folder>()
+            .HasMany(f => f.Notes)
+            .WithOne(n => n.Folder)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Folder>()
+            .HasMany(f => f.Tasks)
+            .WithOne(t => t.Folder)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Folder>()
+            .HasMany(f => f.SubFolders)
+            .WithOne(f => f.ParentFolder)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Folder>()
+            .HasMany(f => f.ChildFolders)
+            .WithOne(f => f.ParentFolder)
+            .HasForeignKey(f => f.ParentFolderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Folder>()
+            .HasOne(f => f.ParentFolder)
+            .WithMany(f => f.ChildFolders)
+            .HasForeignKey(f => f.ParentFolderId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public async Task EnsureDatabaseCreatedAsync()

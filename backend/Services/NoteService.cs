@@ -16,7 +16,7 @@ public class NoteService
     public async Task<List<Note>> GetNotesAsync(int userId)
     {
         return await _context.Notes
-            .Where(n => n.UserId == userId)
+            .Where(n => n.UserId == userId && n.FolderId == null) // Только корневые заметки
             .ToListAsync();
     }
 
