@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import HexagonBackground from '../components/HexagonBackground'
 import Loader from '../components/Loader'
 import MemoryExplorer from '../components/MemoryExplorer'
 import { useNavigation } from '../context/NavigationContext'
 import styles from '../styles/Memory.module.css'
 
-const Memory = () => {
+const Folder = () => {
+  const { id } = useParams()
   const navigate = useNavigate()
-  const location = useLocation()
   const { setNavVisible } = useNavigation()
   const [currentTime, setCurrentTime] = useState('')
-  const [folderId, setFolderId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   // Update clock
@@ -30,29 +29,22 @@ const Memory = () => {
   }, [])
 
   useEffect(() => {
-    setNavVisible(true)
-  }, [setNavVisible])
-
-  useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
       navigate('/login')
       return
     }
 
-    const pathParts = location.pathname.split('/')
-    if (pathParts.length > 2 && pathParts[1] === 'folders') {
-      const newFolderId = parseInt(pathParts[2], 10)
-      if (!isNaN(newFolderId)) {
-        setFolderId(newFolderId)
-      }
-    } else {
-      setFolderId(null)
-    }
-  }, [location.pathname, navigate])
+    setNavVisible(true)
+  }, [navigate, setNavVisible])
+
+  if (!id || isNaN(parseInt(id))) {
+    navigate('/memory')
+    return null
+  }
 
   if (isLoading) {
-    return <Loader text="Загружаем ваши соты" />
+    return <Loader text="Загружаем содержимое папки" />
   }
 
   return (
@@ -65,11 +57,11 @@ const Memory = () => {
           <span className={styles.clock}>{currentTime}</span>
         </div>
         <div className={styles.explorerWrapper}>
-          <MemoryExplorer folderId={folderId} setIsLoading={setIsLoading} />
+          <MemoryExplorer folderId={parseInt(id)} setIsLoading={setIsLoading} />
         </div>
       </div>
     </>
   )
 }
 
-export default Memory
+export default Folder

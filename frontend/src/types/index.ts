@@ -5,6 +5,7 @@ export interface IFolder {
   name: string
   description: string
   createdAt?: string
+  parentFolderId?: number | null
 }
 
 export interface INote {
@@ -12,6 +13,7 @@ export interface INote {
   title: string
   content: string
   folderId?: number
+  parentFolderId?: number | null
   createdAt: string | Date
 }
 
@@ -24,6 +26,7 @@ export interface ITask {
   createdAt: string
   userId: number
   folderId?: number
+  parentFolderId?: number | null
 }
 
 export interface TaskStats {

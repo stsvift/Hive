@@ -1,7 +1,10 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import Loader from './components/Loader'
+import { useAuth } from './hooks/useAuth'
 import MainLayout from './layouts/MainLayout'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
+import Folder from './pages/Folder'
 import Memory from './pages/Memory'
 import Note from './pages/Note'
 import NotFound from './pages/NotFound'
@@ -14,8 +17,23 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  const token = localStorage.getItem('token')
-  return token ? <>{children}</> : <Navigate to="/login" />
+  const { isAuthenticated, isLoading } = useAuth()
+
+  if (isLoading) {
+    return <Loader text="Проверяем систему" />
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />
+}
+
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth()
+
+  if (isLoading) {
+    return <Loader text="Подождите" />
+  }
+
+  return isAuthenticated ? <Navigate to="/dashboard" /> : <>{children}</>
 }
 
 const Router = () => {
@@ -29,8 +47,22 @@ const Router = () => {
           </MainLayout>
         }
       >
-        <Route path="/login" element={<Auth />} />
-        <Route path="/register" element={<Auth />} />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Auth />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Auth />
+            </PublicRoute>
+          }
+        />
         <Route
           path="/dashboard"
           element={
@@ -44,6 +76,14 @@ const Router = () => {
           element={
             <PrivateRoute>
               <Memory />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/folders/:id"
+          element={
+            <PrivateRoute>
+              <Folder />
             </PrivateRoute>
           }
         />

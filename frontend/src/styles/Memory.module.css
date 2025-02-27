@@ -3,6 +3,12 @@ body {
 }
 
 .memoryContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 1;
   padding: var(--space-lg) var(--space-sm);
   max-width: 1200px;
   margin: 0 auto;
@@ -12,37 +18,33 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  position: fixed;
+  padding: 12px 20px;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10;
-  top: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  backdrop-filter: var(--blur-effect);
-  padding: 1.5rem 1rem;
-  border-radius: var(--radius-large);
-  width: calc(100% - 2rem);
-  max-width: 1210px;
+  position: relative;
   min-height: 70px;
 }
 
 .memoryTitle {
+  font-weight: 500;
+  opacity: 0.8;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   font-size: 60px;
-  font-weight: bold;
   color: #fff;
 }
 
 .title {
+  font-weight: 700;
+  font-size: 44px;
   width: 144px;
   height: 79px;
   flex-grow: 0;
   margin: 0;
   background-image: var(--primary-gradient);
-  font-size: 60px;
-  font-weight: bold;
   font-stretch: normal;
   font-style: normal;
   line-height: normal;
@@ -54,11 +56,12 @@ body {
 }
 
 .clock {
+  font-family: monospace;
+  font-size: 44px;
   width: 180px;
   height: 79px;
   flex-grow: 0;
   margin: 0;
-  font-size: 60px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;
@@ -492,4 +495,197 @@ body {
 
 .taskItem:hover {
   background: var(--bg-tertiary);
+}
+
+.breadcrumbPath {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding: 0 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+  font-size: 1rem;
+}
+
+.breadcrumb {
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.2s;
+}
+
+.breadcrumb:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.breadcrumbSeparator {
+  margin: 0 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.folderHeader {
+  padding: 1rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.folderHeader h1 {
+  font-size: 1.8rem;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.folderDescription {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.breadcrumbItem {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.breadcrumbItem:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.separator {
+  margin: 0 4px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.breadcrumbPath {
+  display: flex;
+  align-items: center;
+}
+
+.folderInfo {
+  margin-bottom: 20px;
+}
+
+.folderName {
+  font-weight: bold;
+  margin-left: 10px;
+  font-size: 1.1rem;
+}
+
+.folderDescription {
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  width: 100%;
+}
+
+.breadcrumbPath {
+  display: flex;
+  align-items: center;
+}
+
+.folderInfo {
+  margin-bottom: 20px;
+}
+
+.folderName {
+  font-weight: bold;
+  margin-left: 10px;
+  font-size: 1.1rem;
+}
+
+.folderDescription {
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  width: 100%;
+}
+
+.loadingText {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 8px;
+  font-style: italic;
+}
+
+.loadingIndicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+  height: 20px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.explorerWrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
+  position: relative;
 }
