@@ -1,14 +1,84 @@
 import axios from 'axios'
 import { IFolder, INote, ITask } from '../types'
-import api from './axios.config'
 
 const API_URL = 'http://localhost:5000/api'
+
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+axiosInstance.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+
+// Response interceptor для обработки ошибок авторизации и автоматического обновления токена
+axiosInstance.interceptors.response.use(
+  response => {
+    return response
+  },
+  async error => {
+    const originalRequest = error.config
+
+    // Если ошибка 401 и это не повторный запрос
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        // Пытаемся получить новый токен (refreshToken должен быть сохранен)
+        const refreshToken = localStorage.getItem('refreshToken')
+        if (!refreshToken) {
+          // Если refreshToken отсутствует, перенаправляем на страницу логина
+          window.location.href = '/login'
+          return Promise.reject(error)
+        }
+
+        const tokenResponse = await axios.post(`${API_URL}/auth/refresh`, {
+          refreshToken,
+        })
+
+        const { token, refreshToken: newRefreshToken } = tokenResponse.data
+
+        // Сохраняем новый токен и refreshToken
+        localStorage.setItem('token', token)
+        localStorage.setItem('refreshToken', newRefreshToken)
+
+        // Обновляем заголовок Authorization для всех будущих запросов
+        axiosInstance.defaults.headers.common['Authorization'] =
+          'Bearer ' + token
+
+        // Повторяем исходный запрос с новым токеном
+        originalRequest.headers['Authorization'] = 'Bearer ' + token
+        return axiosInstance(originalRequest)
+      } catch (refreshError) {
+        // Если не удалось обновить токен, перенаправляем на страницу логина
+        console.error('Ошибка при обновлении токена:', refreshError)
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
 
 export const memoryService = {
   // Folders
   getFolders: async () => {
     try {
-      const response = await axios.get(`${API_URL}/folders`)
+      const response = await axiosInstance.get('/folders')
       return response.data
     } catch (error) {
       console.error('Error fetching folders:', error)
@@ -24,68 +94,68 @@ export const memoryService = {
         data.parentFolderId !== undefined ? data.parentFolderId : null,
     }
     console.log('Creating folder with data:', folderData)
-    const response = await api.post<IFolder>('/folders', folderData)
+    const response = await axiosInstance.post('/folders', folderData)
     return response.data
   },
 
   updateFolder: async (id: number, data: Partial<IFolder>) => {
-    const response = await api.put<IFolder>(`/folders/${id}`, data)
+    const response = await axiosInstance.put(`/folders/${id}`, data)
     return response.data
   },
 
   deleteFolder: async (id: number) => {
-    await api.delete(`/folders/${id}`)
+    await axiosInstance.delete(`/folders/${id}`)
   },
 
   // Notes
   getNotes: async () => {
-    const response = await api.get<INote[]>('/notes')
+    const response = await axiosInstance.get('/notes')
     return response.data
   },
 
   createNote: async (data: Partial<INote>) => {
-    const response = await api.post<INote>('/notes', data)
+    const response = await axiosInstance.post('/notes', data)
     return response.data
   },
 
   updateNote: async (id: number, data: Partial<INote>) => {
-    const response = await api.put<INote>(`/notes/${id}`, data)
+    const response = await axiosInstance.put(`/notes/${id}`, data)
     return response.data
   },
 
   deleteNote: async (id: number) => {
-    await api.delete(`/notes/${id}`)
+    await axiosInstance.delete(`/notes/${id}`)
   },
 
   // Tasks
   getTasks: async () => {
-    const response = await api.get<ITask[]>('/tasks')
+    const response = await axiosInstance.get('/tasks')
     return response.data
   },
 
   createTask: async (data: Partial<ITask>) => {
-    const response = await api.post<ITask>('/tasks', data) // Verify endpoint matches backend
+    const response = await axiosInstance.post('/tasks', data) // Verify endpoint matches backend
     return response.data
   },
 
   updateTask: async (id: number, data: Partial<ITask>) => {
-    const response = await api.put<ITask>(`/tasks/${id}`, data)
+    const response = await axiosInstance.put(`/tasks/${id}`, data)
     return response.data
   },
 
   deleteTask: async (id: number) => {
-    await api.delete(`/tasks/${id}`)
+    await axiosInstance.delete(`/tasks/${id}`)
   },
 
   toggleTaskComplete: async (id: number) => {
-    const response = await api.patch<ITask>(`/tasks/${id}/toggle`)
+    const response = await axiosInstance.patch(`/tasks/${id}/toggle`)
     return response.data
   },
 
   // New methods for folder navigation
   getFolder: async (folderId: number): Promise<IFolder> => {
     try {
-      const response = await axios.get(`${API_URL}/folders/${folderId}`)
+      const response = await axiosInstance.get(`/folders/${folderId}`)
       return response.data
     } catch (error) {
       console.error(`Error fetching folder ${folderId}:`, error)
@@ -96,7 +166,7 @@ export const memoryService = {
   getFolderBreadcrumbs: async (id: number): Promise<IFolder[]> => {
     try {
       console.log(`API call: getFolderBreadcrumbs(${id})`)
-      const response = await api.get(`/folders/${id}/breadcrumbs`)
+      const response = await axiosInstance.get(`/folders/${id}/breadcrumbs`)
       return response.data
     } catch (error) {
       console.error(
@@ -105,7 +175,7 @@ export const memoryService = {
       )
       // Fallback implementation: Just return the current folder as the only breadcrumb
       try {
-        const folderResponse = await api.get(`/folders/${id}`)
+        const folderResponse = await axiosInstance.get(`/folders/${id}`)
         return [folderResponse.data]
       } catch (folderError) {
         console.error(
@@ -119,9 +189,7 @@ export const memoryService = {
 
   getFolderChildren: async (folderId: number): Promise<IFolder[]> => {
     try {
-      const response = await axios.get(
-        `${API_URL}/folders/${folderId}/children`
-      )
+      const response = await axiosInstance.get(`/folders/${folderId}/children`)
       return response.data
     } catch (error) {
       console.error(`Error fetching folder ${folderId} children:`, error)
@@ -132,7 +200,7 @@ export const memoryService = {
   getFolderNotes: async (id: number): Promise<INote[]> => {
     try {
       console.log(`API call: getFolderNotes(${id})`)
-      const response = await api.get(`/folders/${id}/notes`)
+      const response = await axiosInstance.get(`/folders/${id}/notes`)
       return response.data
     } catch (error) {
       console.error(
@@ -141,7 +209,7 @@ export const memoryService = {
       )
       // Fallback: Filter all notes to find those linked to this folder
       try {
-        const notesResponse = await api.get('/notes')
+        const notesResponse = await axiosInstance.get('/notes')
         return notesResponse.data.filter(
           (note: INote) => note.folderId === id || note.parentFolderId === id
         )
@@ -155,7 +223,7 @@ export const memoryService = {
   getFolderTasks: async (id: number): Promise<ITask[]> => {
     try {
       console.log(`API call: getFolderTasks(${id})`)
-      const response = await api.get(`/folders/${id}/tasks`)
+      const response = await axiosInstance.get(`/folders/${id}/tasks`)
       return response.data
     } catch (error) {
       console.error(
@@ -164,7 +232,7 @@ export const memoryService = {
       )
       // Fallback: Filter all tasks to find those linked to this folder
       try {
-        const tasksResponse = await api.get('/tasks')
+        const tasksResponse = await axiosInstance.get('/tasks')
         return tasksResponse.data.filter(
           (task: ITask) => task.folderId === id || task.parentFolderId === id
         )
@@ -177,7 +245,7 @@ export const memoryService = {
 
   // Task specific methods
   getTask: async (id: number): Promise<ITask> => {
-    const response = await api.get(`/tasks/${id}`)
+    const response = await axiosInstance.get(`/tasks/${id}`)
     return response.data
   },
 }

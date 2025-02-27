@@ -103,10 +103,18 @@ const MemoryExplorer = ({
             setCurrentFolder(folderData)
             // Set temporary breadcrumb
             setBreadcrumbs([folderData])
-          } catch (err) {
+          } catch (err: any) {
             console.error('Error loading folder data:', err)
             setError('Ошибка при загрузке данных папки')
             setContentLoading(false)
+            // Дополнительная проверка и логирование
+            if (err.response && err.response.status === 401) {
+              console.error('Ошибка авторизации при загрузке папки')
+              // Тут можно добавить код для принудительного выхода пользователя
+              localStorage.removeItem('token')
+              localStorage.removeItem('refreshToken')
+              navigate('/login')
+            }
             return
           }
 
@@ -483,7 +491,15 @@ const MemoryExplorer = ({
           content: data.content || '',
           parentFolderId: folderId || null,
         }
-        // ...existing note creation code...
+        const response = await memoryService.createNote(noteData)
+        newItem = {
+          id: response.id,
+          type: 'note',
+          name: noteData.title,
+          description: noteData.content,
+          parentFolderId: folderId || null,
+          createdAt: new Date().toISOString(),
+        }
       } else if (modalType === 'task') {
         const taskData = {
           title: data.title || 'Новая задача',
@@ -492,7 +508,17 @@ const MemoryExplorer = ({
           isCompleted: false,
           parentFolderId: folderId || null,
         }
-        // ...existing task creation code...
+        const response = await memoryService.createTask(taskData)
+        newItem = {
+          id: response.id,
+          type: 'task',
+          name: taskData.title,
+          description: taskData.description,
+          isCompleted: false,
+          deadline: taskData.deadline,
+          parentFolderId: folderId || null,
+          createdAt: new Date().toISOString(),
+        }
       }
 
       if (newItem) {
