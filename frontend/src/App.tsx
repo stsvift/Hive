@@ -19,7 +19,10 @@ function App() {
       axios.interceptors.response.use(
         response => response,
         error => {
-          if (error.response?.status === 401 && window.location.pathname !== '/login') {
+          if (
+            error.response?.status === 401 &&
+            window.location.pathname !== '/login'
+          ) {
             // Проверяем, что токен действительно отсутствует или некорректен
             const token = localStorage.getItem('token')
             if (!token) {

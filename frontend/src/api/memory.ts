@@ -119,7 +119,9 @@ export const memoryService = {
 
   getFolderChildren: async (folderId: number): Promise<IFolder[]> => {
     try {
-      const response = await axios.get(`${API_URL}/folders/${folderId}/children`)
+      const response = await axios.get(
+        `${API_URL}/folders/${folderId}/children`
+      )
       return response.data
     } catch (error) {
       console.error(`Error fetching folder ${folderId} children:`, error)
