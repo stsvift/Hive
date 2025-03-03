@@ -9,5 +9,4 @@ public class Note
     public DateTime UpdatedAt { get; set; }
     public int UserId { get; set; }
     public int? FolderId { get; set; }
-    public virtual Folder? Folder { get; set; }
 }
