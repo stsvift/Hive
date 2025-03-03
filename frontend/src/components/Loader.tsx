@@ -1,23 +1,11 @@
-import { useEffect, useState } from 'react'
 import styles from '../styles/Loader.module.css'
 
 interface LoaderProps {
   showLogo?: boolean
   text?: string
-  alternativeText?: string // Text to show after timeout
 }
 
-const Loader = ({ showLogo = true, text, alternativeText }: LoaderProps) => {
-  const [showAltText, setShowAltText] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowAltText(true)
-    }, 4000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
+const Loader = ({ showLogo = true, text }: LoaderProps) => {
   return (
     <div className={styles.overlay}>
       <div className={styles.loaderContainer}>
@@ -37,11 +25,7 @@ const Loader = ({ showLogo = true, text, alternativeText }: LoaderProps) => {
             ))}
           </div>
         )}
-        {(text || alternativeText) && (
-          <div className={styles.customText}>
-            {showAltText && alternativeText ? alternativeText : text}
-          </div>
-        )}
+        {text && <div className={styles.customText}>{text}</div>}
       </div>
     </div>
   )
