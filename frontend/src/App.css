@@ -1,42 +1,141 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.os-container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 0.3s ease;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+[data-theme='light'] {
+  --bg-color: #ffffff;
+  --text-color: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --window-bg: #ffffff;
+  --window-border: #e0e0e0;
+  --dock-bg: rgba(255, 255, 255, 0.85);
+  --dock-border: rgba(255, 255, 255, 0.9);
+  --icon-bg: rgba(255, 255, 255, 0.9);
+  --topbar-bg: rgba(255, 255, 255, 0.85);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --accent-color: #3498db;
+  --accent-color-rgb: 52, 152, 219;
+  --accent-color-dark: #2980b9;
+  --hover-color: #f5f5f5;
+  --active-color: #e8f4fe;
+  --heading-color: #2c3e50;
+
+  /* Task-specific colors */
+  --todo-color: #3498db;
+  --progress-color: #f39c12;
+  --done-color: #2ecc71;
+  --error-color: #e74c3c;
+  --error-color-rgb: 231, 76, 60;
+  --priority-high: #e74c3c;
+  --priority-medium: #f39c12;
+  --priority-low: #2ecc71;
+  --deadline-past: #e74c3c;
+  --past-due-bg: rgba(231, 76, 60, 0.08);
+  --edit-color: #3498db;
+  --edit-color-dark: #2980b9;
+  --delete-color: #e74c3c;
+  --delete-color-dark: #c0392b;
+
+  /* Note-specific colors */
+  --window-bg-rgb: 255, 255, 255;
+  --note-border-color: #e1e5e9;
+  --label-color: #6c757d;
+  --note-success-color: #2ecc71;
+  --note-error-color: #e74c3c;
+  --note-color-text: white; /* Текст для цветных элементов заметок */
+  --note-color-shadow: rgba(0, 0, 0, 0.1); /* Тень для цветных элементов */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+[data-theme='dark'] {
+  --bg-color: #1a1b26;
+  --text-color: #a9b1d6;
+  --text-secondary: #787c99;
+  --window-bg: #24283b;
+  --window-border: #414868;
+  --dock-bg: rgba(36, 40, 59, 0.85);
+  --dock-border: rgba(65, 72, 104, 0.9);
+  --icon-bg: rgba(36, 40, 59, 0.9);
+  --topbar-bg: rgba(36, 40, 59, 0.85);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  --accent-color: #7aa2f7;
+  --accent-color-rgb: 122, 162, 247;
+  --accent-color-dark: #6283d2;
+  --hover-color: #292e42;
+  --active-color: #2f354a;
+  --heading-color: #c0caf5;
+
+  /* Task-specific colors */
+  --todo-color: #7aa2f7;
+  --progress-color: #ff9e64;
+  --done-color: #9ece6a;
+  --error-color: #f7768e;
+  --error-color-rgb: 247, 118, 142;
+  --priority-high: #f7768e;
+  --priority-medium: #ff9e64;
+  --priority-low: #9ece6a;
+  --deadline-past: #f7768e;
+  --past-due-bg: rgba(247, 118, 142, 0.15);
+  --edit-color: #7aa2f7;
+  --edit-color-dark: #6283d2;
+  --delete-color: #f7768e;
+  --delete-color-dark: #e0647a;
+
+  /* Note-specific colors */
+  --window-bg-rgb: 36, 40, 59;
+  --note-border-color: #414868;
+  --label-color: #a9b1d6;
+  --note-success-color: #9ece6a;
+  --note-error-color: #f7768e;
+  --note-color-text: white;
+  --note-color-shadow: rgba(0, 0, 0, 0.3);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
+[data-theme='blue'] {
+  --bg-color: #1a2b45;
+  --text-color: #e0e7ff;
+  --text-secondary: #a8b3cf;
+  --window-bg: #2a3f5f;
+  --window-border: #3a5278;
+  --dock-bg: rgba(42, 63, 95, 0.85);
+  --dock-border: rgba(58, 82, 120, 0.9);
+  --icon-bg: rgba(42, 63, 95, 0.9);
+  --topbar-bg: rgba(42, 63, 95, 0.85);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  --accent-color: #64b5f6;
+  --accent-color-rgb: 100, 181, 246;
+  --accent-color-dark: #4a9ee9;
+  --hover-color: #34496e;
+  --active-color: #3d557d;
+  --heading-color: #e0e7ff;
 
-.card {
-  padding: 2em;
-}
+  /* Task-specific colors */
+  --todo-color: #64b5f6;
+  --progress-color: #ffab91;
+  --done-color: #81c784;
+  --error-color: #e57373;
+  --error-color-rgb: 229, 115, 115;
+  --priority-high: #e57373;
+  --priority-medium: #ffab91;
+  --priority-low: #81c784;
+  --deadline-past: #e57373;
+  --past-due-bg: rgba(229, 115, 115, 0.15);
+  --edit-color: #64b5f6;
+  --edit-color-dark: #4a9ee9;
+  --delete-color: #e57373;
+  --delete-color-dark: #d35f5f;
 
-.read-the-docs {
-  color: #888;
+  /* Note-specific colors */
+  --window-bg-rgb: 42, 63, 95;
+  --note-border-color: #3a5278;
+  --label-color: #e0e7ff;
+  --note-success-color: #81c784;
+  --note-error-color: #e57373;
+  --note-color-text: white;
+  --note-color-shadow: rgba(0, 0, 0, 0.3);
 }

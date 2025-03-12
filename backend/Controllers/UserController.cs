@@ -59,12 +59,42 @@ namespace backend.Controllers
 
                 return Ok(new { 
                     name = user.Username,
+                    email = user.Email,
                     avatarUrl = user.AvatarUrl
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting user profile");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto data)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                var user = await _userService.GetUserByIdAsync(userId);
+                
+                if (user == null)
+                    return NotFound(new { message = "User not found" });
+
+                user.Username = data.Name ?? user.Username;
+                user.Email = data.Email ?? user.Email;
+                
+                await _userService.UpdateUserAsync(user);
+                
+                return Ok(new { 
+                    name = user.Username,
+                    email = user.Email,
+                    avatarUrl = user.AvatarUrl
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user profile");
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
@@ -100,5 +130,11 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
+    }
+
+    public class UpdateProfileDto
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
     }
 }

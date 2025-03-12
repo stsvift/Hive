@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using backend.Services;
 using backend.Models;
+using backend.Models.Dto;
 using System.Security.Claims;
 using System;
 using System.Threading.Tasks;
@@ -114,6 +115,46 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при удалении папки");
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+            }
+        }
+
+        [HttpPost("{id}/content")]
+        public async Task<ActionResult<Folder>> AddItemToFolder(int id, [FromBody] FolderItemDto itemDto)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                var folder = await _folderService.AddItemToFolderAsync(id, itemDto, userId);
+                
+                if (folder == null)
+                    return NotFound(new { message = "Папка не найдена" });
+
+                return Ok(folder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при добавлении элемента в папку");
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+            }
+        }
+
+        [HttpDelete("{id}/items/{itemId}")]
+        public async Task<IActionResult> RemoveItemFromFolder(int id, string itemId)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                var result = await _folderService.RemoveItemFromFolderAsync(id, itemId, userId);
+                
+                if (!result)
+                    return NotFound(new { message = "Элемент или папка не найдены" });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении элемента из папки");
                 return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
             }
         }

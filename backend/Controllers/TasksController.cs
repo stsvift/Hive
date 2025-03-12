@@ -42,7 +42,7 @@ namespace backend.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-                task.UserId = userId;
+                task.AssigneeId = userId; // Changed from UserId to AssigneeId
                 task.CreatedAt = DateTime.UtcNow;
                 
                 var createdTask = await _taskService.CreateTaskAsync(task);
@@ -100,7 +100,7 @@ namespace backend.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-                task.UserId = userId;
+                task.AssigneeId = userId; // Changed from UserId to AssigneeId
                 var updatedTask = await _taskService.UpdateTaskAsync(id, task);
                 await _taskService.InvalidateTasksCacheAsync(userId);
                 return Ok(updatedTask);

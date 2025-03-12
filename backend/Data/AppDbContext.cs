@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<Note> Notes { get; set; } = null!;
     public DbSet<Folder> Folders { get; set; } = null!;
     public DbSet<UserTask> Tasks { get; set; } = null!;
+    public DbSet<FolderItem> FolderItems { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,10 +41,12 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.FolderId).IsRequired(false);
-            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.AssigneeId); // Changed from UserId to AssigneeId
             entity.HasIndex(e => e.Deadline);
             entity.HasIndex(e => e.FolderId);
-            entity.HasIndex(e => new { e.UserId, e.IsCompleted });
+            entity.HasIndex(e => new { e.AssigneeId, e.IsCompleted }); // Changed from UserId to AssigneeId
+            entity.HasIndex(e => e.Priority); // Add index for Priority
+            entity.HasIndex(e => e.Status); // Add index for Status
         });
 
         // Note indexes
@@ -79,6 +82,16 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
                 
             entity.HasIndex(e => e.ParentFolderId);
+        });
+
+        // FolderItem configuration
+        modelBuilder.Entity<FolderItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Folder)
+                  .WithMany()
+                  .HasForeignKey(e => e.FolderId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

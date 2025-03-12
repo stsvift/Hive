@@ -1,0 +1,73 @@
+.desktop {
+  width: 100%;
+  height: 100vh;
+  padding-top: 40px; /* Space for the top bar */
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.desktop-welcome {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  opacity: 0.7;
+}
+
+.desktop-welcome h1 {
+  font-size: 24px;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.desktop-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  grid-gap: 20px;
+  padding: 20px;
+}
+
+.desktop-icon {
+  width: 80px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.desktop-icon:hover {
+  transform: scale(1.05);
+}
+
+.desktop-icon-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: var(--icon-bg);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.desktop-icon-img i {
+  font-size: 24px;
+}
+
+.desktop-icon-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-color);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 2px 4px;
+  border-radius: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+

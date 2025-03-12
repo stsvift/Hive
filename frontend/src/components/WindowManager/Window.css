@@ -1,0 +1,149 @@
+.window {
+  position: absolute;
+  background-color: var(--window-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  transition: box-shadow 0.2s ease;
+  border: 1px solid var(--window-border);
+}
+
+.window-active {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.window-titlebar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background-color: var(--window-bg);
+  border-bottom: 1px solid var(--window-border);
+  cursor: move;
+  user-select: none;
+}
+
+.window-title {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.window-control {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.window-control i {
+  font-size: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.window-control:hover i {
+  opacity: 1;
+}
+
+.window-control-close {
+  background-color: #ff5f57;
+}
+
+.window-control-minimize {
+  background-color: #ffbd2e;
+}
+
+.window-control-maximize {
+  background-color: #28c940;
+}
+
+.window-content {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.resize-handle {
+  position: absolute;
+  background-color: transparent;
+}
+
+.resize-handle-n {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  cursor: ns-resize;
+}
+
+.resize-handle-e {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: ew-resize;
+}
+
+.resize-handle-s {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  cursor: ns-resize;
+}
+
+.resize-handle-w {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: ew-resize;
+}
+
+.resize-handle-ne {
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle-se {
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
+}
+
+.resize-handle-sw {
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle-nw {
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
+}
+

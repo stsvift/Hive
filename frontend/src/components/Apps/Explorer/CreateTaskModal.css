@@ -1,0 +1,156 @@
+/* Styles for the Create Task Modal */
+
+.priority-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.priority-selector select {
+  border-left-width: 4px;
+  padding-left: 20px;
+  appearance: none;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.priority-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.priority-selector:hover .priority-indicator {
+  transform: translateY(-50%) scale(1.2);
+}
+
+.form-helper {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Стилизованные инпуты даты/времени */
+.datetime-input {
+  font-family: inherit;
+  color: var(--text-color);
+  appearance: none;
+  position: relative;
+}
+
+input[type='datetime-local'] {
+  background-color: var(--window-bg);
+  border: 1px solid var(--window-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  width: 100%;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+input[type='datetime-local']:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+/* Метки приоритета */
+.task-priority-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-right: 6px;
+  background-color: rgba(var(--accent-color-rgb), 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-priority-label:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.task-priority-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Особая стилизация для выбора приоритета */
+#taskPriority {
+  padding-left: 34px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+#taskPriority option {
+  font-weight: normal;
+  padding: 8px;
+}
+
+/* Улучшение отображения для разных браузеров */
+@supports (-webkit-appearance: none) {
+  input[type='datetime-local']::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  /* Поддержка темной темы */
+  [data-theme='dark']
+    input[type='datetime-local']::-webkit-calendar-picker-indicator,
+  [data-theme='blue']
+    input[type='datetime-local']::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+  }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+  input[type='datetime-local'] {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-helper {
+    font-size: 0.75rem;
+  }
+
+  .priority-selector select {
+    padding-left: 28px;
+  }
+
+  .priority-indicator {
+    width: 12px;
+    height: 12px;
+    left: 10px;
+  }
+}

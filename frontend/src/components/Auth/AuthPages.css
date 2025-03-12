@@ -1,0 +1,2052 @@
+/* Общие стили для страниц аутентификации */
+:root {
+  --auth-primary: #6c5ce7;
+  --auth-primary-dark: #5649c0;
+  --auth-primary-light: #8278e9;
+  --auth-error: #ff5f57;
+  --auth-success: #00d173;
+  --auth-warning: #fdcb6e;
+  --auth-text: #2d3436;
+  --auth-text-light: #636e72;
+  --auth-bg: #f8f9fa;
+  --auth-card-bg: #fff;
+  --auth-input-bg: #f1f3f5;
+  --auth-border: #e9ecef;
+  --auth-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --auth-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.1);
+  --auth-transition: all 0.3s ease;
+}
+
+[data-theme='dark'] {
+  --auth-primary: #6c5ce7;
+  --auth-primary-dark: #5649c0;
+  --auth-primary-light: #8278e9;
+  --auth-error: #ff5f57;
+  --auth-success: #00d173;
+  --auth-warning: #fdcb6e;
+  --auth-text: #dfe6e9;
+  --auth-text-light: #b2bec3;
+  --auth-bg: #1e1e2e;
+  --auth-card-bg: #2d3436;
+  --auth-input-bg: #353b48;
+  --auth-border: #485460;
+  --auth-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --auth-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='blue'] {
+  --auth-primary: #00a8ff;
+  --auth-primary-dark: #0097e6;
+  --auth-primary-light: #55b9f3;
+  --auth-error: #ff5f57;
+  --auth-success: #00d173;
+  --auth-warning: #fdcb6e;
+  --auth-text: #e0f2fe;
+  --auth-text-light: #a5d8ff;
+  --auth-bg: #1a365d;
+  --auth-card-bg: #2c5282;
+  --auth-input-bg: #3182ce;
+  --auth-border: #4299e1;
+  --auth-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --auth-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--auth-bg);
+}
+
+.auth-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.auth-info {
+  flex: 1;
+  background-color: var(--auth-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('/placeholder.svg?height=800&width=800') center / cover
+    no-repeat;
+  opacity: 0.1;
+}
+
+.auth-info-content {
+  position: relative;
+  z-index: 1;
+  max-width: 400px;
+}
+
+.auth-info h2 {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.auth-info p {
+  font-size: 18px;
+  margin-bottom: 24px;
+  opacity: 0.9;
+}
+
+.auth-features {
+  list-style: none;
+  padding: 0;
+}
+
+.auth-features li {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.auth-features li i {
+  margin-right: 10px;
+  color: #8cffb0;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-logo {
+  width: 80px;
+  height: 80px;
+  background-color: var(--auth-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.auth-logo i {
+  font-size: 36px;
+  color: white;
+}
+
+.auth-header h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.auth-header p {
+  color: var(--auth-text-light);
+}
+
+.auth-form {
+  margin-bottom: 30px;
+}
+
+.auth-form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.auth-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--auth-text-light);
+}
+
+.auth-input-container input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  background-color: var(--auth-input-bg);
+  color: var(--auth-text);
+  font-size: 16px;
+  transition: var(--auth-transition);
+}
+
+.auth-input-container input:focus {
+  outline: none;
+  border-color: var(--auth-primary);
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--auth-text-light);
+  cursor: pointer;
+}
+
+.auth-password-toggle:hover {
+  color: var(--auth-text);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--auth-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--auth-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-button:hover {
+  background-color: var(--auth-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--auth-shadow-hover);
+}
+
+.auth-button:disabled {
+  background-color: var(--auth-primary-light);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.auth-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.auth-button:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+.auth-error {
+  background-color: rgba(255, 95, 87, 0.1);
+  color: var(--auth-error);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 95, 87, 0.3);
+  animation: shake 0.5s ease-in-out;
+}
+
+.auth-footer {
+  text-align: center;
+}
+
+.auth-footer p {
+  margin-bottom: 16px;
+}
+
+.auth-footer a {
+  color: var(--auth-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--auth-transition);
+}
+
+.auth-footer a:hover {
+  color: var(--auth-primary-dark);
+  text-decoration: underline;
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--auth-text-light) !important;
+  transition: var(--auth-transition);
+}
+
+.auth-back-link:hover {
+  color: var(--auth-text) !important;
+}
+
+.auth-social-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.auth-social-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--auth-input-bg);
+  border: 1px solid var(--auth-border);
+  color: var(--auth-text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--auth-transition);
+}
+
+.auth-social-button:hover {
+  background-color: var(--auth-bg);
+  transform: translateY(-2px);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: var(--auth-text-light);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--auth-border);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+/* OS Login Screen Styles - Updated for better OS experience */
+.os-login-screen {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', sans-serif;
+}
+
+.os-login-wallpaper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
+
+.os-login-screen.light .os-login-wallpaper {
+  background-image: linear-gradient(135deg, #a6c0fe, #f68084);
+}
+
+.os-login-screen.dark .os-login-wallpaper {
+  background-image: linear-gradient(135deg, #30336b, #6c5ce7);
+}
+
+.os-login-screen.blue .os-login-wallpaper {
+  background-image: linear-gradient(135deg, #0c2461, #4a69bd);
+}
+
+.os-login-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+/* Time display - Moved higher for better visibility */
+.os-login-time {
+  position: absolute;
+  top: 10%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1s ease-out;
+  z-index: 10;
+}
+
+.os-login-time-display {
+  font-size: 5.5rem;
+  font-weight: 200;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+}
+
+.os-login-date-display {
+  font-size: 1.5rem;
+  opacity: 0.9;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  text-transform: capitalize;
+}
+
+/* Container styling - More OS-like appearance */
+.os-login-container {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(25px);
+  border-radius: 28px;
+  padding: 40px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 5px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transform: translateY(
+    30px
+  ); /* Move form down slightly to avoid time overlap */
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.os-login-container.dimmed {
+  filter: blur(1px);
+  opacity: 0.8;
+}
+
+/* Subtle animated gradient effect */
+.os-login-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  opacity: 0.6;
+  animation: rotate 25s linear infinite;
+  pointer-events: none;
+}
+
+.os-login-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  opacity: 0.5;
+}
+
+/* Avatar styling - More dimensional */
+.os-login-user-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15),
+    inset 0 2px 10px rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.os-login-user-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2),
+    inset 0 2px 10px rgba(255, 255, 255, 0.2);
+}
+
+.os-login-user-avatar i {
+  font-size: 42px;
+  color: white;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  animation: pulseGlow 3s infinite;
+}
+
+@keyframes pulseGlow {
+  0% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Title styling - More refined */
+.os-login-title {
+  font-size: 22px;
+  margin-bottom: 22px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Error styling - More integrated */
+.os-login-error {
+  background-color: rgba(255, 95, 87, 0.15);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 95, 87, 0.25);
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  box-shadow: 0 5px 15px rgba(255, 95, 87, 0.2);
+}
+
+/* Form styling - More spacious and modern */
+.os-login-form {
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.os-login-input-group {
+  position: relative;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Input styling - More refined */
+.os-login-input {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.os-login-input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.os-login-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 300;
+}
+
+/* Password toggle - More subtle */
+.os-login-password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 5px;
+  z-index: 2;
+}
+
+.os-login-password-toggle:hover {
+  color: white;
+}
+
+/* Buttons styling - More tactile */
+.os-login-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.os-login-back-button {
+  flex: 1;
+  padding: 16px;
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.os-login-back-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.os-login-button {
+  flex: 2;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    var(--auth-primary),
+    var(--auth-primary-dark)
+  );
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
+}
+
+.os-login-button:hover {
+  background: linear-gradient(
+    135deg,
+    var(--auth-primary-dark),
+    var(--auth-primary)
+  );
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.os-login-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Button ripple effect - Enhanced */
+.os-login-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.os-login-button:focus:not(:active)::after {
+  animation: ripple 1s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Button loading state */
+.os-login-button-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.os-login-button-loading i {
+  font-size: 0.9em;
+}
+
+.os-login-button-loading span {
+  font-weight: 500;
+}
+
+/* In-screen loading overlay */
+.os-login-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50; /* Lower z-index than success animation */
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease-out;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out;
+}
+
+.os-login-loading-spinner {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.os-login-loading-spinner::before,
+.os-login-loading-spinner::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.os-login-loading-spinner::before {
+  width: 100%;
+  height: 100%;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.7);
+  animation: spinLoaderFast 0.6s linear infinite;
+}
+
+@keyframes spinLoaderFast {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Disable power button when loading */
+.os-login-power-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Options styling - More elegant */
+.os-login-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 25px;
+}
+
+.os-login-option {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 2px 0;
+}
+
+.os-login-option:hover {
+  color: white;
+}
+
+.os-login-option::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+.os-login-option:hover::after {
+  width: 100%;
+}
+
+.os-login-option-divider {
+  opacity: 0.4;
+}
+
+/* Power button - More interactive */
+.os-login-power {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  z-index: 10;
+}
+
+.os-login-power-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.os-login-power-button:hover {
+  background-color: rgba(255, 95, 87, 0.8);
+  transform: rotate(180deg);
+  box-shadow: 0 8px 25px rgba(255, 95, 87, 0.3);
+}
+
+/* Steps indicator - More refined */
+.os-login-steps {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.os-login-step {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 0 5px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.os-login-step.active {
+  background-color: white;
+  transform: scale(1.3);
+}
+
+/* Improved animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(30px);
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-3px);
+  }
+  40%,
+  60% {
+    transform: translateX(3px);
+  }
+}
+
+/* Updated loading animation styles */
+.os-login-success-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Higher z-index to ensure it's above loading overlay */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(10px);
+}
+
+.os-login-success-animation.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.os-login-success-spinner {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.os-login-success-spinner::before,
+.os-login-success-spinner::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.os-login-success-spinner::before {
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--auth-primary);
+  animation: spinLoader 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.os-login-success-spinner::after {
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  border: 4px solid transparent;
+  border-top-color: var(--auth-success);
+  top: 10px;
+  left: 10px;
+  animation: spinLoader 0.6s cubic-bezier(0.5, 0, 0.5, 1) reverse infinite;
+}
+
+.os-login-success-message {
+  margin-top: 35px;
+  color: white;
+  font-size: 28px;
+  font-weight: 200;
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.5px;
+  transition: opacity 0.3s ease;
+}
+
+.os-login-success-status {
+  margin-top: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 0.3s ease;
+}
+
+.os-login-success-status .dots {
+  display: inline-flex;
+}
+
+.os-login-success-status .dots span {
+  width: 6px;
+  height: 6px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background-color: white;
+  animation: dots 1.5s infinite;
+}
+
+.os-login-success-status .dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.os-login-success-status .dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes spinLoader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dots {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+/* Enhanced responsive styles */
+@media (max-width: 480px) {
+  .os-login-time-display {
+    font-size: 3.5rem;
+  }
+
+  .os-login-date-display {
+    font-size: 1rem;
+  }
+
+  .os-login-container {
+    width: 90%;
+    padding: 30px 20px;
+    max-width: 350px;
+  }
+
+  .os-login-buttons {
+    flex-direction: column;
+  }
+
+  .os-login-power {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .os-login-power-button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) and (min-width: 481px) {
+  .os-login-container {
+    width: 75%;
+    max-width: 400px;
+  }
+
+  .os-login-time-display {
+    font-size: 4rem;
+  }
+}
+
+@media (min-height: 800px) {
+  .os-login-time {
+    top: 15%;
+  }
+
+  .os-login-container {
+    transform: translateY(0);
+  }
+}
+
+@media (max-height: 650px) {
+  .os-login-time {
+    top: 5%;
+  }
+
+  .os-login-time-display {
+    font-size: 3rem;
+  }
+
+  .os-login-date-display {
+    font-size: 1rem;
+  }
+
+  .os-login-container {
+    padding: 25px;
+  }
+
+  .os-login-user-avatar {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Updated success animation styles for instant appearance */
+.os-login-success-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Highest z-index to ensure it's always on top */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.os-login-success-animation.active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s linear;
+}
+
+/* Improve spinner animation for faster visual feedback */
+.os-login-success-spinner {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  animation: quickPulse 0.5s ease-in;
+}
+
+@keyframes quickPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.os-login-success-spinner::before,
+.os-login-success-spinner::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.os-login-success-spinner::before {
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--auth-primary);
+  animation: spinLoader 0.7s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.os-login-success-spinner::after {
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  border: 4px solid transparent;
+  border-top-color: var(--auth-success);
+  top: 10px;
+  left: 10px;
+  animation: spinLoader 0.5s cubic-bezier(0.5, 0, 0.5, 1) reverse infinite;
+}
+
+/* Enhance dots animation for better visual feedback during loading */
+@keyframes dots {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+/* Enhanced Success Animation Styles */
+.os-login-success-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+  backdrop-filter: blur(10px);
+}
+
+.os-login-success-animation.active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease, visibility 0s linear;
+}
+
+/* Particle effects background */
+.auth-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.auth-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(var(--accent-color-rgb, 108, 92, 231), 0.6);
+  border-radius: 50%;
+  animation: float 15s infinite linear;
+}
+
+.auth-particle:nth-child(1) {
+  top: 10%;
+  left: 10%;
+  animation-duration: 25s;
+}
+.auth-particle:nth-child(2) {
+  top: 20%;
+  left: 20%;
+  animation-duration: 30s;
+  animation-delay: 1s;
+}
+.auth-particle:nth-child(3) {
+  top: 30%;
+  left: 30%;
+  animation-duration: 22s;
+  animation-delay: 2s;
+}
+.auth-particle:nth-child(4) {
+  top: 40%;
+  left: 40%;
+  animation-duration: 28s;
+  animation-delay: 3s;
+}
+.auth-particle:nth-child(5) {
+  top: 50%;
+  left: 50%;
+  animation-duration: 20s;
+  animation-delay: 0s;
+}
+.auth-particle:nth-child(6) {
+  top: 60%;
+  left: 60%;
+  animation-duration: 24s;
+  animation-delay: 5s;
+}
+.auth-particle:nth-child(7) {
+  top: 70%;
+  left: 70%;
+  animation-duration: 26s;
+  animation-delay: 2s;
+}
+.auth-particle:nth-child(8) {
+  top: 80%;
+  left: 80%;
+  animation-duration: 22s;
+  animation-delay: 7s;
+}
+.auth-particle:nth-child(9) {
+  top: 10%;
+  left: 90%;
+  animation-duration: 28s;
+  animation-delay: 4s;
+}
+.auth-particle:nth-child(10) {
+  top: 90%;
+  left: 10%;
+  animation-duration: 30s;
+  animation-delay: 6s;
+}
+.auth-particle:nth-child(11) {
+  top: 30%;
+  left: 85%;
+  animation-duration: 24s;
+  animation-delay: 2s;
+}
+.auth-particle:nth-child(12) {
+  top: 70%;
+  left: 20%;
+  animation-duration: 26s;
+  animation-delay: 1s;
+}
+.auth-particle:nth-child(13) {
+  top: 50%;
+  left: 80%;
+  animation-duration: 28s;
+  animation-delay: 0s;
+}
+.auth-particle:nth-child(14) {
+  top: 20%;
+  left: 60%;
+  animation-duration: 25s;
+  animation-delay: 3s;
+}
+.auth-particle:nth-child(15) {
+  top: 80%;
+  left: 40%;
+  animation-duration: 22s;
+  animation-delay: 5s;
+}
+
+@keyframes float {
+  0% {
+    transform: translateX(0) translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateX(100px) translateY(-100px) scale(1.2);
+    opacity: 0.9;
+    background: rgba(var(--accent-color-rgb, 108, 92, 231), 0.8);
+  }
+  50% {
+    transform: translateX(200px) translateY(0) scale(1);
+    opacity: 0.6;
+    background: rgba(254, 211, 48, 0.6);
+  }
+  75% {
+    transform: translateX(100px) translateY(100px) scale(1.5);
+    opacity: 0.9;
+    background: rgba(46, 204, 113, 0.7);
+  }
+  100% {
+    transform: translateX(0) translateY(0) scale(1);
+    opacity: 0.6;
+    background: rgba(var(--accent-color-rgb, 108, 92, 231), 0.6);
+  }
+}
+
+/* Enhanced spinner with glow effect */
+.os-login-success-spinner {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  animation: quickPulse 0.5s ease-in;
+  margin-bottom: 20px;
+}
+
+.os-login-success-spinner::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid var(--auth-primary, #6c5ce7);
+  animation: spinLoader 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  box-sizing: border-box;
+}
+
+.os-login-success-spinner::after {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top: 3px solid var(--auth-success, #00d173);
+  animation: spinLoader 0.6s cubic-bezier(0.5, 0, 0.5, 1) reverse infinite;
+  box-sizing: border-box;
+}
+
+/* Glow effect */
+.spinner-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--accent-color-rgb, 108, 92, 231), 0.2) 0%,
+    transparent 70%
+  );
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+/* Enhanced success message */
+.os-login-success-message {
+  margin-top: 25px;
+  color: white;
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Status indicator with progress bar */
+.os-login-success-status {
+  margin-top: 25px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Replace dots with typing animation */
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+}
+
+.typing-dots span {
+  width: 5px;
+  height: 5px;
+  margin: 0 2px;
+  border-radius: 50%;
+  background-color: white;
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+/* Progress bar animation */
+.progress-bar {
+  width: 100px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--auth-primary, #6c5ce7);
+  width: 0;
+  animation: progressFill 2s ease-in-out infinite;
+}
+
+@keyframes progressFill {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+/* Status icons */
+.status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--auth-success, #00d173);
+  color: white;
+  font-size: 14px;
+}
+
+/* Registration sequence animation */
+.registration-sequence {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.stage-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 20px;
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+.stage-icon.active {
+  background: var(--auth-primary, #6c5ce7);
+  color: white;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 6px rgba(var(--accent-color-rgb, 108, 92, 231), 0.2);
+}
+
+.stage-icon .checkmark {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--auth-success, #00d173);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.5s ease;
+}
+
+.stage-icon.active .checkmark {
+  opacity: 1;
+  transform: scale(1);
+  animation: bounce 1s ease;
+}
+
+.stage-connector {
+  width: 60px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 5px;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-10px) scale(1.2);
+  }
+  60% {
+    transform: translateY(-5px) scale(1.1);
+  }
+}
+
+/* Success checkmark animation */
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--auth-success, #00d173);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  animation: scaleIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.check-icon {
+  width: 40px;
+  height: 30px;
+  position: relative;
+}
+
+.check-icon .icon-line {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+.check-icon .icon-line.line-tip {
+  height: 3px;
+  width: 15px;
+  left: 8px;
+  top: 16px;
+  transform: rotate(45deg);
+  animation: iconLineTip 0.8s;
+}
+
+.check-icon .icon-line.line-long {
+  height: 3px;
+  width: 25px;
+  right: 8px;
+  top: 13px;
+  transform: rotate(-45deg);
+  animation: iconLineLong 0.8s;
+}
+
+@keyframes iconLineTip {
+  0% {
+    width: 0;
+    left: 0;
+    top: 16px;
+  }
+  54% {
+    width: 0;
+    left: 0;
+    top: 16px;
+  }
+  70% {
+    width: 15px;
+    left: 8px;
+    top: 16px;
+  }
+  85% {
+    width: 20px;
+    left: 5px;
+    top: 16px;
+  }
+  100% {
+    width: 15px;
+    left: 8px;
+    top: 16px;
+  }
+}
+
+@keyframes iconLineLong {
+  0% {
+    width: 0;
+    right: 20px;
+    top: 13px;
+  }
+  65% {
+    width: 0;
+    right: 20px;
+    top: 13px;
+  }
+  84% {
+    width: 30px;
+    right: 6px;
+    top: 13px;
+  }
+  100% {
+    width: 25px;
+    right: 8px;
+    top: 13px;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Additional keyframes for new animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Make animations better adapt to dark mode */
+[data-theme='dark'] .auth-particle {
+  background: rgba(108, 92, 231, 0.6);
+}
+
+[data-theme='dark'] .progress-fill {
+  background-color: #8278e9;
+}
+
+/* Complete redesign - replacing spinners with energy sphere */
+.os-login-success-spinner {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 30px;
+}
+
+/* Create a beautiful energy sphere instead of orbiting elements */
+.energy-sphere {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.3) 20%,
+    transparent 70%
+  );
+  box-shadow: 0 0 60px rgba(255, 255, 255, 0.6),
+    0 0 100px rgba(108, 92, 231, 0.4);
+  animation: pulsateSphere 4s infinite ease-in-out;
+  z-index: 2;
+}
+
+/* Energy rings */
+.energy-ring {
+  position: absolute;
+  border-radius: 50%;
+  border-width: 1px;
+  border-style: solid;
+  opacity: 0.6;
+}
+
+.energy-ring-1 {
+  width: 100%;
+  height: 40%;
+  top: 30%;
+  left: 0;
+  border-color: var(--auth-primary, #6c5ce7);
+  animation: rotateRing 12s linear infinite,
+    pulseOpacity 3s ease-in-out infinite;
+}
+
+.energy-ring-2 {
+  width: 40%;
+  height: 100%;
+  top: 0;
+  left: 30%;
+  border-color: var(--auth-success, #00d173);
+  animation: rotateRing 8s linear infinite reverse,
+    pulseOpacity 4s ease-in-out infinite 1s;
+}
+
+.energy-ring-3 {
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  border-color: #fdcb6e;
+  transform: rotate(45deg);
+  animation: rotateRing 15s linear infinite,
+    pulseOpacity 5s ease-in-out infinite 2s;
+}
+
+/* Light streams that flow around the sphere */
+.light-stream {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: 20px;
+  left: 20px;
+  z-index: 1;
+}
+
+.light-stream::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(108, 92, 231, 0) 20%,
+    rgba(108, 92, 231, 0.5) 40%,
+    rgba(108, 92, 231, 0.8) 50%,
+    rgba(108, 92, 231, 0.5) 60%,
+    rgba(108, 92, 231, 0) 80%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  animation: rotateStream 8s linear infinite;
+}
+
+.light-stream-2::before {
+  background: conic-gradient(
+    from 180deg,
+    transparent 0%,
+    rgba(0, 209, 115, 0) 20%,
+    rgba(0, 209, 115, 0.5) 40%,
+    rgba(0, 209, 115, 0.8) 50%,
+    rgba(0, 209, 115, 0.5) 60%,
+    rgba(0, 209, 115, 0) 80%,
+    transparent 100%
+  );
+  animation-duration: 10s;
+  animation-direction: reverse;
+}
+
+.light-stream-3::before {
+  background: conic-gradient(
+    from 90deg,
+    transparent 0%,
+    rgba(253, 203, 110, 0) 20%,
+    rgba(253, 203, 110, 0.5) 40%,
+    rgba(253, 203, 110, 0.8) 50%,
+    rgba(253, 203, 110, 0.5) 60%,
+    rgba(253, 203, 110, 0) 80%,
+    transparent 100%
+  );
+  animation-duration: 12s;
+}
+
+/* Energy particles that float around the sphere */
+.energy-particles {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.energy-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+}
+
+.energy-particle:nth-child(1) {
+  top: 40%;
+  left: 45%;
+  animation: particleFloat 20s infinite;
+}
+.energy-particle:nth-child(2) {
+  top: 60%;
+  left: 55%;
+  animation: particleFloat 15s infinite 1s;
+}
+.energy-particle:nth-child(3) {
+  top: 50%;
+  left: 40%;
+  animation: particleFloat 18s infinite 2s;
+}
+.energy-particle:nth-child(4) {
+  top: 55%;
+  left: 60%;
+  animation: particleFloat 22s infinite 3s;
+}
+.energy-particle:nth-child(5) {
+  top: 45%;
+  left: 50%;
+  animation: particleFloat 25s infinite 4s;
+}
+.energy-particle:nth-child(6) {
+  top: 65%;
+  left: 45%;
+  animation: particleFloat 17s infinite 5s;
+}
+.energy-particle:nth-child(7) {
+  top: 35%;
+  left: 55%;
+  animation: particleFloat 21s infinite 6s;
+}
+
+/* Core flare that pulsates inside the sphere */
+.energy-core {
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(var(--accent-color-rgb, 108, 92, 231), 0.8) 40%,
+    transparent 80%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  animation: pulseCore 3s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+/* Light beams that shoot out from the core */
+.light-beam {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(
+    to top,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  z-index: 0;
+  transform-origin: center bottom;
+}
+
+.light-beam-1 {
+  height: 100px;
+  top: -30px;
+  left: 79px;
+  animation: beamPulse 4s infinite ease-in-out;
+}
+
+.light-beam-2 {
+  height: 80px;
+  top: 10px;
+  left: 40px;
+  transform: rotate(45deg);
+  animation: beamPulse 4s infinite ease-in-out 1s;
+}
+
+.light-beam-3 {
+  height: 90px;
+  top: 20px;
+  right: 50px;
+  transform: rotate(-60deg);
+  animation: beamPulse 4s infinite ease-in-out 2s;
+}
+
+.light-beam-4 {
+  height: 70px;
+  bottom: 10px;
+  right: 60px;
+  transform: rotate(-110deg);
+  animation: beamPulse 4s infinite ease-in-out 3s;
+}
+
+/* Animations for the new energy sphere elements */
+@keyframes pulsateSphere {
+  0%,
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.4),
+      0 0 80px rgba(108, 92, 231, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 60px rgba(255, 255, 255, 0.8),
+      0 0 120px rgba(108, 92, 231, 0.6);
+  }
+}
+
+@keyframes rotateRing {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseOpacity {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes rotateStream {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(30px, -50px) scale(1.5);
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, -100px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes beamPulse {
+  0%,
+  100% {
+    height: 60px;
+    opacity: 0.3;
+  }
+  50% {
+    height: 100px;
+    opacity: 0.8;
+  }
+}
+
+/* Reposition the success message for better spacing with the new spinner */
+.os-login-success-message {
+  margin-top: 15px;
+  /* ...existing properties... */
+}

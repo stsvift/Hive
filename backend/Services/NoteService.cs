@@ -41,6 +41,7 @@ public class NoteService
         existingNote.Content = note.Content;
         existingNote.UpdatedAt = DateTime.UtcNow;
         existingNote.FolderId = note.FolderId;
+        existingNote.Color = note.Color; // Добавляем обновление цвета
 
         await _context.SaveChangesAsync();
         return existingNote;
