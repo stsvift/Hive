@@ -419,6 +419,22 @@ const TasksApp: React.FC = () => {
     })
   }
 
+  // Add a new helper function to format date for input fields
+  const formatDateForInput = (dateString?: string): string => {
+    if (!dateString) return ''
+
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return ''
+
+      // Format as YYYY-MM-DD for input[type="date"]
+      return date.toISOString().split('T')[0]
+    } catch (error) {
+      console.error('Error formatting date for input:', error)
+      return ''
+    }
+  }
+
   // Replace the renderSaveButton function with this improved version
   const renderSaveButton = () => {
     return (
@@ -426,15 +442,12 @@ const TasksApp: React.FC = () => {
         className="task-save-btn"
         onClick={handleSaveChanges}
         disabled={isUpdating || !hasUnsavedChanges}
+        title="Сохранить изменения"
       >
         {isUpdating ? (
-          <>
-            <i className="fas fa-spinner fa-spin"></i> Сохранение...
-          </>
+          <i className="fas fa-spinner fa-spin"></i>
         ) : (
-          <>
-            <i className="fas fa-save"></i> Сохранить изменения
-          </>
+          <i className="fas fa-save"></i>
         )}
       </button>
     )
@@ -501,11 +514,14 @@ const TasksApp: React.FC = () => {
           <div className="task-status-selector">
             <select
               value={editedTask.status}
-              onChange={e =>
+              onChange={e => {
+                // Update locally without triggering a save
                 handleUpdateTaskLocally({
                   status: e.target.value as Task['status'],
                 })
-              }
+                // Mark as dirty to enable the save button
+                setIsDirty(true)
+              }}
               className={`status-select ${getStatusClass(editedTask.status)}`}
               disabled={isUpdating}
             >
@@ -521,8 +537,9 @@ const TasksApp: React.FC = () => {
                 className="task-save-btn"
                 onClick={handleSaveTaskChanges}
                 disabled={isUpdating || !isDirty}
+                title="Сохранить"
               >
-                <i className="fas fa-save"></i> Сохранить
+                <i className="fas fa-save"></i>
               </button>
             )}
             <button
@@ -569,7 +586,7 @@ const TasksApp: React.FC = () => {
             <label>Срок выполнения</label>
             <input
               type="date"
-              value={editedTask.dueDate || ''}
+              value={formatDateForInput(editedTask.dueDate)}
               onChange={e =>
                 handleUpdateTaskLocally({
                   dueDate: e.target.value || undefined,
@@ -694,15 +711,29 @@ const TasksApp: React.FC = () => {
                 <div className="task-status-selector">
                   <select
                     value={selectedTask.status}
-                    onChange={e =>
-                      handleUpdateTask({
+                    onChange={e => {
+                      // Create updated task
+                      const updatedTask = {
                         ...selectedTask,
                         status: e.target.value as
                           | 'todo'
                           | 'in_progress'
                           | 'done',
-                      })
-                    }
+                        isDirty: true, // Mark as dirty to enable the save button
+                      }
+                      // Update the task in state
+                      setSelectedTask(updatedTask)
+
+                      // Also update in the tasks array
+                      setTasks(
+                        tasks.map(task =>
+                          task.id === updatedTask.id ? updatedTask : task
+                        )
+                      )
+
+                      // Set global flag to show we have unsaved changes
+                      setHasUnsavedChanges(true)
+                    }}
                     className={getStatusClass(selectedTask.status)}
                     disabled={isUpdating}
                   >
@@ -762,7 +793,7 @@ const TasksApp: React.FC = () => {
                   <label>Срок:</label>
                   <input
                     type="date"
-                    value={selectedTask.dueDate || ''}
+                    value={formatDateForInput(selectedTask.dueDate)}
                     onChange={e =>
                       handleUpdateTask({
                         ...selectedTask,
@@ -873,6 +904,7 @@ const TasksApp: React.FC = () => {
                 ></textarea>
               </div>
 
+              {/* First row with priority and due date only */}
               <div className="form-row">
                 <div className="form-group half">
                   <label>Приоритет:</label>
@@ -907,7 +939,10 @@ const TasksApp: React.FC = () => {
                     disabled={isUpdating}
                   />
                 </div>
-                {/* Add new time inputs */}
+              </div>
+
+              {/* Separate row for time inputs */}
+              <div className="form-row">
                 <div className="form-group half">
                   <label>Время начала:</label>
                   <input
@@ -1240,6 +1275,15 @@ const TasksApp: React.FC = () => {
                     ))
                   )}
                 </div>
+
+                {/* Add create task button to sidebar */}
+                <button
+                  className="add-task-btn"
+                  onClick={() => setIsAddingTask(true)}
+                  disabled={isUpdating}
+                >
+                  <i className="fas fa-plus"></i> Создать задачу
+                </button>
               </div>
 
               <div className="tasks-content">
@@ -1249,15 +1293,29 @@ const TasksApp: React.FC = () => {
                       <div className="task-status-selector">
                         <select
                           value={selectedTask.status}
-                          onChange={e =>
-                            handleUpdateTask({
+                          onChange={e => {
+                            // Create updated task
+                            const updatedTask = {
                               ...selectedTask,
                               status: e.target.value as
                                 | 'todo'
                                 | 'in_progress'
                                 | 'done',
-                            })
-                          }
+                              isDirty: true, // Mark as dirty to enable the save button
+                            }
+                            // Update the task in state
+                            setSelectedTask(updatedTask)
+
+                            // Also update in the tasks array
+                            setTasks(
+                              tasks.map(task =>
+                                task.id === updatedTask.id ? updatedTask : task
+                              )
+                            )
+
+                            // Set global flag to show we have unsaved changes
+                            setHasUnsavedChanges(true)
+                          }}
                           className={getStatusClass(selectedTask.status)}
                           disabled={isUpdating}
                         >
@@ -1322,12 +1380,38 @@ const TasksApp: React.FC = () => {
                         <label>Срок:</label>
                         <input
                           type="date"
-                          value={selectedTask.dueDate || ''}
+                          value={formatDateForInput(selectedTask.dueDate)}
                           onChange={e =>
                             handleUpdateTask({
                               ...selectedTask,
                               dueDate: e.target.value,
                             })
+                          }
+                          disabled={isUpdating}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Add new row for time fields */}
+                    <div className="task-meta">
+                      <div className="task-meta-item">
+                        <label>Время начала:</label>
+                        <input
+                          type="time"
+                          value={selectedTask.startTime || ''}
+                          onChange={e =>
+                            handleLocalTaskChange('startTime', e.target.value)
+                          }
+                          disabled={isUpdating}
+                        />
+                      </div>
+                      <div className="task-meta-item">
+                        <label>Время окончания:</label>
+                        <input
+                          type="time"
+                          value={selectedTask.endTime || ''}
+                          onChange={e =>
+                            handleLocalTaskChange('endTime', e.target.value)
                           }
                           disabled={isUpdating}
                         />
@@ -1428,6 +1512,7 @@ const TasksApp: React.FC = () => {
                       ></textarea>
                     </div>
 
+                    {/* First row with priority and due date only */}
                     <div className="form-row">
                       <div className="form-group half">
                         <label>Приоритет:</label>
@@ -1465,7 +1550,10 @@ const TasksApp: React.FC = () => {
                           disabled={isUpdating}
                         />
                       </div>
-                      {/* Add new time inputs */}
+                    </div>
+
+                    {/* Separate row for time inputs */}
+                    <div className="form-row">
                       <div className="form-group half">
                         <label>Время начала:</label>
                         <input
