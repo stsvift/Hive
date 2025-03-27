@@ -1,52 +1,55 @@
-import { useSelector, useDispatch } from "react-redux"
-import type { RootState } from "../../store"
-import { openWindow, activateWindow } from "../../store/windowsSlice"
-import "./Dock.css"
+import React from 'react'
+import './Dock.css'
 
-const Dock = () => {
-  const dispatch = useDispatch()
-  const apps = useSelector((state: RootState) => state.apps.apps)
-  const windows = useSelector((state: RootState) => state.windows.windows)
+interface DockItem {
+  id: string
+  name: string
+  icon: string
+}
 
-  const handleAppClick = (appId: string, title: string) => {
-    dispatch(openWindow({ appId, title }))
-  }
+interface DockProps {
+  items: DockItem[]
+  activeApps: string[]
+  minimizedApps?: string[]
+  receivingApp?: string | null
+  onItemClick: (id: string) => void
+}
 
-  const handleMinimizedWindowClick = (windowId: string) => {
-    dispatch(activateWindow(windowId))
-  }
-
-  const minimizedWindows = windows.filter((window) => window.isMinimized)
-
+const Dock: React.FC<DockProps> = ({
+  items,
+  activeApps,
+  minimizedApps = [],
+  receivingApp = null,
+  onItemClick,
+}) => {
   return (
     <div className="dock-container">
       <div className="dock">
-        {apps.map((app) => (
-          <div key={app.id} className="dock-icon" onClick={() => handleAppClick(app.id, app.title)}>
-            <i className={`fas fa-${app.icon}`}></i>
-            <span className="dock-icon-tooltip">{app.title}</span>
+        {items.map(item => (
+          <div
+            key={item.id}
+            className={`dock-item ${
+              activeApps.includes(item.id) ? 'active' : ''
+            } ${minimizedApps.includes(item.id) ? 'minimized' : ''} ${
+              receivingApp === item.id ? 'receiving' : ''
+            }`}
+            onClick={() => onItemClick(item.id)}
+            data-app-id={item.id} // Add data attribute for position tracking
+          >
+            <div className="dock-icon">
+              <i className={`fas fa-${item.icon}`}></i>
+            </div>
+
+            <div className="dock-indicator"></div>
+
+            <div className="dock-tooltip">
+              <span>{item.name}</span>
+            </div>
           </div>
         ))}
-
-        {minimizedWindows.length > 0 && <div className="dock-divider"></div>}
-
-        {minimizedWindows.map((window) => {
-          const app = apps.find((app) => app.id === window.appId)
-          return (
-            <div
-              key={window.id}
-              className="dock-icon dock-icon-minimized"
-              onClick={() => handleMinimizedWindowClick(window.id)}
-            >
-              <i className={`fas fa-${app?.icon || "window-maximize"}`}></i>
-              <span className="dock-icon-tooltip">{window.title}</span>
-            </div>
-          )
-        })}
       </div>
     </div>
   )
 }
 
 export default Dock
-

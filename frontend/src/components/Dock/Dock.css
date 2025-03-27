@@ -1,71 +1,305 @@
 .dock-container {
   position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
 }
 
 .dock {
   display: flex;
-  gap: 10px;
-  background-color: var(--dock-bg);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 10px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--dock-border);
+  align-items: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(30px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .dock {
+  background: rgba(18, 18, 18, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dock-item {
+  position: relative;
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .dock-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--icon-bg);
-  cursor: pointer;
+  font-size: 22px;
   position: relative;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.dock-icon:hover {
-  transform: scale(1.1);
+.dock-item:hover .dock-icon {
+  transform: translateY(-10px) scale(1.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
-.dock-icon i {
-  font-size: 24px;
+.dock:hover .dock-item:not(:hover) .dock-icon {
+  transform: scale(0.85);
 }
 
-.dock-icon-tooltip {
+.dock-indicator {
+  width: 5px;
+  height: 5px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.3s var(--transition-fast);
+}
+
+.dock-item.active .dock-indicator {
+  opacity: 1;
+  /* Changed from width: 20px and border-radius: 3px to keep it a simple dot */
+}
+
+.dock-item.active .dock-icon {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-dark) 0%,
+    var(--color-primary) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dock-tooltip {
   position: absolute;
-  top: -30px;
+  top: -40px;
+  padding: 6px 12px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  transition: all 0.2s var(--transition-fast);
+  pointer-events: none;
+}
+
+.dock-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--window-bg);
-  color: var(--text-color);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  white-space: nowrap;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(0, 0, 0, 0.8);
 }
 
-.dock-icon:hover .dock-icon-tooltip {
+.dock-item:hover .dock-tooltip {
   opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
-.dock-icon-minimized {
-  opacity: 0.7;
+/* Dock magnification effect */
+.dock:hover .dock-item {
+  transition-duration: 0.1s;
 }
 
-.dock-divider {
-  width: 1px;
-  background-color: var(--text-color);
-  opacity: 0.3;
-  margin: 0 5px;
+.dock:hover .dock-icon {
+  transition-duration: 0.1s;
 }
 
+/* Removed the dock-item::before styling that was creating the line indicator */
+
+.dark .dock-icon {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dark .dock-item.active .dock-icon {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.dark .dock-item:hover .dock-icon {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.dock-item .fas,
+.dock-item-icon .fas {
+  color: inherit;
+}
+
+@media (max-width: 768px) {
+  .dock-container {
+    bottom: 16px;
+  }
+
+  .dock {
+    padding: 6px;
+    border-radius: 20px;
+  }
+
+  .dock-item {
+    padding: 0 3px;
+  }
+
+  .dock-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    border-radius: 14px;
+  }
+}
+
+/* Улучшенная анимация для иконки дока */
+@keyframes dock-item-receive {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.3) translateY(-8px);
+    filter: brightness(1.3);
+  }
+  70% {
+    transform: scale(0.9) translateY(2px);
+  }
+  85% {
+    transform: scale(1.1) translateY(-3px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    filter: brightness(1);
+  }
+}
+
+.dock-item.receiving {
+  animation: dock-item-receive 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Более заметная и элегантная индикация свернутых приложений */
+.dock-item.minimized .dock-indicator {
+  opacity: 1;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary);
+  box-shadow: 0 0 5px var(--color-primary-light);
+}
+
+/* Add animation for the dock icon when minimizing to it */
+@keyframes dock-item-receive {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  15% {
+    transform: scale(0.9);
+  }
+  45% {
+    transform: scale(1.35) translateY(-8px);
+    filter: brightness(1.4);
+  }
+  65% {
+    transform: scale(1.15) translateY(-4px);
+    filter: brightness(1.2);
+  }
+  85% {
+    transform: scale(1.05) translateY(-2px);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.dock-item.receiving {
+  animation: dock-item-receive 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Enhanced animation for minimized apps indicator */
+.dock-item.minimized .dock-indicator {
+  animation: pulse 1.5s infinite ease-in-out;
+  opacity: 0.8;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary-light);
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+    background-color: var(--color-primary-light);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: var(--color-primary);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+    background-color: var(--color-primary-light);
+  }
+}
+
+/* Исправленная анимация для иконки в доке */
+@keyframes dock-item-receive {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25) translateY(-5px);
+    filter: brightness(1.3);
+  }
+  75% {
+    transform: scale(0.95);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.dock-item.receiving {
+  animation: dock-item-receive 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Более заметная индикация свернутых приложений */
+.dock-item.minimized .dock-indicator {
+  opacity: 1;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary);
+  box-shadow: 0 0 4px rgba(255, 152, 0, 0.4);
+}
+
+/* Удаляем дублирующиеся анимации */

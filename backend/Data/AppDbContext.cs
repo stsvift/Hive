@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,10 +13,10 @@ public class AppDbContext : DbContext
 {
     private readonly ILogger<AppDbContext> _logger;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options, ILogger<AppDbContext> logger) 
+    public AppDbContext(DbContextOptions<AppDbContext> options, ILogger<AppDbContext>? logger = null) 
         : base(options) 
     {
-        _logger = logger;
+        _logger = logger ?? new NullLogger<AppDbContext>();
     }
 
     public DbSet<User> Users { get; set; } = null!;
@@ -33,7 +34,8 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Email).IsUnique();
-            entity.HasIndex(e => e.Username);
+            // Закомментируем строку с Username, если такого поля нет
+            // entity.HasIndex(e => e.Username);
         });
 
         // Task indexes
@@ -41,12 +43,12 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.FolderId).IsRequired(false);
-            entity.HasIndex(e => e.AssigneeId); // Changed from UserId to AssigneeId
-            entity.HasIndex(e => e.Deadline);
+            entity.HasIndex(e => e.AssigneeId);
+            entity.HasIndex(e => e.TaskDate);
             entity.HasIndex(e => e.FolderId);
-            entity.HasIndex(e => new { e.AssigneeId, e.IsCompleted }); // Changed from UserId to AssigneeId
-            entity.HasIndex(e => e.Priority); // Add index for Priority
-            entity.HasIndex(e => e.Status); // Add index for Status
+            entity.HasIndex(e => new { e.AssigneeId, e.IsCompleted });
+            entity.HasIndex(e => e.Priority);
+            entity.HasIndex(e => e.Status);
         });
 
         // Note indexes
@@ -89,7 +91,7 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.HasOne(e => e.Folder)
-                  .WithMany()
+                  .WithMany(e => e.Items)
                   .HasForeignKey(e => e.FolderId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
@@ -99,13 +101,19 @@ public class AppDbContext : DbContext
     {
         try
         {
+            _logger.LogInformation("Checking for pending migrations...");
+            
             if (Database.GetPendingMigrations().Any())
             {
+                _logger.LogInformation("Applying pending migrations...");
                 await Database.MigrateAsync();
+                _logger.LogInformation("Migrations applied successfully");
             }
             else
             {
+                _logger.LogInformation("No pending migrations, ensuring database is created...");
                 await Database.EnsureCreatedAsync();
+                _logger.LogInformation("Database creation check completed");
             }
         }
         catch (Exception ex)
@@ -119,7 +127,9 @@ public class AppDbContext : DbContext
     {
         try
         {
-            return await base.SaveChangesAsync(cancellationToken);
+            var result = await base.SaveChangesAsync(cancellationToken);
+            _logger.LogTrace("SaveChangesAsync completed successfully");
+            return result;
         }
         catch (Exception ex)
         {

@@ -1,0 +1,149 @@
+.desktop-apps-container {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  max-width: 200px;
+  z-index: 2;
+}
+
+.desktop-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 20px;
+}
+
+.desktop-app-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.desktop-app-item.animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.desktop-app-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.dark .desktop-app-icon {
+  background: rgba(30, 30, 30, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-app-icon i {
+  font-size: 24px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Add specific accent color support for desktop app icons */
+.desktop-app-icon.accent-colored i {
+  color: var(--color-primary);
+  text-shadow: none;
+}
+
+.desktop-app-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.3),
+    transparent 70%
+  );
+  border-radius: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.desktop-app-item:hover .desktop-app-icon {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 20px -3px rgba(0, 0, 0, 0.15);
+}
+
+.desktop-app-item:hover .desktop-app-icon::before {
+  opacity: 1;
+}
+
+.desktop-app-item.open .desktop-app-icon {
+  box-shadow: 0 0 0 3px var(--color-primary),
+    0 15px 20px -3px rgba(0, 0, 0, 0.15);
+}
+
+.desktop-app-item.active .desktop-app-icon {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 3px var(--color-primary), 0 8px 10px -3px rgba(0, 0, 0, 0.1);
+}
+
+.desktop-app-title {
+  font-size: 12px;
+  color: white;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 3px 6px;
+  border-radius: 4px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.dark .desktop-app-title {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 768px) {
+  .desktop-apps-container {
+    top: 20px;
+    left: 20px;
+  }
+
+  .desktop-apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 15px;
+  }
+
+  .desktop-app-item {
+    width: 60px;
+  }
+
+  .desktop-app-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .desktop-app-icon i {
+    font-size: 20px;
+  }
+
+  .desktop-app-title {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .desktop-apps-container {
+    top: 15px;
+    left: 15px;
+  }
+}

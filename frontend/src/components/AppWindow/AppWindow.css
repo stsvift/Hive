@@ -1,0 +1,348 @@
+.app-window {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all var(--transition-medium);
+  z-index: 10;
+  animation: window-appear var(--transition-medium) forwards;
+}
+
+.dark .app-window {
+  background-color: rgba(30, 30, 30, 0.95);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.app-window.active {
+  z-index: 20;
+}
+
+.app-window.dragging {
+  opacity: 0.9;
+  transition: none;
+}
+
+.app-window.maximized {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.app-window.minimized {
+  transform: scale(0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.app-window.resizing {
+  transition: none;
+  user-select: none;
+}
+
+.app-window-header {
+  height: 48px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  cursor: move;
+  user-select: none;
+  background-color: rgba(248, 249, 250, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .app-window-header {
+  background-color: rgba(38, 50, 56, 0.9);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.app-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.window-control {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  position: relative;
+}
+
+.window-control::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.window-control:hover {
+  transform: scale(1.1);
+}
+
+.window-control:hover::before {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.window-control.close {
+  background-color: #ff5f57;
+}
+
+.window-control.minimize {
+  background-color: #ffbd2e;
+}
+
+.window-control.maximize {
+  background-color: #28c941;
+}
+
+.app-window-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
+.dark .app-window-title {
+  color: var(--text-light);
+}
+
+.app-window-title i {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.app-window-content {
+  height: calc(100% - 48px);
+  overflow: auto;
+}
+
+/* Window transitions */
+@keyframes window-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.dark @keyframes window-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Новая, чистая и простая анимация скрытия */
+@keyframes window-minimize {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+.app-window.minimizing {
+  animation: window-minimize 0.25s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Обновленная анимация восстановления */
+@keyframes window-restore {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.app-window.restoring {
+  animation: window-restore 0.25s ease-out forwards;
+}
+
+/* Window closing animation */
+@keyframes window-close {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+    filter: blur(5px);
+  }
+}
+
+.app-window.closing {
+  animation: window-close 0.35s cubic-bezier(0.34, 0.13, 0.26, 0.96) forwards;
+  pointer-events: none;
+}
+
+/* Window resize handles */
+.resize-handle {
+  position: absolute;
+  z-index: 100;
+  transition: opacity var(--transition-fast),
+    background-color var(--transition-fast);
+  opacity: 0;
+}
+
+.app-window:hover .resize-handle {
+  opacity: 0.6;
+}
+
+.resize-handle:hover {
+  opacity: 1 !important;
+  background-color: var(--color-primary-light) !important;
+}
+
+/* Edge handles - make them wider/taller for easier grabbing */
+.resize-handle.top,
+.resize-handle.bottom {
+  height: 8px;
+  left: 0;
+  right: 0;
+  background-color: transparent;
+}
+
+.resize-handle.left,
+.resize-handle.right {
+  width: 8px;
+  top: 0;
+  bottom: 0;
+  background-color: transparent;
+}
+
+/* Visual indicator when hovering over resize handles */
+.resize-handle.top:hover,
+.resize-handle.bottom:hover {
+  background-color: rgba(255, 152, 0, 0.2);
+}
+
+.resize-handle.left:hover,
+.resize-handle.right:hover {
+  background-color: rgba(255, 152, 0, 0.2);
+}
+
+/* Position each handle */
+.resize-handle.top {
+  top: 0;
+  cursor: ns-resize;
+}
+
+.resize-handle.right {
+  right: 0;
+  cursor: ew-resize;
+}
+
+.resize-handle.bottom {
+  bottom: 0;
+  cursor: ns-resize;
+}
+
+.resize-handle.left {
+  left: 0;
+  cursor: ew-resize;
+}
+
+/* Visual feedback when resizing */
+.app-window.resizing .resize-handle {
+  opacity: 1;
+}
+
+/* Help with dragging precision by showing active resize area */
+.app-window.resizing .resize-handle.top,
+.app-window.resizing .resize-handle.bottom,
+.app-window.resizing .resize-handle.left,
+.app-window.resizing .resize-handle.right {
+  background-color: rgba(255, 152, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .app-window {
+    border-radius: var(--border-radius);
+  }
+
+  .app-window-header {
+    height: 40px;
+    padding: 0 12px;
+  }
+
+  .app-window-title {
+    font-size: 13px;
+  }
+
+  .app-window-title i {
+    font-size: 13px;
+  }
+
+  .window-control {
+    width: 12px;
+    height: 12px;
+  }
+
+  .app-window-content {
+    height: calc(100% - 40px);
+  }
+
+  /* Fix for app window title centering in mobile view */
+  .app-window-title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    width: 70%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .app-window-header {
+    position: relative;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+
+  .app-window-controls {
+    position: relative;
+    z-index: 2;
+  }
+}

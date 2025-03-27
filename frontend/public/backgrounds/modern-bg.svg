@@ -1,0 +1,76 @@
+<!-- filepath: /Users/dymyx/HIVE/frontend/public/backgrounds/modern-bg.svg -->
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_1_1)">
+    <!-- Градиентный фон -->
+    <rect width="1920" height="1080" fill="#F5F7FA"/>
+    
+    <!-- Градиентное свечение в центре -->
+    <radialGradient id="honey_gradient" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#FFA000" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#FFA000" stop-opacity="0"/>
+    </radialGradient>
+    <rect width="1920" height="1080" fill="url(#honey_gradient)"/>
+    
+    <!-- Сотовая структура -->
+    <g opacity="0.2">
+      <!-- Генерация сот через шаблон -->
+      <pattern id="hex-pattern" width="200" height="346" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+        <!-- Первый ряд -->
+        <path d="M0 173L100 115.333V0L0 57.6667V173Z" stroke="#FF9800" stroke-width="2" fill="none"/>
+        <path d="M100 115.333L200 57.6667V173L100 230.667V115.333Z" stroke="#FF9800" stroke-width="2" fill="none"/>
+        <path d="M100 230.667L200 173V288.333L100 346V230.667Z" stroke="#FF9800" stroke-width="2" fill="none"/>
+        <path d="M200 57.6667L300 0V115.333L200 173V57.6667Z" stroke="#FF9800" stroke-width="2" fill="none"/>
+        <path d="M200 173L300 115.333V230.667L200 288.333V173Z" stroke="#FF9800" stroke-width="2" fill="none"/>
+        <path d="M300 0L400 57.6667V173L300 115.333V0Z" stroke="#FF9800" stroke-width="2" fill="none"/>
+      </pattern>
+      
+      <!-- Применение шаблона на весь холст -->
+      <rect width="1920" height="1080" fill="url(#hex-pattern)"/>
+    </g>
+    
+    <!-- Декоративные элементы: пчелы -->
+    <g opacity="0.15">
+      <!-- Маленькая пчела 1 -->
+      <g transform="translate(400, 300) scale(0.1) translate(-128, -128)">
+        <ellipse cx="128" cy="128" rx="60" ry="40" fill="#FFCA28" />
+        <rect x="90" y="108" width="76" height="10" rx="5" fill="#212121" />
+        <rect x="90" y="128" width="76" height="10" rx="5" fill="#212121" />
+        <rect x="90" y="148" width="76" height="10" rx="5" fill="#212121" />
+        <ellipse cx="100" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(-20 100 100)" />
+        <ellipse cx="156" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(20 156 100)" />
+      </g>
+      
+      <!-- Маленькая пчела 2 -->
+      <g transform="translate(1500, 800) scale(0.15) translate(-128, -128)">
+        <ellipse cx="128" cy="128" rx="60" ry="40" fill="#FFCA28" />
+        <rect x="90" y="108" width="76" height="10" rx="5" fill="#212121" />
+        <rect x="90" y="128" width="76" height="10" rx="5" fill="#212121" />
+        <rect x="90" y="148" width="76" height="10" rx="5" fill="#212121" />
+        <ellipse cx="100" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(-20 100 100)" />
+        <ellipse cx="156" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(20 156 100)" />
+      </g>
+      
+      <!-- Маленькая пчела 3 -->
+      <g transform="translate(900, 600) scale(0.12) translate(-128, -128)">
+        <ellipse cx="128" cy="128" rx="60" ry="40" fill="#FFCA28" />
+        <rect x="90" y="108" width="76" height="10" rx="5" fill="#212121" />
+        <rect x="90" y="128" width="76" height="10" rx="5" fill="#212121" />
+        <rect x="90" y="148" width="76" height="10" rx="5" fill="#212121" />
+        <ellipse cx="100" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(-20 100 100)" />
+        <ellipse cx="156" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(20 156 100)" />
+      </g>
+    </g>
+    
+    <!-- Декоративные капли меда -->
+    <circle cx="300" cy="500" r="8" fill="#FFA000" opacity="0.3"/>
+    <circle cx="1200" cy="300" r="6" fill="#FFA000" opacity="0.3"/>
+    <circle cx="1600" cy="700" r="10" fill="#FFA000" opacity="0.3"/>
+    <circle cx="800" cy="900" r="7" fill="#FFA000" opacity="0.3"/>
+    <circle cx="500" cy="200" r="5" fill="#FFA000" opacity="0.3"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_1_1">
+      <rect width="1920" height="1080" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>

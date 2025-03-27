@@ -1,182 +1,165 @@
 import axios from 'axios'
-import { Note } from '../types/Note'
-import { getAuthToken } from '../utils/authUtils'
+import { STORAGE_KEYS } from '../config/constants'
 
-// Update the API URL to match the correct endpoint from the API documentation
-const API_BASE_URL = 'http://localhost:5000/api'
-const API_URL = `${API_BASE_URL}/notes`
+// Получаем базовый URL из переменных окружения или используем запасной вариант
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
-// Get authorization headers
-const getHeaders = () => {
-  const token = getAuthToken()
-  return {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+// Упрощенная проверка доступности API без зависимости от health endpoint
+const checkApiAvailability = async () => {
+  try {
+    // Попробуем сделать запрос к основному API вместо health endpoint
+    await axios.head(`${API_URL}`, { timeout: 3000 })
+    return true
+  } catch (error) {
+    console.warn('API availability check failed:', error)
+    return false
   }
 }
 
-// Create proxy for development
-const proxy = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-  withCredentials: true, // Important for cookie transmission
+// Configure axios instance with auth header
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  // Увеличиваем таймаут
+  timeout: 15000,
 })
 
-// Get all notes from database
-export const getAllNotes = async (): Promise<Note[]> => {
-  try {
-    const response = await proxy.get('/notes', getHeaders())
+// Add auth token to every request
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
-    // Handle different response formats
-    if (Array.isArray(response.data)) {
-      return response.data
-    } else if (response.data && typeof response.data === 'object') {
-      // If response is an object with a notes array
-      if (Array.isArray(response.data.notes)) {
-        return response.data.notes
-      }
-      // If response is a single note, wrap it in an array
-      if (response.data.id) {
-        return [response.data]
-      }
-      // If response is in another format, try to extract notes
-      const potentialNotes = Object.values(response.data).filter(
-        (item: any) => item && typeof item === 'object' && 'title' in item
+// Добавляем обработчик ошибок для всех запросов
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    // Показываем более понятное сообщение при ошибке соединения
+    if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {
+      console.error(
+        'Ошибка соединения с сервером. Проверьте, запущен ли бэкенд.'
       )
-      if (potentialNotes.length > 0) {
-        return potentialNotes as Note[]
-      }
+      // Можно добавить дополнительную логику восстановления соединения
     }
+    return Promise.reject(error)
+  }
+)
 
-    // If format couldn't be recognized, return empty array
-    return []
-  } catch (error) {
-    // In development return test notes
-    if (window.location.hostname === 'localhost') {
-      return [
-        {
-          id: 1,
-          title: 'Meeting Notes',
-          content: 'Discussed project timeline and deliverables',
-          userId: 1,
-          folderId: 2,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          title: 'Project Ideas',
-          content: 'List of ideas for the next sprint',
-          userId: 1,
-          folderId: 2,
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          updatedAt: new Date(Date.now() - 86400000).toISOString(),
-        },
-      ]
-    }
-    return []
+export interface ApiNote {
+  id: number
+  title: string
+  content: string
+  color: string
+  createdAt: string
+  updatedAt: string
+  userId: number
+  folderId?: number
+}
+
+export interface CreateNoteDto {
+  title: string
+  content: string
+  color: string
+  folderId?: number
+}
+
+export interface UpdateNoteDto {
+  title: string
+  content: string
+  color: string
+  folderId?: number
+}
+
+// Convert API note to frontend note format
+export const apiNoteToNote = (apiNote: ApiNote): Note => {
+  return {
+    id: apiNote.id.toString(),
+    title: apiNote.title,
+    content: apiNote.content,
+    color: apiNote.color,
+    createdAt: apiNote.createdAt,
+    updatedAt: apiNote.updatedAt,
   }
 }
 
-// Get a specific note
-export const getNote = async (id: number): Promise<Note> => {
+// Get all notes с улучшенной обработкой ошибок соединения
+export const getAllNotes = async (): Promise<Note[]> => {
   try {
-    const response = await proxy.get(`/notes/${id}`, getHeaders())
-    return response.data
+    // Убираем жесткую зависимость от /health эндпоинта, пробуем напрямую
+    const response = await api.get('/notes')
+    return response.data.map(apiNoteToNote)
   } catch (error) {
-    throw new Error(
-      'Не удалось загрузить заметку. Пожалуйста, попробуйте позже.'
-    )
+    if (axios.isAxiosError(error)) {
+      // Дополнительная проверка для выявления причины ошибки
+      if (error.code === 'ERR_NETWORK') {
+        console.error('Сетевая ошибка при получении заметок:', error)
+        throw new Error(
+          'Не удалось подключиться к серверу. Пожалуйста, проверьте подключение к интернету и убедитесь, что сервер запущен.'
+        )
+      } else if (error.response?.status === 404) {
+        throw new Error(
+          'API заметок не найден. Убедитесь, что сервер запущен и API заметок настроен корректно.'
+        )
+      } else if (
+        error.response?.status === 401 ||
+        error.response?.status === 403
+      ) {
+        throw new Error(
+          'Нет доступа к API заметок. Пожалуйста, войдите в систему заново.'
+        )
+      }
+    }
+    console.error('Error fetching notes:', error)
+    throw error
   }
 }
 
 // Create a new note
-export const createNote = async (noteData: {
-  title: string
-  content: string
-}): Promise<Note> => {
+export const createNote = async (note: CreateNoteDto): Promise<Note> => {
   try {
-    const response = await proxy.post('/notes', noteData, getHeaders())
-
-    // Check API response
-    if (!response.data) {
-      throw new Error('Сервер вернул пустой ответ')
-    }
-
-    // If server didn't return ID, create a temporary one
-    if (!response.data.id) {
-      response.data.id = Date.now()
-    }
-
-    return response.data
+    const response = await api.post('/notes', note)
+    return apiNoteToNote(response.data)
   } catch (error) {
-    // In development return a mock note
-    if (window.location.hostname === 'localhost') {
-      const mockNote: Note = {
-        id: Date.now(),
-        title: noteData.title,
-        content: noteData.content,
-        userId: 1,
-        folderId: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        color: '',
-        isLocalOnly: true,
-      }
-      return mockNote
-    }
-
-    throw new Error('Не удалось создать заметку. Пожалуйста, попробуйте позже.')
+    console.error('Error creating note:', error)
+    throw error
   }
 }
 
 // Update an existing note
 export const updateNote = async (
-  id: number,
-  noteData: { title?: string; content?: string; color?: string }
+  id: string,
+  note: UpdateNoteDto
 ): Promise<Note> => {
   try {
-    const response = await proxy.put(`/notes/${id}`, noteData, getHeaders())
-
-    // Check API response
-    if (!response.data) {
-      throw new Error('Сервер вернул пустой ответ при обновлении')
-    }
-
-    return response.data
+    const response = await api.put(`/notes/${id}`, note)
+    return apiNoteToNote(response.data)
   } catch (error) {
-    // In development return updated local note
-    if (window.location.hostname === 'localhost') {
-      return {
-        id: id,
-        title: noteData.title || 'Untitled',
-        content: noteData.content || '',
-        color: noteData.color || '',
-        userId: 1,
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        isLocalOnly: true,
-      }
-    }
-
-    throw new Error(
-      'Не удалось обновить заметку. Пожалуйста, попробуйте позже.'
-    )
+    console.error(`Error updating note ${id}:`, error)
+    throw error
   }
 }
 
 // Delete a note
-export const deleteNote = async (id: number): Promise<void> => {
+export const deleteNote = async (id: string): Promise<void> => {
   try {
-    await proxy.delete(`/notes/${id}`, getHeaders())
+    await api.delete(`/notes/${id}`)
   } catch (error) {
-    // In development, ignore deletion error
-    if (window.location.hostname === 'localhost') {
-      return
-    }
-
-    throw new Error('Не удалось удалить заметку. Пожалуйста, попробуйте позже.')
+    console.error(`Error deleting note ${id}:`, error)
+    throw error
   }
+}
+
+// Interface for frontend note object
+export interface Note {
+  id: string
+  title: string
+  content: string
+  color: string
+  createdAt: string
+  updatedAt: string
 }

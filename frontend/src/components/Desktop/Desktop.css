@@ -1,73 +1,659 @@
-.desktop {
-  width: 100%;
+.desktop-container {
   height: 100vh;
-  padding-top: 40px; /* Space for the top bar */
-  background-size: cover;
-  background-position: center;
+  width: 100vw;
+  position: relative;
   overflow: hidden;
 }
 
-.desktop-welcome {
-  text-align: center;
-  margin-top: 40px;
-  margin-bottom: 40px;
+.desktop {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-light);
+}
+
+.desktop.dark {
+  background-color: var(--bg-dark);
+}
+
+.desktop-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/backgrounds/modern-bg.svg');
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  opacity: 0.8;
+  transition: background-image 0.5s ease;
+}
+
+.dark .desktop-background {
+  opacity: 0.6; /* Reduced opacity instead of color manipulation */
+  filter: brightness(0.7); /* Only reduce brightness, not hue-rotate */
+}
+
+/* Wallpapers */
+.wallpaper-modern {
+  background-image: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+  opacity: 0.9;
+}
+
+.dark .wallpaper-modern {
   opacity: 0.7;
+  filter: brightness(0.7);
 }
 
-.desktop-welcome h1 {
-  font-size: 24px;
-  font-weight: 500;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+/* Honeycomb wallpaper */
+.wallpaper-honeycomb {
+  background-color: #ffb74d;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='2'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 28px 50px;
+  opacity: 0.9;
 }
 
-.desktop-icons {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 80px);
-  grid-gap: 20px;
-  padding: 20px;
+.dark .wallpaper-honeycomb {
+  opacity: 0.7;
+  filter: brightness(0.7);
 }
 
-.desktop-icon {
-  width: 80px;
-  height: 90px;
+/* Gradient wallpaper */
+.wallpaper-gradient {
+  background-image: linear-gradient(
+    45deg,
+    #ff9a9e 0%,
+    #fad0c4 99%,
+    #fad0c4 100%
+  );
+  opacity: 0.9;
+}
+
+.dark .wallpaper-gradient {
+  opacity: 0.7;
+  filter: brightness(0.7);
+}
+
+/* Minimal wallpaper */
+.wallpaper-minimal {
+  background-color: #eceff1;
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 16px 16px;
+}
+
+.dark .wallpaper-minimal {
+  background-color: #263238;
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.15) 1px,
+    transparent 1px
+  );
+}
+
+.app-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  color: var(--text-gray);
+  font-size: 1.25rem;
+  font-weight: 500;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 247, 250, 0.5) 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  border-radius: var(--border-radius);
+}
+
+.app-placeholder i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--color-primary);
+  opacity: 0.5;
+}
+
+.dark .app-placeholder {
+  color: var(--text-light-secondary);
+  background: linear-gradient(
+    135deg,
+    rgba(38, 50, 56, 0.6) 0%,
+    rgba(55, 71, 79, 0.8) 100%
+  );
+}
+
+.app-coming-soon {
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 20px;
+  opacity: 0.8;
+}
+
+/* Настройки приложения */
+.app-settings {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.settings-sidebar {
+  width: 220px;
+  background-color: var(--bg-light);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 20px 0;
+}
+
+.dark .settings-sidebar {
+  background-color: var(--color-dark);
+  border-right-color: rgba(255, 255, 255, 0.1);
+}
+
+.settings-category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: background-color var(--transition-fast);
+  color: var(--text-gray);
 }
 
-.desktop-icon:hover {
-  transform: scale(1.05);
+.settings-category:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-.desktop-icon-img {
-  width: 50px;
-  height: 50px;
+.dark .settings-category:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.settings-category.active {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.dark .settings-category.active {
+  background-color: rgba(255, 152, 0, 0.2);
+}
+
+.settings-content {
+  flex-grow: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+}
+
+.settings-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  color: var(--text-gray);
+}
+
+.settings-option {
+  margin-bottom: 20px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Анимация для открытия и закрытия окон */
+.app-window {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
-  background-color: var(--icon-bg);
-  backdrop-filter: blur(5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: window-open 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes window-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes window-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.window-appear {
+  animation: window-appear var(--transition-medium) forwards;
+}
+
+.app-window-header {
+  height: 32px;
+  background-color: var(--bee-black);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  cursor: move;
+}
+
+.app-window-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.app-window-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.window-control {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.window-close {
+  background-color: #ff5f57;
+}
+
+.window-minimize {
+  background-color: #ffbd2e;
+}
+
+.window-maximize {
+  background-color: #28c941;
+}
+
+.app-window-content {
+  padding: 10px;
+  height: calc(100% - 32px);
+  overflow: auto;
+}
+
+/* Шестиугольные ячейки для главного экрана (соты) */
+.honeycomb-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.honeycomb-cell {
+  --hex-size: 120px;
+  width: var(--hex-size);
+  height: calc(var(--hex-size) * 0.866);
+  margin: calc(var(--hex-size) * 0.866 * 0.25);
+  position: relative;
+  background-color: rgba(255, 152, 0, 0.9);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 5px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.desktop-icon-img i {
-  font-size: 24px;
+.honeycomb-cell:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  z-index: 2;
 }
 
-.desktop-icon-label {
+.honeycomb-content {
   text-align: center;
-  font-size: 12px;
-  color: var(--text-color);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  background-color: rgba(0, 0, 0, 0.3);
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 0 10px;
+  color: white;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  z-index: 1;
 }
 
+.honeycomb-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.honeycomb-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили для мобильных устройств */
+@media (max-width: 768px) {
+  .desktop {
+    overflow-y: auto;
+  }
+
+  .app-placeholder {
+    font-size: 1rem;
+    padding: 15px;
+  }
+
+  .honeycomb-cell {
+    --hex-size: 100px;
+  }
+
+  .honeycomb-icon {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+
+  .honeycomb-title {
+    font-size: 12px;
+  }
+
+  .app-settings {
+    flex-direction: column;
+  }
+
+  .settings-sidebar {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  .settings-category {
+    padding: 10px 15px;
+    white-space: nowrap;
+  }
+
+  .settings-content {
+    padding: 20px;
+  }
+
+  .app-placeholder {
+    font-size: 1rem;
+    padding: 16px;
+  }
+
+  .app-placeholder i {
+    font-size: 2.5rem;
+  }
+}
+
+.desktop-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: var(--dock-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Glass panel effect */
+.glass-panel {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.dark .glass-panel {
+  background-color: rgba(18, 18, 18, 0.3);
+}
+
+/* Quick access menu */
+.quick-access {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dark .quick-access {
+  background-color: rgba(38, 50, 56, 0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.quick-action {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark .quick-action {
+  color: var(--text-light);
+}
+
+.quick-action:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.dark .quick-action:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Animation for app windows */
+@keyframes window-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.window-appear {
+  animation: window-appear var(--transition-medium) forwards;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .desktop-content {
+    padding: 80px 16px 16px;
+  }
+
+  .quick-access {
+    top: 16px;
+    right: 16px;
+  }
+
+  .app-settings {
+    flex-direction: column;
+  }
+
+  .settings-sidebar {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  .settings-category {
+    padding: 10px 15px;
+    white-space: nowrap;
+  }
+
+  .settings-content {
+    padding: 20px;
+  }
+
+  .app-placeholder {
+    font-size: 1rem;
+    padding: 16px;
+  }
+
+  .app-placeholder i {
+    font-size: 2.5rem;
+  }
+}
+
+.quick-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 5;
+}
+
+.quick-action-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: var(--text-dark); /* Changed from white to dark text in light theme */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dark .quick-action-button {
+  background: rgba(30, 30, 30, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white; /* Keep white color for dark theme */
+}
+
+.quick-action-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action-button i,
+.quick-actions i,
+.quick-action-button .fas,
+.quick-actions .fas {
+  color: inherit;
+}
+
+/* Mobile window styling */
+@media (max-width: 768px) {
+  .app-window {
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+    max-width: 100vw;
+    max-height: calc(100vh - var(--dock-height));
+  }
+
+  .app-window-header {
+    height: 40px; /* Taller header for easier touch */
+  }
+
+  .app-window-controls {
+    padding: 8px;
+  }
+
+  .window-control {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+  }
+
+  .app-window-title {
+    font-size: 16px;
+  }
+
+  /* Improve appearance of maximized windows on mobile */
+  .app-window.maximized {
+    border-radius: 0;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100% - var(--dock-height)) !important;
+    overflow: hidden;
+  }
+
+  /* Improve touch target sizes */
+  .app-window-content button,
+  .app-window-content input,
+  .app-window-content select {
+    min-height: 36px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  /* Prevent content overflow */
+  .app-window-content {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Animation for window appear - add touch optimization */
+@keyframes window-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Optimize animation performance for mobile */
+@media (max-width: 768px) {
+  .window-appear {
+    animation: window-appear 0.25s ease-out forwards;
+    will-change: transform, opacity;
+  }
+
+  .app-window {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}

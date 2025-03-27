@@ -1,0 +1,41 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" rx="60" fill="#FFA000" />
+  
+  <!-- Соты -->
+  <path d="M100 40L130 57.32V92.68L100 110L70 92.68V57.32L100 40Z" fill="#FFD54F" stroke="#F57C00" stroke-width="3"/>
+  <path d="M60 57.32L90 74.64V110L60 127.32L30 110V74.64L60 57.32Z" fill="#FFE082" stroke="#F57C00" stroke-width="3"/>
+  <path d="M140 57.32L170 74.64V110L140 127.32L110 110V74.64L140 57.32Z" fill="#FFECB3" stroke="#F57C00" stroke-width="3"/>
+  <path d="M80 92.68L110 110V145.36L80 162.68L50 145.36V110L80 92.68Z" fill="#FFF8E1" stroke="#F57C00" stroke-width="3"/>
+  <path d="M120 92.68L150 110V145.36L120 162.68L90 145.36V110L120 92.68Z" fill="#FFECB3" stroke="#F57C00" stroke-width="3"/>
+  
+  <!-- Пчела -->
+  <g transform="translate(75, 86) scale(0.4)">
+    <ellipse cx="60" cy="40" rx="30" ry="20" fill="#FFEB3B" />
+    <ellipse cx="60" cy="40" rx="30" ry="20" fill="url(#bee-gradient)" />
+    <ellipse cx="60" cy="40" rx="22" ry="15" fill="#212121" />
+    <ellipse cx="60" cy="40" rx="22" ry="15" fill="url(#stripe-gradient)" />
+    
+    <!-- Крылья -->
+    <ellipse cx="45" cy="25" rx="15" ry="10" fill="white" fill-opacity="0.8" transform="rotate(-30 45 25)" />
+    <ellipse cx="75" cy="25" rx="15" ry="10" fill="white" fill-opacity="0.8" transform="rotate(30 75 25)" />
+    
+    <!-- Усики -->
+    <path d="M45 30C40 20 35 15 30 15" stroke="black" stroke-width="2" stroke-linecap="round" />
+    <path d="M75 30C80 20 85 15 90 15" stroke="black" stroke-width="2" stroke-linecap="round" />
+  </g>
+  
+  <defs>
+    <linearGradient id="bee-gradient" x1="30" y1="20" x2="90" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFEB3B" />
+      <stop offset="1" stop-color="#FFC107" />
+    </linearGradient>
+    <linearGradient id="stripe-gradient" x1="38" y1="25" x2="82" y2="55" gradientUnits="userSpaceOnUse">
+      <stop offset="0.0" stop-color="#212121" />
+      <stop offset="0.2" stop-color="#FFEB3B" />
+      <stop offset="0.4" stop-color="#212121" />
+      <stop offset="0.6" stop-color="#FFEB3B" />
+      <stop offset="0.8" stop-color="#212121" />
+      <stop offset="1.0" stop-color="#FFEB3B" />
+    </linearGradient>
+  </defs>
+</svg>

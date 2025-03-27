@@ -38,8 +38,12 @@ public class TaskService
     public async Task<List<UserTask>> GetUpcomingTasksAsync(int assigneeId)
     {
         return await _context.Tasks
-            .Where(t => t.AssigneeId == assigneeId && !t.IsCompleted && t.Deadline.HasValue)
-            .OrderBy(t => t.Deadline)
+            .Where(t => t.AssigneeId == assigneeId && 
+                       !t.IsCompleted && 
+                       t.TaskDate.HasValue &&
+                       t.TaskDate.Value >= DateTime.Today)
+            .OrderBy(t => t.TaskDate)
+            .ThenBy(t => t.StartTime)
             .Take(5)
             .ToListAsync();
     }
@@ -72,9 +76,11 @@ public class TaskService
             existingTask.Title = task.Title;
             existingTask.Description = task.Description;
             existingTask.IsCompleted = task.IsCompleted;
-            existingTask.Deadline = task.Deadline;
-            existingTask.Priority = task.Priority;  // Update Priority
-            existingTask.Status = task.Status;      // Update Status
+            existingTask.TaskDate = task.TaskDate;
+            existingTask.StartTime = task.StartTime;
+            existingTask.EndTime = task.EndTime;
+            existingTask.Priority = task.Priority;
+            existingTask.Status = task.Status;
 
             await _context.SaveChangesAsync();
             return existingTask;
@@ -123,15 +129,13 @@ public class TaskService
     {
         try
         {
-            _logger.LogInformation($"Looking for tasks with date {date.Date}"); // добавляем логирование
+            _logger.LogInformation($"Looking for tasks with date {date.Date}");
             var tasks = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId && 
-                           t.Deadline.HasValue && 
-                           t.Deadline.Value.Date == date.Date)
-                .OrderBy(t => t.Deadline)
+                           t.TaskDate.HasValue && 
+                           t.TaskDate.Value.Date == date.Date)
+                .OrderBy(t => t.StartTime)
                 .ToListAsync();
-            
-            _logger.LogInformation($"SQL Query: {_context.Tasks.Where(t => t.AssigneeId == assigneeId && t.Deadline.HasValue && t.Deadline.Value.Date == date.Date).ToQueryString()}"); 
             
             return tasks;
         }
@@ -147,7 +151,8 @@ public class TaskService
         _logger.LogInformation($"Getting all tasks for user {assigneeId}");
         return await _context.Tasks
             .Where(t => t.AssigneeId == assigneeId)
-            .OrderBy(t => t.Deadline)
+            .OrderBy(t => t.TaskDate)
+            .ThenBy(t => t.StartTime)
             .ToListAsync();
     }
 

@@ -1,0 +1,460 @@
+:root {
+  /* Основные цвета */
+  --color-primary: #ff9800;
+  --color-primary-light: #ffb74d;
+  --color-primary-dark: #f57c00;
+  --color-secondary: #5c6bc0;
+  --color-accent: #00bcd4;
+
+  /* Нейтральные цвета */
+  --color-dark: #263238;
+  --color-gray-dark: #455a64;
+  --color-gray: #78909c;
+  --color-gray-light: #cfd8dc;
+  --color-light: #eceff1;
+
+  /* Функциональные цвета */
+  --color-success: #4caf50;
+  --color-warning: #ffc107;
+  --color-danger: #f44336;
+  --color-info: #2196f3;
+
+  /* Фоны */
+  --bg-light: #f5f7fa;
+  --bg-dark: #121212;
+
+  /* Текст */
+  --text-dark: #263238;
+  --text-gray: #546e7a;
+  --text-light: #eceff1;
+  --text-dark-secondary: #607d8b;
+  --text-light-secondary: #b0bec5;
+
+  /* Градиенты */
+  --gradient-primary: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+  --gradient-secondary: linear-gradient(135deg, #5c6bc0 0%, #3f51b5 100%);
+  --gradient-accent: linear-gradient(135deg, #00bcd4 0%, #26c6da 100%);
+  --gradient-dark: linear-gradient(135deg, #263238 0%, #455a64 100%);
+
+  /* Размеры */
+  --cell-size: 180px;
+  --cell-spacing: 16px;
+  --header-height: 64px;
+  --dock-height: 60px;
+
+  /* Стили */
+  --border-radius: 10px;
+  --border-radius-lg: 16px;
+  --border-radius-sm: 6px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --transition-fast: 0.15s ease;
+  --transition-medium: 0.25s ease;
+  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Шрифты */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-secondary: 'SF Pro Display', 'Poppins', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Основные стили */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.5;
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+}
+
+.app {
+  height: 100%;
+  overflow: hidden;
+}
+
+.app.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* Типографика */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--color-primary-dark);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: #4757b3;
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.4);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-dark);
+  border: 1px solid var(--color-gray-light);
+}
+
+.dark .btn-ghost {
+  color: var(--text-light);
+  border-color: var(--color-gray-dark);
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .btn-ghost:hover,
+.dark .btn-ghost:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Карточки */
+.card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.dark .card {
+  background-color: var(--color-dark);
+}
+
+/* Иконки */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-lg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Font Awesome Icons - use accent color */
+.fas,
+.far,
+.fab {
+  color: var(--color-primary);
+}
+
+.dark .fas,
+.dark .far,
+.dark .fab {
+  color: var(--color-primary);
+}
+
+/* Allow icon color override for specific components */
+.app-icon .fas,
+.app-icon-container .fas,
+.task-icon .fas,
+button .fas,
+.color-option .fas,
+.hex-cell .fas,
+.honeycomb-cell .fas,
+.calendar-nav-btn .fas,
+.desktop-app-icon .fas,
+.weekday-full .fas,
+.wallpaper-option .fas,
+.day-event-category .fas,
+.event-title-row .fas,
+.task-priority .fas,
+.task-status .fas,
+.dock-item .fas,
+.dock-item-icon .fas,
+.quick-action-button .fas,
+.quick-actions .fas {
+  color: inherit;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleDown {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-medium) forwards;
+}
+
+.slide-up {
+  animation: slideUp var(--transition-medium) forwards;
+}
+
+.fade-out {
+  animation: fadeOut var(--transition-medium) forwards;
+}
+
+.scale-down {
+  animation: scaleDown var(--transition-medium) forwards;
+}
+
+/* Экран загрузки (сплэш-скрин) */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-light);
+  z-index: 9999;
+}
+
+.dark.splash-screen {
+  background-color: var(--bg-dark);
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.splash-logo {
+  width: 80px;
+  height: 80px;
+  animation: pulse 2s infinite;
+}
+
+.splash-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  color: var(--color-primary);
+  font-family: var(--font-secondary);
+}
+
+.splash-loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 152, 0, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spinner 1s linear infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Сотовый узор для фона */
+.honeycomb-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/backgrounds/modern-bg.svg');
+  background-size: cover;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.dark .honeycomb-pattern {
+  opacity: 0.02;
+}
+
+/* Медиа запросы */
+@media (max-width: 1024px) {
+  :root {
+    --cell-size: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --cell-size: 140px;
+    --header-height: 56px;
+    --dock-height: 50px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+  h4 {
+    font-size: 1.125rem;
+  }
+  h5,
+  h6 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --cell-size: 120px;
+  }
+}

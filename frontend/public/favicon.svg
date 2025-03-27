@@ -1,0 +1,56 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_1_1)">
+    <!-- Фон -->
+    <rect width="256" height="256" rx="48" fill="#FF9800"/>
+    
+    <!-- Сотовая структура -->
+    <g opacity="0.95">
+      <!-- Центральная сота -->
+      <path d="M128 76L178 104V160L128 188L78 160V104L128 76Z" fill="#FFB74D" stroke="#F57C00" stroke-width="4"/>
+      
+      <!-- Верхняя сота -->
+      <path d="M128 26L178 54V110L128 138L78 110V54L128 26Z" fill="#FFE0B2" stroke="#F57C00" stroke-width="4" opacity="0.6"/>
+      
+      <!-- Нижняя сота -->
+      <path d="M128 126L178 154V210L128 238L78 210V154L128 126Z" fill="#FFE0B2" stroke="#F57C00" stroke-width="4" opacity="0.6"/>
+      
+      <!-- Левая сота -->
+      <path d="M78 104L128 132V188L78 216L28 188V132L78 104Z" fill="#FFE0B2" stroke="#F57C00" stroke-width="4" opacity="0.6"/>
+      
+      <!-- Правая сота -->
+      <path d="M178 104L228 132V188L178 216L128 188V132L178 104Z" fill="#FFE0B2" stroke="#F57C00" stroke-width="4" opacity="0.6"/>
+    </g>
+    
+    <!-- Пчела (стилизованная) -->
+    <g transform="translate(128, 128) scale(0.35) translate(-128, -128)">
+      <!-- Тело пчелы -->
+      <ellipse cx="128" cy="128" rx="60" ry="40" fill="#FFCA28" />
+      
+      <!-- Полоски -->
+      <rect x="90" y="108" width="76" height="10" rx="5" fill="#212121" />
+      <rect x="90" y="128" width="76" height="10" rx="5" fill="#212121" />
+      <rect x="90" y="148" width="76" height="10" rx="5" fill="#212121" />
+      
+      <!-- Крылья -->
+      <ellipse cx="100" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(-20 100 100)" />
+      <ellipse cx="156" cy="100" rx="24" ry="16" fill="white" opacity="0.8" transform="rotate(20 156 100)" />
+      
+      <!-- Жало -->
+      <path d="M190 128L210 118L210 138L190 128Z" fill="#F57C00" />
+      
+      <!-- Глаза -->
+      <circle cx="100" cy="120" r="6" fill="#212121" />
+      <circle cx="156" cy="120" r="6" fill="#212121" />
+      
+      <!-- Усики -->
+      <path d="M90 108C80 98 70 93 60 95" stroke="#212121" stroke-width="3" stroke-linecap="round" />
+      <path d="M166 108C176 98 186 93 196 95" stroke="#212121" stroke-width="3" stroke-linecap="round" />
+    </g>
+  </g>
+  
+  <defs>
+    <clipPath id="clip0_1_1">
+      <rect width="256" height="256" rx="48" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>
