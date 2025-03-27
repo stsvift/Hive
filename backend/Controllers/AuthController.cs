@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization; // Add this
 using backend.Models;
+using backend.Models.DTO; // Add this
 using backend.Data;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +60,30 @@ public class AuthController : ControllerBase
         {
             _logger.LogError(ex, "Ошибка при регистрации");
             return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    [Route("change-password")] // Add explicit route
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model)
+    {
+        try
+        {
+            // Get current user ID from claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _authService.ChangePasswordAsync(userId, model.CurrentPassword, model.NewPassword);
+            return Ok(new { success = true, message = "Пароль успешно изменен" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при смене пароля");
+            return BadRequest(new { success = false, message = ex.Message });
         }
     }
 }

@@ -102,6 +102,35 @@ public class AuthService
         };
     }
 
+    public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        // Verify current password
+        if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+        {
+            throw new Exception("Current password is incorrect");
+        }
+
+        // Hash new password
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        
+        // Update password
+        try
+        {
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to update password", ex);
+        }
+    }
+
     private string GenerateJwtToken(User user)
     {
         var key = Encoding.ASCII.GetBytes(

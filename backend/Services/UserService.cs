@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Models;
+using backend.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
@@ -7,10 +8,12 @@ namespace backend.Services
     public class UserService
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<UserService> _logger;
 
-        public UserService(AppDbContext context)
+        public UserService(AppDbContext context, ILogger<UserService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
@@ -43,6 +46,52 @@ namespace backend.Services
 
             var user = await _context.Users.FindAsync(userId);
             return user!;
+        }
+
+        public async Task<object> GetUserProfileAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            return new
+            {
+                id = user.Id,
+                name = user.Username,
+                email = user.Email,
+                avatarUrl = user.AvatarUrl
+            };
+        }
+
+        public async Task<bool> UpdateUserProfileAsync(int userId, UpdateUserProfileDto profileDto)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            // Обновляем только те поля, которые предоставлены в DTO
+            if (!string.IsNullOrEmpty(profileDto.Name))
+            {
+                user.Username = profileDto.Name; // Обновляем имя пользователя
+            }
+
+            // Если бы было больше полей, мы бы обновляли их здесь
+            // Важно: мы не трогаем поле PasswordHash
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user profile");
+                throw new Exception("Failed to update user profile", ex);
+            }
         }
     }
 }

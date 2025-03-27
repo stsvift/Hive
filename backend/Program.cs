@@ -106,4 +106,17 @@ app.MapGet("/api/health", () => {
 
 app.MapControllers();
 
+// Add debug logging for routes
+if (app.Environment.IsDevelopment())
+{
+    var endpoints = app.Services.GetRequiredService<IEnumerable<EndpointDataSource>>();
+    foreach (var endpoint in endpoints.SelectMany(es => es.Endpoints))
+    {
+        if (endpoint is RouteEndpoint routeEndpoint)
+        {
+            Console.WriteLine($"Route: {routeEndpoint.RoutePattern.RawText}, HTTP Methods: {string.Join(", ", routeEndpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? Array.Empty<string>())}");
+        }
+    }
+}
+
 app.Run();

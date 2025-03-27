@@ -319,53 +319,26 @@ export const updateUserPreferences = async (preferences: any): Promise<any> => {
 
     console.log('Updating user preferences:', preferences)
 
-    // Important: Fix the API_URL to match the actual server
-    const baseApiUrl = 'http://localhost:5000/api'
-
-    // Try commonly used API endpoints for profile updates
-    const possibleEndpoints = [
-      `${baseApiUrl}/user/profile`,
-      `${baseApiUrl}/users/profile`,
-      `${baseApiUrl}/auth/profile`,
-      `${baseApiUrl}/user`,
-      `${baseApiUrl}/users/${preferences.id}`, // If user ID is available
-    ]
-
-    // Create base request options
-    const requestOptions = {
+    // Использование правильного эндпоинта для обновления профиля
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+    const response = await fetch(`${apiUrl}/user/profile`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(preferences),
+      body: JSON.stringify({
+        name: preferences.name,
+        // Дополнительные поля из preferences здесь
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `Error ${response.status}`)
     }
 
-    let response = null
-    let error = null
-
-    // Try each endpoint until one works
-    for (const endpoint of possibleEndpoints) {
-      try {
-        const res = await fetch(endpoint, requestOptions)
-        if (res.ok) {
-          response = await res.json()
-          console.log(
-            `Successfully updated profile using endpoint: ${endpoint}`
-          )
-          break
-        }
-      } catch (err) {
-        error = err
-        console.warn(`Failed to update using endpoint ${endpoint}:`, err)
-      }
-    }
-
-    if (!response && error) {
-      throw error
-    }
-
-    return response || { success: true }
+    return await response.json()
   } catch (error) {
     console.error('Error updating preferences:', error)
     throw error
@@ -454,69 +427,32 @@ export const isAuthenticated = (): boolean => {
 }
 
 // Change user password - Fix the request format
-export const changePassword = async (
-  passwordData: PasswordChangeRequest
-): Promise<any> => {
+export const changePassword = async (data: { currentPassword: string; newPassword: string }) => {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  
+  if (!token) {
+    throw new Error('Не авторизован');
+  }
+
   try {
-    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
-    if (!token) {
-      throw new Error('Необходима авторизация для смены пароля')
-    }
-
-    console.log('Sending password change request')
-
-    // Make sure the API endpoint matches the documented one
-    const response = await fetch(`${API_URL}/users/password`, {
-      method: 'PUT',
+    const response = await fetch(`${API_URL}/auth/change-password`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`
       },
-      // Send password data in the expected format
-      body: JSON.stringify({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      }),
-    })
-
-    // Log response status and handle errors properly
-    console.log('Password change response status:', response.status)
+      body: JSON.stringify(data)
+    });
 
     if (!response.ok) {
-      let errorMessage = 'Ошибка смены пароля'
-
-      try {
-        const errorData = await response.json()
-        console.error('Password change error response:', errorData)
-
-        // Extract detailed error messages if available
-        if (errorData.errors) {
-          const errorDetails = Object.entries(errorData.errors)
-            .map(
-              ([field, msgs]) =>
-                `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`
-            )
-            .join('; ')
-          errorMessage = errorDetails || errorData.message || errorMessage
-        } else if (errorData.message) {
-          errorMessage = errorData.message
-        } else if (errorData.title) {
-          errorMessage = errorData.title
-        }
-      } catch (parseError) {
-        // If we can't parse JSON, use status code in the error
-        errorMessage = `Ошибка ${response.status}: Не удалось изменить пароль`
-      }
-
-      throw new Error(errorMessage)
+      throw new Error(`Ошибка ${response.status}: Не удалось изменить пароль`);
     }
 
-    // Return success response
-    const successData = await response.json()
-    console.log('Password changed successfully:', successData)
-    return successData
+    const result = await response.json();
+    return result;
   } catch (error) {
-    console.error('Password change error:', error)
-    throw error
+    console.error('Password change error:', error);
+    throw error;
   }
 }
