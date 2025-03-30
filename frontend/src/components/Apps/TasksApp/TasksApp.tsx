@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { taskService } from '../../../services/taskService'
+import { eventBus, EVENTS } from '../../../utils/eventBus'
 import {
   apiTaskToTaskModel,
   taskModelToApiTask,
@@ -10,7 +11,6 @@ interface Task {
   id: string
   title: string
   description: string
-  status: 'todo' | 'in_progress' | 'done'
   priority: 'low' | 'medium' | 'high'
   dueDate?: string
   tags: string[]
@@ -27,6 +27,7 @@ const TasksApp: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false)
 
   const [activeFilter, setActiveFilter] = useState<
     'all' | 'todo' | 'in_progress' | 'done'
@@ -90,6 +91,7 @@ const TasksApp: React.FC = () => {
       setTasks([])
     } finally {
       setIsLoading(false)
+      setInitialLoadComplete(true)
     }
   }
 
@@ -205,6 +207,12 @@ const TasksApp: React.FC = () => {
       setTasks([formattedTask, ...tasks])
       setIsAddingTask(false)
       resetNewTaskForm()
+
+      // Notify other components about the new task
+      eventBus.publish(EVENTS.TASKS_UPDATED, {
+        action: 'create',
+        task: formattedTask,
+      })
     } catch (error) {
       console.error('Error creating task:', error)
       const errorMessage =
@@ -277,8 +285,14 @@ const TasksApp: React.FC = () => {
       setTasks([...tasks])
       setHasUnsavedChanges(false)
 
-      // Show feedback (optional)
-      alert('Задачи успешно сохранены')
+      // Notify other components about batch updates
+      eventBus.publish(EVENTS.TASKS_UPDATED, {
+        action: 'batch-update',
+        tasks: dirtyTasks,
+      })
+
+      // Remove the alert notification
+      // alert('Задачи успешно сохранены')
     } catch (error) {
       console.error('Error saving tasks:', error)
       setApiError(
@@ -334,6 +348,12 @@ const TasksApp: React.FC = () => {
       setEditedTask(formattedTask)
       setIsDirty(false)
       setHasUnsavedChanges(false)
+
+      // Notify other components about the updated task
+      eventBus.publish(EVENTS.TASKS_UPDATED, {
+        action: 'update',
+        task: formattedTask,
+      })
     } catch (error) {
       console.error('Failed to save task changes:', error)
       setApiError(
@@ -356,12 +376,24 @@ const TasksApp: React.FC = () => {
     setApiError(null)
 
     try {
+      // Store task for event publishing before deletion
+      const deletedTask = tasks.find(task => task.id === taskId)
+
       // Call API to delete task
       await taskService.deleteTask(taskId)
+
       // Update local state
       setTasks(tasks.filter(task => task.id !== taskId))
       if (selectedTask?.id === taskId) {
         setSelectedTask(null)
+      }
+
+      // Notify other components about the deleted task
+      if (deletedTask) {
+        eventBus.publish(EVENTS.TASKS_UPDATED, {
+          action: 'delete',
+          task: deletedTask,
+        })
       }
     } catch (error) {
       console.error('Error deleting task:', error)
@@ -407,35 +439,87 @@ const TasksApp: React.FC = () => {
     }
   }
 
-  // Форматирование даты
+  // Форматирование даты - more robust implementation
   const formatDate = (dateString?: string) => {
     if (!dateString) return ''
 
-    const date = new Date(dateString)
-    return date.toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
-  // Add a new helper function to format date for input fields
-  const formatDateForInput = (dateString?: string): string => {
-    if (!dateString) return ''
-
     try {
-      const date = new Date(dateString)
-      if (isNaN(date.getTime())) return ''
+      // Check if dateString is a valid date
+      if (isNaN(new Date(dateString).getTime())) {
+        console.warn('Invalid date string:', dateString)
+        return ''
+      }
 
-      // Format as YYYY-MM-DD for input[type="date"]
-      return date.toISOString().split('T')[0]
+      // Parse the date using split to avoid timezone issues
+      let [year, month, day] = dateString
+        .split('-')
+        .map(num => parseInt(num, 10))
+
+      // Month is 0-indexed in JavaScript Date
+      if (month) month -= 1
+
+      const date = new Date(year, month, day)
+
+      // Check if date is valid before formatting
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date after parsing:', dateString)
+        return ''
+      }
+
+      // Format with locale
+      return date.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
     } catch (error) {
-      console.error('Error formatting date for input:', error)
+      console.error('Error formatting date:', error, dateString)
       return ''
     }
   }
 
-  // Replace the renderSaveButton function with this improved version
+  // Format date for input fields - more robust implementation
+  const formatDateForInput = (dateString?: string): string => {
+    if (!dateString) return ''
+
+    try {
+      // Check if the string already has the right format YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return dateString
+      }
+
+      // Parse the date using split to avoid timezone issues
+      let [year, month, day] = dateString
+        .split('-')
+        .map(num => parseInt(num, 10))
+
+      // Check if we have valid parts
+      if (!year || !month || !day) {
+        // Try as a regular Date object
+        const date = new Date(dateString)
+        if (isNaN(date.getTime())) {
+          console.warn('Invalid date for input:', dateString)
+          return ''
+        }
+
+        year = date.getFullYear()
+        // Month is 0-indexed in JavaScript Date
+        month = date.getMonth() + 1
+        day = date.getDate()
+      }
+
+      // Format as YYYY-MM-DD for input[type="date"]
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(
+        2,
+        '0'
+      )}`
+    } catch (error) {
+      console.error('Error formatting date for input:', error, dateString)
+      return ''
+    }
+  }
+
+  // Update the renderSaveButton function to remove the has-changes class and save-indicator
   const renderSaveButton = () => {
     return (
       <button
@@ -685,6 +769,80 @@ const TasksApp: React.FC = () => {
 
   return (
     <div className="tasks-app">
+      {/* Анимация загрузки при первом входе */}
+      {isLoading && (
+        <div className="tasks-loading-overlay">
+          <div className="tasks-loading-content">
+            <div className="tasks-animation-container">
+              {/* Плавающие частицы */}
+              <div className="task-particle"></div>
+              <div className="task-particle"></div>
+              <div className="task-particle"></div>
+              <div className="task-particle"></div>
+
+              {/* Плавающие иконки */}
+              <div className="floating-task-icon">
+                <i className="fas fa-clipboard-check"></i>
+              </div>
+              <div className="floating-task-icon">
+                <i className="fas fa-tasks"></i>
+              </div>
+              <div className="floating-task-icon">
+                <i className="fas fa-calendar-check"></i>
+              </div>
+              <div className="floating-task-icon">
+                <i className="fas fa-check-circle"></i>
+              </div>
+
+              {/* Анимация доски задач */}
+              <div className="task-board">
+                <div className="task-board-bg"></div>
+                <div className="task-board-content">
+                  <div className="task-list-header">
+                    <div className="task-list-title"></div>
+                    <div className="task-list-actions"></div>
+                  </div>
+
+                  <div className="task-list">
+                    <div className="task-item">
+                      <div className="task-checkbox checked"></div>
+                      <div className="task-content checked"></div>
+                    </div>
+
+                    <div className="task-item">
+                      <div className="task-checkbox"></div>
+                      <div className="task-content"></div>
+                    </div>
+
+                    <div className="task-item">
+                      <div className="task-checkbox checked"></div>
+                      <div className="task-content checked"></div>
+                    </div>
+
+                    <div className="task-item">
+                      <div className="task-checkbox"></div>
+                      <div className="task-content"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="loading-text">Загружаем ваши задачи</div>
+
+            <div className="progress-container">
+              <div className="progress-bar"></div>
+            </div>
+
+            <div className="loading-dots">
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Show API error if exists */}
       {apiError && (
         <div className="api-error-message">
@@ -703,7 +861,6 @@ const TasksApp: React.FC = () => {
               <i className="fas fa-arrow-left"></i>
             </button>
             <h2>{selectedTask.title}</h2>
-            {renderSaveButton()}
           </div>
           <div className="tasks-content mobile-content">
             <div className="task-details">
@@ -775,10 +932,10 @@ const TasksApp: React.FC = () => {
                   <select
                     value={selectedTask.priority}
                     onChange={e =>
-                      handleUpdateTask({
-                        ...selectedTask,
-                        priority: e.target.value as 'low' | 'medium' | 'high',
-                      })
+                      handleLocalTaskChange(
+                        'priority',
+                        e.target.value as 'low' | 'medium' | 'high'
+                      )
                     }
                     className={getPriorityClass(selectedTask.priority)}
                     disabled={isUpdating}
@@ -795,10 +952,33 @@ const TasksApp: React.FC = () => {
                     type="date"
                     value={formatDateForInput(selectedTask.dueDate)}
                     onChange={e =>
-                      handleUpdateTask({
-                        ...selectedTask,
-                        dueDate: e.target.value,
-                      })
+                      handleLocalTaskChange('dueDate', e.target.value)
+                    }
+                    disabled={isUpdating}
+                  />
+                </div>
+              </div>
+
+              {/* Add new row for time fields */}
+              <div className="task-meta">
+                <div className="task-meta-item">
+                  <label>Время начала:</label>
+                  <input
+                    type="time"
+                    value={selectedTask.startTime || ''}
+                    onChange={e =>
+                      handleLocalTaskChange('startTime', e.target.value)
+                    }
+                    disabled={isUpdating}
+                  />
+                </div>
+                <div className="task-meta-item">
+                  <label>Время окончания:</label>
+                  <input
+                    type="time"
+                    value={selectedTask.endTime || ''}
+                    onChange={e =>
+                      handleLocalTaskChange('endTime', e.target.value)
                     }
                     disabled={isUpdating}
                   />
@@ -827,12 +1007,10 @@ const TasksApp: React.FC = () => {
                       <button
                         className="remove-tag-btn"
                         onClick={() =>
-                          handleUpdateTask({
-                            ...selectedTask,
-                            tags: selectedTask.tags.filter(
-                              (_, i) => i !== index
-                            ),
-                          })
+                          handleLocalTaskChange(
+                            'tags',
+                            selectedTask.tags.filter((_, i) => i !== index)
+                          )
                         }
                         disabled={isUpdating}
                       >
@@ -849,10 +1027,10 @@ const TasksApp: React.FC = () => {
                       if (e.key === 'Enter') {
                         const input = e.target as HTMLInputElement
                         if (input.value.trim()) {
-                          handleUpdateTask({
-                            ...selectedTask,
-                            tags: [...selectedTask.tags, input.value.trim()],
-                          })
+                          handleLocalTaskChange('tags', [
+                            ...selectedTask.tags,
+                            input.value.trim(),
+                          ])
                           input.value = ''
                         }
                       }
@@ -1115,45 +1293,68 @@ const TasksApp: React.FC = () => {
                       onClick={() => handleTaskSelect(task)}
                     >
                       <div className="task-item-header">
-                        <div
-                          className={`task-priority ${getPriorityClass(
-                            task.priority
-                          )}`}
-                        ></div>
-                        <div
-                          className={`task-status ${getStatusClass(
-                            task.status
-                          )}`}
-                        >
-                          {task.status === 'todo' && 'К выполнению'}
-                          {task.status === 'in_progress' && 'В процессе'}
-                          {task.status === 'done' && 'Завершено'}
+                        <div className="task-status-container">
+                          <div
+                            className={`task-priority ${getPriorityClass(
+                              task.priority
+                            )}`}
+                          ></div>
+                          <div
+                            className={`task-status ${getStatusClass(
+                              task.status
+                            )}`}
+                          >
+                            {task.status === 'todo' && 'К выполнению'}
+                            {task.status === 'in_progress' && 'В работе'}
+                            {task.status === 'done' && 'Завершено'}
+                          </div>
                         </div>
+
+                        {task.dueDate && (
+                          <div className="task-due-date-time">
+                            <i className="far fa-calendar-alt"></i>
+                            <span>{formatDate(task.dueDate)}</span>
+                          </div>
+                        )}
                       </div>
 
-                      <h3 className="task-item-title">{task.title}</h3>
+                      <div className="task-item-content">
+                        <div className="task-item-title">{task.title}</div>
 
-                      {task.dueDate && (
-                        <div className="task-due-date">
-                          <i className="far fa-calendar-alt"></i>
-                          {formatDate(task.dueDate)}
-                        </div>
-                      )}
+                        {task.startTime && (
+                          <div className="task-time">
+                            <i className="far fa-clock"></i>
+                            <span>
+                              {task.startTime}
+                              {task.endTime && ` - ${task.endTime}`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
 
-                      {task.tags.length > 0 && (
+                      <div className="task-item-footer">
                         <div className="task-tags">
-                          {task.tags.slice(0, 2).map((tag, index) => (
+                          {task.tags.slice(0, 3).map((tag, index) => (
                             <span key={index} className="task-tag">
                               {tag}
                             </span>
                           ))}
-                          {task.tags.length > 2 && (
-                            <span className="task-tag-more">
-                              +{task.tags.length - 2}
+                          {task.tags.length > 3 && (
+                            <span className="task-tag task-tag-more">
+                              +{task.tags.length - 3}
                             </span>
                           )}
                         </div>
-                      )}
+
+                        {task.isDirty && (
+                          <div
+                            className="task-modified-indicator"
+                            title="Несохраненные изменения"
+                          >
+                            <i className="fas fa-pen"></i>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}
@@ -1232,45 +1433,68 @@ const TasksApp: React.FC = () => {
                         onClick={() => setSelectedTask(task)}
                       >
                         <div className="task-item-header">
-                          <div
-                            className={`task-priority ${getPriorityClass(
-                              task.priority
-                            )}`}
-                          ></div>
-                          <div
-                            className={`task-status ${getStatusClass(
-                              task.status
-                            )}`}
-                          >
-                            {task.status === 'todo' && 'К выполнению'}
-                            {task.status === 'in_progress' && 'В процессе'}
-                            {task.status === 'done' && 'Завершено'}
+                          <div className="task-status-container">
+                            <div
+                              className={`task-priority ${getPriorityClass(
+                                task.priority
+                              )}`}
+                            ></div>
+                            <div
+                              className={`task-status ${getStatusClass(
+                                task.status
+                              )}`}
+                            >
+                              {task.status === 'todo' && 'К выполнению'}
+                              {task.status === 'in_progress' && 'В работе'}
+                              {task.status === 'done' && 'Завершено'}
+                            </div>
                           </div>
+
+                          {task.dueDate && (
+                            <div className="task-due-date-time">
+                              <i className="far fa-calendar-alt"></i>
+                              <span>{formatDate(task.dueDate)}</span>
+                            </div>
+                          )}
                         </div>
 
-                        <h3 className="task-item-title">{task.title}</h3>
+                        <div className="task-item-content">
+                          <div className="task-item-title">{task.title}</div>
 
-                        {task.dueDate && (
-                          <div className="task-due-date">
-                            <i className="far fa-calendar-alt"></i>
-                            {formatDate(task.dueDate)}
-                          </div>
-                        )}
+                          {task.startTime && (
+                            <div className="task-time">
+                              <i className="far fa-clock"></i>
+                              <span>
+                                {task.startTime}
+                                {task.endTime && ` - ${task.endTime}`}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
-                        {task.tags.length > 0 && (
+                        <div className="task-item-footer">
                           <div className="task-tags">
-                            {task.tags.slice(0, 2).map((tag, index) => (
+                            {task.tags.slice(0, 3).map((tag, index) => (
                               <span key={index} className="task-tag">
                                 {tag}
                               </span>
                             ))}
-                            {task.tags.length > 2 && (
-                              <span className="task-tag-more">
-                                +{task.tags.length - 2}
+                            {task.tags.length > 3 && (
+                              <span className="task-tag task-tag-more">
+                                +{task.tags.length - 3}
                               </span>
                             )}
                           </div>
-                        )}
+
+                          {task.isDirty && (
+                            <div
+                              className="task-modified-indicator"
+                              title="Несохраненные изменения"
+                            >
+                              <i className="fas fa-pen"></i>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))
                   )}
@@ -1359,13 +1583,10 @@ const TasksApp: React.FC = () => {
                         <select
                           value={selectedTask.priority}
                           onChange={e =>
-                            handleUpdateTask({
-                              ...selectedTask,
-                              priority: e.target.value as
-                                | 'low'
-                                | 'medium'
-                                | 'high',
-                            })
+                            handleLocalTaskChange(
+                              'priority',
+                              e.target.value as 'low' | 'medium' | 'high'
+                            )
                           }
                           className={getPriorityClass(selectedTask.priority)}
                           disabled={isUpdating}
@@ -1382,10 +1603,7 @@ const TasksApp: React.FC = () => {
                           type="date"
                           value={formatDateForInput(selectedTask.dueDate)}
                           onChange={e =>
-                            handleUpdateTask({
-                              ...selectedTask,
-                              dueDate: e.target.value,
-                            })
+                            handleLocalTaskChange('dueDate', e.target.value)
                           }
                           disabled={isUpdating}
                         />
@@ -1440,12 +1658,12 @@ const TasksApp: React.FC = () => {
                             <button
                               className="remove-tag-btn"
                               onClick={() =>
-                                handleUpdateTask({
-                                  ...selectedTask,
-                                  tags: selectedTask.tags.filter(
+                                handleLocalTaskChange(
+                                  'tags',
+                                  selectedTask.tags.filter(
                                     (_, i) => i !== index
-                                  ),
-                                })
+                                  )
+                                )
                               }
                               disabled={isUpdating}
                             >
@@ -1462,13 +1680,10 @@ const TasksApp: React.FC = () => {
                             if (e.key === 'Enter') {
                               const input = e.target as HTMLInputElement
                               if (input.value.trim()) {
-                                handleUpdateTask({
-                                  ...selectedTask,
-                                  tags: [
-                                    ...selectedTask.tags,
-                                    input.value.trim(),
-                                  ],
-                                })
+                                handleLocalTaskChange('tags', [
+                                  ...selectedTask.tags,
+                                  input.value.trim(),
+                                ])
                                 input.value = ''
                               }
                             }

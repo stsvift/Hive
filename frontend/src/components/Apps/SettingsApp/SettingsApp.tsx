@@ -46,6 +46,9 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
   onThemeChange,
   onWallpaperChange,
 }) => {
+  // Добавляем состояние для общей загрузки приложения
+  const [isAppLoading, setIsAppLoading] = useState<boolean>(true)
+
   // Existing state variables
   const [activeCategory, setActiveCategory] =
     useState<SettingsCategory>('appearance')
@@ -68,7 +71,7 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
     name: '',
     email: '',
   })
-  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false)
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true)
   const [profileError, setProfileError] = useState<string>('')
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [isSaving, setIsSaving] = useState<boolean>(false)
@@ -165,6 +168,16 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
     }
   }, [activeCategory])
 
+  // Добавляем эффект для имитации загрузки приложения
+  useEffect(() => {
+    // Имитация загрузки приложения с минимальной задержкой
+    const loadingTimer = setTimeout(() => {
+      setIsAppLoading(false)
+    }, 2000)
+
+    return () => clearTimeout(loadingTimer)
+  }, [])
+
   // Function to load user profile
   const loadUserProfile = async () => {
     setIsLoadingProfile(true)
@@ -175,11 +188,16 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
         setProfileError(
           'Для просмотра и изменения профиля необходимо авторизоваться'
         )
+        // Still show loading animation for a minimum time
+        await new Promise(resolve => setTimeout(resolve, 1500))
         setIsLoadingProfile(false)
         return
       }
 
       console.log('Loading user profile...')
+
+      // Capture start time to ensure minimum loading duration
+      const startTime = Date.now()
 
       try {
         // Try to get user data from the API
@@ -265,10 +283,19 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
         })
         setEditedName('Пользователь')
         setProfileError('Сервер недоступен. Работа в автономном режиме.')
+
+        // Ensure animation plays for at least 2 seconds for better UX
+        const loadingTime = Date.now() - startTime
+        if (loadingTime < 2000) {
+          await new Promise(resolve => setTimeout(resolve, 2000 - loadingTime))
+        }
       }
     } catch (error) {
       console.error('Fatal error in loadUserProfile:', error)
       setProfileError('Критическая ошибка при загрузке профиля.')
+
+      // Minimum time for error state too
+      await new Promise(resolve => setTimeout(resolve, 1000))
     } finally {
       setIsLoadingProfile(false)
     }
@@ -715,6 +742,96 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
     'about-main'
   )
 
+  // Компонент загрузочного экрана
+  const AppLoadingScreen = () => (
+    <div className="settings-app-loading-screen">
+      <div className="app-loading-content">
+        <div className="app-logo-container">
+          <div className="app-logo-animation">
+            <svg
+              width="100"
+              height="100"
+              viewBox="0 0 256 256"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="app-loading-logo"
+            >
+              <g className="app-logo-icon">
+                {/* Фон */}
+                <rect
+                  width="256"
+                  height="256"
+                  rx="48"
+                  fill="var(--color-primary)"
+                />
+
+                {/* Сотовая структура */}
+                <g className="honeycomb-structure">
+                  {/* Центральная сота */}
+                  <path
+                    d="M128 76L178 104V160L128 188L78 160V104L128 76Z"
+                    fill="var(--color-primary-light)"
+                    stroke="var(--color-primary-dark)"
+                    strokeWidth="4"
+                    className="center-cell"
+                  />
+
+                  {/* Верхняя сота */}
+                  <path
+                    d="M128 26L178 54V110L128 138L78 110V54L128 26Z"
+                    fill="#FFE0B2"
+                    stroke="var(--color-primary-dark)"
+                    strokeWidth="4"
+                    opacity="0.6"
+                    className="outer-cell top-cell"
+                  />
+
+                  {/* Нижняя сота */}
+                  <path
+                    d="M128 126L178 154V210L128 238L78 210V154L128 126Z"
+                    fill="#FFE0B2"
+                    stroke="var(--color-primary-dark)"
+                    strokeWidth="4"
+                    opacity="0.6"
+                    className="outer-cell bottom-cell"
+                  />
+
+                  {/* Левая сота */}
+                  <path
+                    d="M78 104L128 132V188L78 216L28 188V132L78 104Z"
+                    fill="#FFE0B2"
+                    stroke="var(--color-primary-dark)"
+                    strokeWidth="4"
+                    opacity="0.6"
+                    className="outer-cell left-cell"
+                  />
+
+                  {/* Правая сота */}
+                  <path
+                    d="M178 104L228 132V188L178 216L128 188V132L178 104Z"
+                    fill="#FFE0B2"
+                    stroke="var(--color-primary-dark)"
+                    strokeWidth="4"
+                    opacity="0.6"
+                    className="outer-cell right-cell"
+                  />
+                </g>
+              </g>
+            </svg>
+            <div className="loading-glow"></div>
+          </div>
+        </div>
+        <h2 className="loading-app-title">HiveOS</h2>
+        <div className="loading-app-subtitle">Настройки</div>
+        <div className="loading-progress">
+          <div className="loading-bar">
+            <div className="loading-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   // Render the appropriate settings section based on active category
   const renderSettingsContent = () => {
     switch (activeCategory) {
@@ -912,44 +1029,104 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
       case 'account':
         return (
           <div className="settings-content-section">
-            <div className="settings-section">
-              <h3 className="settings-section-title">Информация о профиле</h3>
-
-              {profileError && (
-                <div className="profile-error">{profileError}</div>
-              )}
-
-              {saveSuccess && (
-                <div className="profile-success">
-                  Данные профиля успешно сохранены
+            {isLoadingProfile ? (
+              <div className="account-loading-screen">
+                <div className="particles-container">
+                  <div className="particle"></div>
+                  <div className="particle"></div>
+                  <div className="particle"></div>
+                  <div className="particle"></div>
+                  <div className="particle"></div>
+                  <div className="particle"></div>
+                  <div className="particle"></div>
                 </div>
-              )}
-
-              <div className="account-profile">
-                <div className="profile-avatar">
-                  <div className="avatar-img">
-                    {userProfile.avatar ? (
-                      <img
-                        src={userProfile.avatar}
-                        alt={userProfile.name || 'User avatar'}
-                      />
-                    ) : (
-                      <i className="fas fa-user"></i>
-                    )}
-                  </div>
-                  <button className="change-avatar-btn" disabled>
-                    Изменить
-                  </button>
-                </div>
-
-                <div className="profile-info">
-                  {isLoadingProfile ? (
-                    <div className="profile-loading">
-                      <i className="fas fa-spinner fa-spin"></i> Загрузка
-                      данных...
+                <div className="account-loading-content">
+                  <div className="profile-card">
+                    <div className="card-shine"></div>
+                    <div className="card-header">
+                      <div className="brand-logo"></div>
+                      <div className="header-decoration"></div>
                     </div>
-                  ) : (
-                    <>
+                    <div className="avatar-container">
+                      <div className="avatar-placeholder">
+                        <div className="avatar-border"></div>
+                        <div className="avatar-decoration"></div>
+                        <div className="avatar-decoration"></div>
+                        <div className="avatar-decoration"></div>
+                        <div className="avatar-decoration"></div>
+                        <div className="avatar-inner"></div>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      <div className="profile-badge">Пользователь</div>
+                      <div className="profile-data">
+                        <div className="skeleton-line"></div>
+                        <div className="skeleton-line"></div>
+                        <div className="skeleton-line"></div>
+                        <div className="skeleton-button"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="loading-indicator">
+                    <div className="loading-dots">
+                      <div className="dot"></div>
+                      <div className="dot"></div>
+                      <div className="dot"></div>
+                    </div>
+                    <div className="loading-message">
+                      Загрузка данных профиля...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="settings-section">
+                  <h3 className="settings-section-title">
+                    Информация о профиле
+                  </h3>
+
+                  {profileError && (
+                    <div className="profile-error">
+                      <i className="fas fa-exclamation-circle"></i>
+                      <span>{profileError}</span>
+                      {profileError.includes('недоступен') ||
+                      profileError.includes('ошибка') ? (
+                        <button
+                          onClick={loadUserProfile}
+                          className="retry-button"
+                        >
+                          <i className="fas fa-sync-alt"></i> Повторить
+                        </button>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {saveSuccess && (
+                    <div className="profile-success">
+                      <i className="fas fa-check-circle"></i>
+                      <span>Данные профиля успешно сохранены</span>
+                    </div>
+                  )}
+
+                  <div className="account-profile">
+                    <div className="profile-avatar">
+                      <div className="avatar-img">
+                        {userProfile.avatar ? (
+                          <img
+                            src={userProfile.avatar}
+                            alt={userProfile.name || 'User avatar'}
+                          />
+                        ) : (
+                          <i className="fas fa-user"></i>
+                        )}
+                      </div>
+                      <button className="change-avatar-btn" disabled>
+                        Изменить
+                      </button>
+                    </div>
+
+                    <div className="profile-info">
                       <div className="form-group">
                         <label>Имя пользователя</label>
                         {isEditing ? (
@@ -1007,46 +1184,26 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
                           </button>
                         </div>
                       )}
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="settings-section">
-              <h3 className="settings-section-title">Региональные настройки</h3>
-
-              <div className="form-group">
-                <label>Язык</label>
-                <select defaultValue="ru">
-                  <option value="ru">Русский</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Формат даты</label>
-                <select defaultValue="dd.mm.yyyy">
-                  <option value="dd.mm.yyyy">ДД.ММ.ГГГГ</option>
-                  <option value="mm.dd.yyyy">ММ.ДД.ГГГГ</option>
-                  <option value="yyyy.mm.dd">ГГГГ.ММ.ДД</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Add logout section */}
-            <div className="settings-section">
-              <h3 className="settings-section-title">Выход из системы</h3>
-              <div className="logout-container">
-                <p className="logout-description">
-                  Нажмите кнопку ниже, чтобы выйти из своего аккаунта. Вам
-                  потребуется войти снова, чтобы получить доступ к вашим данным.
-                </p>
-                <button className="logout-btn" onClick={handleLogout}>
-                  <i className="fas fa-sign-out-alt"></i> Выйти из аккаунта
-                </button>
-              </div>
-            </div>
+                {/* Add logout section */}
+                <div className="settings-section">
+                  <h3 className="settings-section-title">Выход из системы</h3>
+                  <div className="logout-container">
+                    <p className="logout-description">
+                      Нажмите кнопку ниже, чтобы выйти из своего аккаунта. Вам
+                      потребуется войти снова, чтобы получить доступ к вашим
+                      данным.
+                    </p>
+                    <button className="logout-btn" onClick={handleLogout}>
+                      <i className="fas fa-sign-out-alt"></i> Выйти из аккаунта
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )
 
@@ -1387,6 +1544,10 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
       default:
         return null
     }
+  }
+
+  if (isAppLoading) {
+    return <AppLoadingScreen />
   }
 
   return (

@@ -28,6 +28,8 @@ const NotesApp: React.FC = () => {
     '#FFCC80', // Персиковый
   ]
 
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false)
+
   // Add a resize listener to detect mobile vs desktop mode
   useEffect(() => {
     const handleResize = () => {
@@ -85,6 +87,7 @@ const NotesApp: React.FC = () => {
       setError(errorMessage)
     } finally {
       setIsLoading(false)
+      setInitialLoadComplete(true)
     }
   }
 
@@ -259,20 +262,70 @@ const NotesApp: React.FC = () => {
     })
   }
 
-  // Loading indicator
-  if (isLoading) {
-    return (
-      <div className="notes-app notes-loading">
-        <div className="loading-spinner">
-          <i className="fas fa-spinner fa-spin"></i>
-        </div>
-        <div className="loading-text">Загрузка заметок...</div>
-      </div>
-    )
-  }
-
   return (
     <div className="notes-app">
+      {/* Улучшенная анимация загрузки при первом входе */}
+      {isLoading && (
+        <div className="notes-loading-overlay">
+          <div className="notes-loading-content">
+            <div className="notes-animation-container">
+              {/* Добавляем эффект парящего блокнота */}
+              <div className="notebook-wrapper">
+                {/* Добавляем обложку блокнота */}
+                <div className="notebook-cover"></div>
+
+                <div className="notebook">
+                  <div className="notebook-page">
+                    {/* Добавляем чернильные капли */}
+                    <div className="ink-drop"></div>
+                    <div className="ink-drop"></div>
+                    <div className="ink-drop"></div>
+
+                    <div className="typing-text">const notes = [];</div>
+                    <div className="typing-text">notes.push('Идеи');</div>
+                    <div className="typing-text">// Важные мысли</div>
+                  </div>
+                  <div className="notebook-page"></div>
+                  <div className="notebook-page"></div>
+                  <div className="notebook-page"></div>
+                </div>
+              </div>
+
+              {/* Добавляем плавающее перо */}
+              <div className="floating-pen">
+                <i className="fas fa-pen-fancy"></i>
+              </div>
+
+              {/* Добавляем частички бумаги */}
+              <div className="paper-particle"></div>
+              <div className="paper-particle"></div>
+              <div className="paper-particle"></div>
+              <div className="paper-particle"></div>
+
+              {/* Оставляем плавающие иконки */}
+              <div className="floating-note">
+                <i className="fas fa-sticky-note"></i>
+              </div>
+              <div className="floating-note">
+                <i className="fas fa-edit"></i>
+              </div>
+              <div className="floating-note">
+                <i className="fas fa-file-alt"></i>
+              </div>
+              <div className="floating-note">
+                <i className="fas fa-bookmark"></i>
+              </div>
+            </div>
+            <div className="loading-text">Загружаем ваши заметки</div>
+            <div className="loading-dots">
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="notes-error">
           <i className="fas fa-exclamation-circle"></i>

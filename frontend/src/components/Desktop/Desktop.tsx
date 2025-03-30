@@ -13,6 +13,7 @@ import AppWindow from '../AppWindow/AppWindow'
 import DesktopApps from '../DesktopApps/DesktopApps'
 import Dock from '../Dock/Dock'
 import './Desktop.css'
+import { eventBus, EVENTS } from '../../utils/eventBus'
 
 interface Position {
   x: number
@@ -57,6 +58,9 @@ const Desktop: React.FC<DesktopProps> = ({ theme, onThemeChange }) => {
   const [receivingDockItem, setReceivingDockItem] = useState<string | null>(
     null
   )
+
+  // Add state to track if EventBus is integrated
+  const [eventBusInitialized, setEventBusInitialized] = useState(false)
 
   // Get enabled apps from settings
   const enabledApps = getSetting('workspace.apps', [
@@ -113,6 +117,26 @@ const Desktop: React.FC<DesktopProps> = ({ theme, onThemeChange }) => {
       }
     }
   }, [theme])
+
+  // Initialize EventBus on component mount
+  useEffect(() => {
+    if (!eventBusInitialized) {
+      // You could add additional initialization or logging here
+      console.log('Desktop: EventBus initialized')
+      setEventBusInitialized(true)
+
+      // Example: publish app startup event
+      eventBus.publish(EVENTS.SETTINGS_CHANGED, {
+        action: 'app_started',
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    // Clean up function
+    return () => {
+      console.log('Desktop: EventBus component unmounting')
+    }
+  }, [eventBusInitialized])
 
   // Конфигурация приложений
   const appConfigs: Record<string, AppWindowConfig> = {

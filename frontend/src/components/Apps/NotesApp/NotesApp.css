@@ -862,3 +862,2128 @@
   animation: none;
   box-shadow: none;
 }
+
+/* Стили для красивой анимации загрузки в NotesApp */
+.notes-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.dark .notes-loading-overlay {
+  background-color: rgba(30, 32, 34, 0.95);
+}
+
+.notes-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: scale(0.9);
+  animation: scaleIn 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.notes-animation-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin-bottom: 24px;
+}
+
+/* Анимация страниц записной книжки */
+.notebook {
+  position: relative;
+  width: 120px;
+  height: 150px;
+  transform-style: preserve-3d;
+  perspective: 1500px;
+  margin: 0 auto;
+}
+
+.notebook-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  backface-visibility: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform-origin: left center;
+  border-left: 2px solid var(--color-primary);
+}
+
+.dark .notebook-page {
+  background: #2d3748;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.notebook-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--color-primary-rgb), 0.2) 0%,
+    rgba(var(--color-primary-rgb), 0.2) 100%
+  );
+}
+
+.notebook-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 20px,
+    rgba(var(--color-primary-rgb), 0.1) 20px,
+    rgba(var(--color-primary-rgb), 0.1) 21px
+  );
+}
+
+.notebook-page:nth-child(1) {
+  animation: flipPage1 6s infinite ease-in-out;
+  z-index: 5;
+}
+
+.notebook-page:nth-child(2) {
+  animation: flipPage2 6s infinite ease-in-out;
+  z-index: 4;
+}
+
+.notebook-page:nth-child(3) {
+  animation: flipPage3 6s infinite ease-in-out;
+  z-index: 3;
+}
+
+.notebook-page:nth-child(4) {
+  z-index: 1;
+}
+
+/* Анимация печатающегося текста */
+.typing-text {
+  position: absolute;
+  font-family: monospace;
+  font-size: 16px;
+  color: var(--color-primary);
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+}
+
+.dark .typing-text {
+  color: rgba(var(--color-primary-rgb), 0.9);
+}
+
+.typing-text:nth-child(1) {
+  top: 30px;
+  left: 20px;
+  animation: typing1 6s infinite ease-in-out;
+}
+
+.typing-text:nth-child(2) {
+  top: 60px;
+  left: 20px;
+  animation: typing2 6s infinite ease-in-out;
+}
+
+.typing-text:nth-child(3) {
+  top: 90px;
+  left: 20px;
+  animation: typing3 6s infinite ease-in-out;
+}
+
+/* Плавающие иконки заметок */
+.floating-note {
+  position: absolute;
+  font-size: 18px;
+  color: var(--color-primary);
+  opacity: 0;
+  animation: floatNote 8s infinite ease-in-out;
+}
+
+.floating-note:nth-child(1) {
+  top: 20px;
+  left: 0;
+  font-size: 22px;
+  animation-delay: 0.5s;
+}
+
+.floating-note:nth-child(2) {
+  top: 60px;
+  right: 20px;
+  animation-delay: 1.5s;
+}
+
+.floating-note:nth-child(3) {
+  bottom: 20px;
+  left: 20px;
+  animation-delay: 2.5s;
+}
+
+.floating-note:nth-child(4) {
+  bottom: 50px;
+  right: 0;
+  font-size: 24px;
+  animation-delay: 3.5s;
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-top: 8px;
+  background: linear-gradient(
+    45deg,
+    var(--color-primary),
+    var(--color-primary-light)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 2s infinite;
+  position: relative;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.loading-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  animation: pulseDot 1.5s infinite;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Простой индикатор загрузки для последующих обновлений */
+.simple-loading-indicator {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  animation: rotate 1s infinite linear;
+}
+
+/* Анимации для книжки */
+@keyframes flipPage1 {
+  0%,
+  20% {
+    transform: rotateY(0);
+  }
+  33%,
+  52% {
+    transform: rotateY(-130deg);
+  }
+  85%,
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+@keyframes flipPage2 {
+  0%,
+  30% {
+    transform: rotateY(0);
+  }
+  43%,
+  62% {
+    transform: rotateY(-130deg);
+  }
+  75%,
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+@keyframes flipPage3 {
+  0%,
+  40% {
+    transform: rotateY(0);
+  }
+  53%,
+  72% {
+    transform: rotateY(-130deg);
+  }
+  85%,
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+/* Анимации для печатающегося текста */
+@keyframes typing1 {
+  0%,
+  10% {
+    width: 0;
+    opacity: 0;
+  }
+  15%,
+  25% {
+    width: 80px;
+    opacity: 1;
+  }
+  30%,
+  100% {
+    width: 80px;
+    opacity: 0;
+  }
+}
+
+@keyframes typing2 {
+  0%,
+  30% {
+    width: 0;
+    opacity: 0;
+  }
+  35%,
+  45% {
+    width: 100px;
+    opacity: 1;
+  }
+  50%,
+  100% {
+    width: 100px;
+    opacity: 0;
+  }
+}
+
+@keyframes typing3 {
+  0%,
+  50% {
+    width: 0;
+    opacity: 0;
+  }
+  55%,
+  65% {
+    width: 60px;
+    opacity: 1;
+  }
+  70%,
+  100% {
+    width: 60px;
+    opacity: 0;
+  }
+}
+
+/* Анимация для плавающих иконок */
+@keyframes floatNote {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(20px, -20px) rotate(10deg);
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(0, -40px) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* Общие анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmerText {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Обновленные стили для красивой анимации загрузки в NotesApp */
+.notes-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(240, 240, 250, 0.98)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.dark .notes-loading-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(25, 30, 40, 0.98),
+    rgba(30, 35, 45, 0.98)
+  );
+}
+
+.notes-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: scale(0.9);
+  animation: scaleIn 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.notes-animation-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin-bottom: 28px;
+}
+
+/* Улучшенная анимация страниц записной книжки */
+.notebook {
+  position: relative;
+  width: 140px;
+  height: 180px;
+  transform-style: preserve-3d;
+  perspective: 1800px;
+  margin: 0 auto;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
+}
+
+.notebook-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  backface-visibility: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform-origin: left center;
+  border-left: 3px solid var(--color-primary);
+  overflow: hidden;
+}
+
+.dark .notebook-page {
+  background: #2d3748;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.notebook-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--color-primary-rgb), 0.2) 0%,
+    rgba(var(--color-primary-rgb), 0.2) 100%
+  );
+}
+
+.notebook-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 22px,
+    rgba(var(--color-primary-rgb), 0.1) 22px,
+    rgba(var(--color-primary-rgb), 0.1) 23px
+  );
+}
+
+.notebook-page:nth-child(1) {
+  animation: flipPage1 7s infinite ease-in-out;
+  z-index: 5;
+}
+
+.notebook-page:nth-child(2) {
+  animation: flipPage2 7s infinite ease-in-out;
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.notebook-page:nth-child(3) {
+  animation: flipPage3 7s infinite ease-in-out;
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.notebook-page:nth-child(4) {
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.dark .notebook-page:nth-child(2) {
+  background: rgba(45, 55, 72, 0.98);
+}
+
+.dark .notebook-page:nth-child(3) {
+  background: rgba(45, 55, 72, 0.96);
+}
+
+.dark .notebook-page:nth-child(4) {
+  background: rgba(45, 55, 72, 0.94);
+}
+
+/* Улучшенные стили текста с эффектом печатания */
+.typing-text {
+  position: absolute;
+  font-family: monospace;
+  font-size: 16px;
+  color: var(--color-primary);
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  text-shadow: 0 1px 3px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.dark .typing-text {
+  color: rgba(var(--color-primary-rgb), 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.typing-text:nth-child(1) {
+  top: 30px;
+  left: 20px;
+  animation: typing1 7s infinite ease-in-out;
+}
+
+.typing-text:nth-child(2) {
+  top: 60px;
+  left: 20px;
+  animation: typing2 7s infinite ease-in-out;
+}
+
+.typing-text:nth-child(3) {
+  top: 90px;
+  left: 20px;
+  animation: typing3 7s infinite ease-in-out;
+}
+
+.typing-text::after {
+  content: '|';
+  animation: cursor-blink 0.7s infinite;
+}
+
+/* Улучшенный эффект для плавающих иконок заметок */
+.floating-note {
+  position: absolute;
+  color: var(--color-primary);
+  opacity: 0;
+  animation: floatNote 8s infinite ease-in-out;
+  filter: drop-shadow(0 3px 5px rgba(var(--color-primary-rgb), 0.3));
+}
+
+.floating-note:nth-child(1) {
+  top: 10px;
+  left: -10px;
+  font-size: 28px;
+  animation-delay: 0.5s;
+  transform-origin: center center;
+}
+
+.floating-note:nth-child(2) {
+  top: 60px;
+  right: 10px;
+  font-size: 20px;
+  animation-delay: 1.5s;
+  transform-origin: center center;
+}
+
+.floating-note:nth-child(3) {
+  bottom: 20px;
+  left: 0px;
+  font-size: 22px;
+  animation-delay: 2.5s;
+  transform-origin: center center;
+}
+
+.floating-note:nth-child(4) {
+  bottom: 40px;
+  right: -15px;
+  font-size: 26px;
+  animation-delay: 3.5s;
+  transform-origin: center center;
+}
+
+.floating-note i {
+  animation: rotate-icon 12s infinite linear;
+}
+
+/* Улучшенные стили для загрузочного текста */
+.loading-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 10px;
+  background: linear-gradient(
+    45deg,
+    var(--color-primary),
+    var(--color-primary-light)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 2s infinite;
+  position: relative;
+  letter-spacing: 0.5px;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.loading-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  animation: pulseDot 1.5s infinite;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Обновленные анимации для книжки */
+@keyframes flipPage1 {
+  0%,
+  20% {
+    transform: rotateY(0);
+  }
+  28%,
+  52% {
+    transform: rotateY(-160deg);
+  }
+  85%,
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+@keyframes flipPage2 {
+  0%,
+  25% {
+    transform: rotateY(0);
+  }
+  33%,
+  57% {
+    transform: rotateY(-150deg);
+  }
+  80%,
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+@keyframes flipPage3 {
+  0%,
+  30% {
+    transform: rotateY(0);
+  }
+  38%,
+  62% {
+    transform: rotateY(-140deg);
+  }
+  75%,
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+/* Обновленные анимации для печатающегося текста */
+@keyframes typing1 {
+  0%,
+  10% {
+    width: 0;
+    opacity: 0;
+  }
+  15%,
+  25% {
+    width: 110px;
+    opacity: 1;
+  }
+  30%,
+  100% {
+    width: 110px;
+    opacity: 0;
+  }
+}
+
+@keyframes typing2 {
+  0%,
+  25% {
+    width: 0;
+    opacity: 0;
+  }
+  30%,
+  40% {
+    width: 140px;
+    opacity: 1;
+  }
+  45%,
+  100% {
+    width: 140px;
+    opacity: 0;
+  }
+}
+
+@keyframes typing3 {
+  0%,
+  40% {
+    width: 0;
+    opacity: 0;
+  }
+  45%,
+  55% {
+    width: 90px;
+    opacity: 1;
+  }
+  60%,
+  100% {
+    width: 90px;
+    opacity: 0;
+  }
+}
+
+/* Анимация мигающего курсора */
+@keyframes cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Улучшенная анимация для плавающих иконок */
+@keyframes floatNote {
+  0% {
+    transform: translate(0, 0) rotate(-5deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(15px, -25px) rotate(8deg) scale(1);
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0, -45px) rotate(-3deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes rotate-icon {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Улучшенные общие анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmerText {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 1;
+  }
+}
+
+/* Обновленный загрузочный экран для NotesApp */
+.notes-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(250, 250, 255, 0.98)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.dark .notes-loading-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 28, 36, 0.98),
+    rgba(28, 34, 45, 0.98)
+  );
+}
+
+.notes-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: scale(0.9);
+  animation: scaleIn 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.notes-animation-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin-bottom: 30px;
+  perspective: 2000px;
+}
+
+/* Улучшенная 3D-анимация блокнота */
+.notebook-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: floatNotebook 6s infinite ease-in-out;
+}
+
+.notebook {
+  position: relative;
+  width: 160px;
+  height: 200px;
+  transform-style: preserve-3d;
+  margin: 0 auto;
+  transform: rotateX(10deg) rotateY(-20deg);
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.2));
+}
+
+.dark .notebook {
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.4));
+}
+
+/* Обложка блокнота */
+.notebook-cover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
+  transform: translateZ(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.notebook-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 45%,
+    transparent 50%
+  );
+  background-size: 200% 200%;
+  animation: coverShine 3s infinite linear;
+}
+
+.notebook-cover::after {
+  content: '\f02d'; /* Иконка книги */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.notebook-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform-origin: left center;
+  border-left: 3px solid var(--color-primary);
+  overflow: hidden;
+}
+
+.dark .notebook-page {
+  background: #2d3748;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.notebook-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--color-primary-rgb), 0.2) 0%,
+    rgba(var(--color-primary-rgb), 0.2) 100%
+  );
+}
+
+.notebook-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 22px,
+    rgba(var(--color-primary-rgb), 0.1) 22px,
+    rgba(var(--color-primary-rgb), 0.1) 23px
+  );
+}
+
+/* Последовательная анимация страниц */
+.notebook-page:nth-child(1) {
+  animation: flipPage1 8s infinite ease-in-out;
+  z-index: 6;
+  transform: translateZ(4px);
+}
+
+.notebook-page:nth-child(2) {
+  animation: flipPage2 8s infinite ease-in-out;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.98);
+  transform: translateZ(3px);
+}
+
+.notebook-page:nth-child(3) {
+  animation: flipPage3 8s infinite ease-in-out;
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.96);
+  transform: translateZ(2px);
+}
+
+.notebook-page:nth-child(4) {
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateZ(1px);
+}
+
+/* Эффект теней для Dark режима */
+.dark .notebook-page:nth-child(2) {
+  background: rgba(45, 55, 72, 0.98);
+}
+
+.dark .notebook-page:nth-child(3) {
+  background: rgba(45, 55, 72, 0.96);
+}
+
+.dark .notebook-page:nth-child(4) {
+  background: rgba(45, 55, 72, 0.94);
+}
+
+/* Анимация чернил и текста */
+.ink-drop {
+  position: absolute;
+  top: 50px;
+  left: 40px;
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(1px);
+  transform: scale(0);
+  animation: inkDrop 8s infinite ease-out;
+}
+
+.ink-drop::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+  border-radius: 50%;
+  filter: blur(2px);
+  transform: scale(1.5);
+  opacity: 0.5;
+}
+
+.ink-drop:nth-child(2) {
+  top: 80px;
+  left: 35px;
+  animation-delay: 2.5s;
+}
+
+.ink-drop:nth-child(3) {
+  top: 110px;
+  left: 45px;
+  animation-delay: 5s;
+}
+
+/* Улучшенные стили для печатающегося текста */
+.typing-text {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: var(--color-primary);
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  text-shadow: 0 1px 3px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.dark .typing-text {
+  color: rgba(var(--color-primary-rgb), 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.typing-text:nth-child(1) {
+  top: 40px;
+  left: 30px;
+  animation: typing1 8s infinite ease-in-out;
+}
+
+.typing-text:nth-child(2) {
+  top: 70px;
+  left: 30px;
+  animation: typing2 8s infinite ease-in-out;
+}
+
+.typing-text:nth-child(3) {
+  top: 100px;
+  left: 30px;
+  animation: typing3 8s infinite ease-in-out;
+}
+
+.typing-text::after {
+  content: '|';
+  animation: cursor-blink 0.7s infinite;
+}
+
+/* Плавающая анимация пера */
+.floating-pen {
+  position: absolute;
+  top: 0;
+  right: 30px;
+  font-size: 28px;
+  color: var(--color-primary);
+  transform-origin: center bottom;
+  animation: floatingPen 8s infinite ease-in-out;
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+}
+
+.floating-pen i {
+  transform: rotate(45deg);
+}
+
+/* Улучшенные плавающие иконки заметок */
+.floating-note {
+  position: absolute;
+  color: var(--color-primary);
+  opacity: 0;
+  animation: floatNote 10s infinite ease-in-out;
+  filter: drop-shadow(0 3px 5px rgba(var(--color-primary-rgb), 0.3));
+}
+
+.floating-note:nth-child(1) {
+  top: 10px;
+  left: -10px;
+  font-size: 28px;
+  animation-delay: 0.5s;
+  transform-origin: center center;
+}
+
+.floating-note:nth-child(2) {
+  top: 60px;
+  right: 10px;
+  font-size: 20px;
+  animation-delay: 2.5s;
+  transform-origin: center center;
+}
+
+.floating-note:nth-child(3) {
+  bottom: 20px;
+  left: 0px;
+  font-size: 22px;
+  animation-delay: 4.5s;
+  transform-origin: center center;
+}
+
+.floating-note:nth-child(4) {
+  bottom: 40px;
+  right: -15px;
+  font-size: 26px;
+  animation-delay: 6.5s;
+  transform-origin: center center;
+}
+
+.floating-note i {
+  animation: rotate-icon 16s infinite linear;
+}
+
+/* Частички бумаги */
+.paper-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: rgba(var(--color-primary-rgb), 0.2);
+  border-radius: 2px;
+  opacity: 0;
+  animation: paperParticle 10s infinite ease-out;
+}
+
+.paper-particle:nth-child(1) {
+  top: 20%;
+  left: 20%;
+  animation-delay: 1s;
+  transform: rotate(15deg);
+}
+
+.paper-particle:nth-child(2) {
+  top: 30%;
+  right: 20%;
+  animation-delay: 2s;
+  transform: rotate(-10deg);
+}
+
+.paper-particle:nth-child(3) {
+  bottom: 30%;
+  left: 30%;
+  animation-delay: 3s;
+  transform: rotate(5deg);
+}
+
+.paper-particle:nth-child(4) {
+  bottom: 20%;
+  right: 30%;
+  animation-delay: 4s;
+  transform: rotate(-20deg);
+}
+
+/* Улучшенные стили для загрузочного текста */
+.loading-text {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 10px;
+  background: linear-gradient(
+    45deg,
+    var(--color-primary),
+    var(--color-primary-light)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 2s infinite;
+  position: relative;
+  letter-spacing: 0.5px;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.loading-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  animation: pulseDot 1.5s infinite;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Обновленные анимации */
+@keyframes flipPage1 {
+  0%,
+  15% {
+    transform: rotateY(0) translateZ(4px);
+  }
+  25%,
+  40% {
+    transform: rotateY(-170deg) translateZ(4px);
+  }
+  85%,
+  100% {
+    transform: rotateY(0) translateZ(4px);
+  }
+}
+
+@keyframes flipPage2 {
+  0%,
+  20% {
+    transform: rotateY(0) translateZ(3px);
+  }
+  30%,
+  45% {
+    transform: rotateY(-165deg) translateZ(3px);
+  }
+  80%,
+  100% {
+    transform: rotateY(0) translateZ(3px);
+  }
+}
+
+@keyframes flipPage3 {
+  0%,
+  25% {
+    transform: rotateY(0) translateZ(2px);
+  }
+  35%,
+  50% {
+    transform: rotateY(-160deg) translateZ(2px);
+  }
+  75%,
+  100% {
+    transform: rotateY(0) translateZ(2px);
+  }
+}
+
+@keyframes typing1 {
+  0%,
+  10% {
+    width: 0;
+    opacity: 0;
+  }
+  15%,
+  35% {
+    width: 160px;
+    opacity: 1;
+  }
+  45%,
+  100% {
+    width: 160px;
+    opacity: 0;
+  }
+}
+
+@keyframes typing2 {
+  0%,
+  30% {
+    width: 0;
+    opacity: 0;
+  }
+  35%,
+  55% {
+    width: 140px;
+    opacity: 1;
+  }
+  65%,
+  100% {
+    width: 140px;
+    opacity: 0;
+  }
+}
+
+@keyframes typing3 {
+  0%,
+  50% {
+    width: 0;
+    opacity: 0;
+  }
+  55%,
+  75% {
+    width: 120px;
+    opacity: 1;
+  }
+  85%,
+  100% {
+    width: 120px;
+    opacity: 0;
+  }
+}
+
+@keyframes inkDrop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  5% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  20% {
+    opacity: 0.7;
+    transform: scale(20);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(60);
+  }
+}
+
+@keyframes cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes floatingPen {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-5px, -10px) rotate(-5deg);
+  }
+  50% {
+    transform: translate(5px, -5px) rotate(5deg);
+  }
+  75% {
+    transform: translate(-5px, 5px) rotate(-3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes floatNote {
+  0% {
+    transform: translate(0, 0) rotate(-5deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(15px, -25px) rotate(8deg) scale(1);
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0, -45px) rotate(-3deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes rotate-icon {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floatNotebook {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes paperParticle {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.7;
+  }
+  60% {
+    transform: translateY(-100px) translateX(20px) rotate(360deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-150px) translateX(30px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes coverShine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmerText {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 1;
+  }
+}
+
+/* Улучшенная анимация загрузочного экрана NotesApp */
+.notes-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(247, 247, 252, 0.98)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.dark .notes-loading-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 28, 36, 0.98),
+    rgba(28, 34, 45, 0.98)
+  );
+}
+
+.notes-animation-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin-bottom: 30px;
+  perspective: 2000px;
+  transform-style: preserve-3d;
+}
+
+/* Улучшенная 3D-анимация блокнота */
+.notebook-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 200px;
+  transform-style: preserve-3d;
+  animation: gentleFloat 6s infinite ease-in-out;
+}
+
+.notebook {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(10deg) rotateY(-15deg);
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.2));
+}
+
+.dark .notebook {
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.4));
+}
+
+/* Обложка блокнота */
+.notebook-cover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
+  transform: translateZ(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.notebook-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 45%,
+    transparent 50%
+  );
+  background-size: 200% 200%;
+  animation: coverShine 3s infinite linear;
+}
+
+.notebook-cover::after {
+  content: '\f02d'; /* Иконка книги */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.notebook-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform-origin: left center;
+  border-left: 3px solid var(--color-primary);
+  overflow: hidden;
+}
+
+.dark .notebook-page {
+  background: #2d3748;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.notebook-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--color-primary-rgb), 0.2) 0%,
+    rgba(var(--color-primary-rgb), 0.2) 100%
+  );
+}
+
+.notebook-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 22px,
+    rgba(var(--color-primary-rgb), 0.1) 22px,
+    rgba(var(--color-primary-rgb), 0.1) 23px
+  );
+}
+
+/* Последовательная анимация страниц */
+.notebook-page:nth-child(1) {
+  animation: smoothFlipPage1 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 6;
+  transform: translateZ(4px);
+}
+
+.notebook-page:nth-child(2) {
+  animation: smoothFlipPage2 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.98);
+  transform: translateZ(3px);
+}
+
+.notebook-page:nth-child(3) {
+  animation: smoothFlipPage3 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.96);
+  transform: translateZ(2px);
+}
+
+.notebook-page:nth-child(4) {
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateZ(1px);
+}
+
+/* Анимация чернил и текста */
+.ink-drop {
+  position: absolute;
+  top: 50px;
+  left: 40px;
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(1px);
+  transform: scale(0);
+  animation: smoothInkDrop 8s infinite ease-out;
+  z-index: 10;
+}
+
+.ink-drop::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+  border-radius: 50%;
+  filter: blur(2px);
+  transform: scale(1.5);
+  opacity: 0.5;
+}
+
+.ink-drop:nth-child(2) {
+  top: 80px;
+  left: 35px;
+  animation-delay: 2.5s;
+}
+
+.ink-drop:nth-child(3) {
+  top: 110px;
+  left: 45px;
+  animation-delay: 5s;
+}
+
+/* Улучшенные стили для печатающегося текста */
+.typing-text {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: var(--color-primary);
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  text-shadow: 0 1px 2px rgba(var(--color-primary-rgb), 0.15);
+  z-index: 10;
+}
+
+.dark .typing-text {
+  color: rgba(var(--color-primary-rgb), 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.typing-text:nth-child(1) {
+  top: 40px;
+  left: 30px;
+  animation: smoothTyping1 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.typing-text:nth-child(2) {
+  top: 70px;
+  left: 30px;
+  animation: smoothTyping2 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.typing-text:nth-child(3) {
+  top: 100px;
+  left: 30px;
+  animation: smoothTyping3 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.typing-text::after {
+  content: '|';
+  animation: cursor-blink 0.7s infinite;
+}
+
+/* Плавающая анимация пера */
+.floating-pen {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  font-size: 28px;
+  color: var(--color-primary);
+  transform-origin: center bottom;
+  animation: smoothPenFloat 8s infinite ease-in-out;
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.15));
+  z-index: 5;
+}
+
+.floating-pen i {
+  transform: rotate(45deg);
+}
+
+/* Улучшенные плавающие иконки заметок */
+.floating-note {
+  position: absolute;
+  color: var(--color-primary);
+  opacity: 0;
+  animation: smoothFloat 10s infinite ease-in-out;
+  filter: drop-shadow(0 3px 5px rgba(var(--color-primary-rgb), 0.2));
+  z-index: 2;
+}
+
+.floating-note:nth-child(1) {
+  top: 10px;
+  left: -10px;
+  font-size: 28px;
+  animation-delay: 0.5s;
+}
+
+.floating-note:nth-child(2) {
+  top: 60px;
+  right: 10px;
+  font-size: 20px;
+  animation-delay: 2.5s;
+}
+
+.floating-note:nth-child(3) {
+  bottom: 30px;
+  left: 0px;
+  font-size: 22px;
+  animation-delay: 4.5s;
+}
+
+.floating-note:nth-child(4) {
+  bottom: 40px;
+  right: -15px;
+  font-size: 26px;
+  animation-delay: 6.5s;
+}
+
+.floating-note i {
+  animation: gentleRotate 16s infinite linear;
+}
+
+/* Частички бумаги */
+.paper-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: rgba(var(--color-primary-rgb), 0.2);
+  border-radius: 2px;
+  opacity: 0;
+  animation: gentleFall 10s infinite ease-out;
+  z-index: 1;
+}
+
+.paper-particle:nth-child(1) {
+  top: 20%;
+  left: 20%;
+  animation-delay: 1s;
+  transform: rotate(15deg);
+}
+
+.paper-particle:nth-child(2) {
+  top: 30%;
+  right: 20%;
+  animation-delay: 2s;
+  transform: rotate(-10deg);
+  width: 6px;
+  height: 6px;
+}
+
+.paper-particle:nth-child(3) {
+  bottom: 30%;
+  left: 30%;
+  animation-delay: 3s;
+  transform: rotate(5deg);
+  width: 10px;
+  height: 10px;
+}
+
+.paper-particle:nth-child(4) {
+  bottom: 20%;
+  right: 30%;
+  animation-delay: 4s;
+  transform: rotate(-20deg);
+  width: 7px;
+  height: 7px;
+}
+
+/* Улучшенные анимации */
+@keyframes smoothFlipPage1 {
+  0%,
+  15% {
+    transform: rotateY(0) translateZ(4px);
+  }
+  20%,
+  40% {
+    transform: rotateY(-160deg) translateZ(4px);
+  }
+  85%,
+  100% {
+    transform: rotateY(0) translateZ(4px);
+  }
+}
+
+@keyframes smoothFlipPage2 {
+  0%,
+  20% {
+    transform: rotateY(0) translateZ(3px);
+  }
+  25%,
+  45% {
+    transform: rotateY(-155deg) translateZ(3px);
+  }
+  80%,
+  100% {
+    transform: rotateY(0) translateZ(3px);
+  }
+}
+
+@keyframes smoothFlipPage3 {
+  0%,
+  25% {
+    transform: rotateY(0) translateZ(2px);
+  }
+  30%,
+  50% {
+    transform: rotateY(-150deg) translateZ(2px);
+  }
+  75%,
+  100% {
+    transform: rotateY(0) translateZ(2px);
+  }
+}
+
+@keyframes smoothTyping1 {
+  0%,
+  10% {
+    width: 0;
+    opacity: 0;
+  }
+  15%,
+  35% {
+    width: 160px;
+    opacity: 1;
+  }
+  45%,
+  100% {
+    width: 160px;
+    opacity: 0;
+  }
+}
+
+@keyframes smoothTyping2 {
+  0%,
+  30% {
+    width: 0;
+    opacity: 0;
+  }
+  35%,
+  55% {
+    width: 140px;
+    opacity: 1;
+  }
+  65%,
+  100% {
+    width: 140px;
+    opacity: 0;
+  }
+}
+
+@keyframes smoothTyping3 {
+  0%,
+  50% {
+    width: 0;
+    opacity: 0;
+  }
+  55%,
+  75% {
+    width: 120px;
+    opacity: 1;
+  }
+  85%,
+  100% {
+    width: 120px;
+    opacity: 0;
+  }
+}
+
+@keyframes smoothInkDrop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  5% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  15% {
+    opacity: 0.7;
+    transform: scale(15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40);
+  }
+}
+
+@keyframes cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes smoothPenFloat {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-5px, -8px) rotate(-5deg);
+  }
+  50% {
+    transform: translate(3px, -4px) rotate(3deg);
+  }
+  75% {
+    transform: translate(-3px, 3px) rotate(-2deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes smoothFloat {
+  0% {
+    transform: translate(0, 0) rotate(-5deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(12px, -20px) rotate(5deg) scale(1);
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(0, -35px) rotate(-3deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes gentleRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gentleFloat {
+  0% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px);
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+}
+
+@keyframes gentleFall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.6;
+  }
+  60% {
+    transform: translateY(-70px) translateX(15px) rotate(180deg);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-120px) translateX(20px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes coverShine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

@@ -133,16 +133,16 @@ export const formatDate = (date: string | Date): string => {
 
 // Format datetime for display with better time formatting
 export const formatDateTime = (date: string | Date): string => {
+  // Check if the date is valid
   if (!date) return ''
 
+  // Create Date objects
   const dateObj = new Date(date)
-
-  // Check if date is valid
-  if (isNaN(dateObj.getTime())) {
-    return 'Invalid date'
-  }
-
   const now = new Date()
+
+  // Validate the date
+  if (isNaN(dateObj.getTime())) return ''
+
   const isToday =
     dateObj.getDate() === now.getDate() &&
     dateObj.getMonth() === now.getMonth() &&
@@ -184,10 +184,17 @@ export const isTaskInFolder = (
   // Также проверяем parentFolderId, который может использоваться в некоторых API
   const taskParentFolderId = task.parentFolderId || task.parent_folder_id
 
-  // Проверяем все возможные соответствия
+  // Приводим к строкам для корректного сравнения
+  const normalizedFolderId = String(folderId)
+  const normalizedTaskFolderId = taskFolderId ? String(taskFolderId) : null
+  const normalizedParentFolderId = taskParentFolderId
+    ? String(taskParentFolderId)
+    : null
+
+  // Проверяем совпадение с любым из идентификаторов
   return (
-    (taskFolderId && String(taskFolderId) === String(folderId)) ||
-    (taskParentFolderId && String(taskParentFolderId) === String(folderId))
+    normalizedTaskFolderId === normalizedFolderId ||
+    normalizedParentFolderId === normalizedFolderId
   )
 }
 
