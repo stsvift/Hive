@@ -78,6 +78,13 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
   const [editedName, setEditedName] = useState<string>('')
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false)
 
+  // Добавляем состояние для минимального времени отображения анимации загрузки профиля
+  const [profileLoadingStartTime, setProfileLoadingStartTime] =
+    useState<number>(0)
+  const [showProfileLoadingAnimation, setShowProfileLoadingAnimation] =
+    useState<boolean>(false)
+  const minimumProfileLoadingTime = 2000 // 2 секунды минимального отображения
+
   // Add state for password change
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -141,6 +148,8 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
   // Load user profile when component mounts or when account tab is activated
   useEffect(() => {
     if (activeCategory === 'account' && isAuthenticated()) {
+      setShowProfileLoadingAnimation(true)
+      setProfileLoadingStartTime(Date.now())
       loadUserProfile()
     }
   }, [activeCategory])
@@ -177,6 +186,26 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
 
     return () => clearTimeout(loadingTimer)
   }, [])
+
+  // Добавляем эффект для контроля минимального времени отображения загрузки профиля
+  useEffect(() => {
+    if (!isLoadingProfile && showProfileLoadingAnimation) {
+      const elapsedTime = Date.now() - profileLoadingStartTime
+
+      if (elapsedTime < minimumProfileLoadingTime) {
+        // Если прошло меньше минимального времени, устанавливаем таймер
+        const remainingTime = minimumProfileLoadingTime - elapsedTime
+        const timer = setTimeout(() => {
+          setShowProfileLoadingAnimation(false)
+        }, remainingTime)
+
+        return () => clearTimeout(timer)
+      } else {
+        // Если прошло достаточно времени, скрываем анимацию сразу
+        setShowProfileLoadingAnimation(false)
+      }
+    }
+  }, [isLoadingProfile, profileLoadingStartTime, showProfileLoadingAnimation])
 
   // Function to load user profile
   const loadUserProfile = async () => {
@@ -1029,7 +1058,7 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
       case 'account':
         return (
           <div className="settings-content-section">
-            {isLoadingProfile ? (
+            {showProfileLoadingAnimation ? (
               <div className="account-loading-screen">
                 <div className="particles-container">
                   <div className="particle"></div>
@@ -1321,11 +1350,17 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
                   <p className="version">Версия 1.0.0</p>
                   <div className="about-badges">
                     <span className="about-badge">
-                      <i className="fas fa-code"></i> sviftcommunity
+                      <a
+                        href="https://sviftcommunity.ru/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="about-badge-link"
+                      >
+                        <i className="fas fa-code"></i> sviftcommunity
+                      </a>
                     </span>
                     <a
                       href="https://github.com/stsvift/Hive/blob/main/LICENSE"
-                      ense
                       target="_blank"
                       rel="noopener noreferrer"
                       className="about-badge license"
@@ -1514,17 +1549,15 @@ const SettingsApp: React.FC<SettingsAppProps> = ({
                   onClick={() => {
                     if (
                       window.confirm(
-                        'Вы уверены, что хотите сбросить все настройки? Это действие невозможно отменить.'
+                        'Вы уверены, что хотите сбросить все настройки и выйти из аккаунта? Это действие невозможно отменить.'
                       )
                     ) {
-                      // Clear all localStorage except for user auth
+                      // Clear ALL localStorage including auth token
                       Object.keys(localStorage).forEach(key => {
-                        if (key !== STORAGE_KEYS.AUTH_TOKEN) {
-                          localStorage.removeItem(key)
-                        }
+                        localStorage.removeItem(key)
                       })
                       alert(
-                        'Настройки сброшены. Приложение будет перезагружено.'
+                        'Все настройки сброшены. Вы будете перенаправлены на страницу входа.'
                       )
                       window.location.reload()
                     }

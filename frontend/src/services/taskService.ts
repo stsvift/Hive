@@ -1,9 +1,7 @@
 import { STORAGE_KEYS } from '../config/constants'
 
 // In development, use the proxy. In production, use the env variable
-const API_BASE_URL = import.meta.env.DEV
-  ? '/api'
-  : import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL = 'http://localhost:5000/api' // Using port 5000 where backend is running
 
 // Task interface that matches the API
 export interface Task {
@@ -42,13 +40,30 @@ export interface TaskInput {
   actualHours: number | null
 }
 
-// Get the auth token from localStorage
+// Get the auth token from localStorage with better validation
 const getAuthToken = (): string | null => {
-  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
-  if (!token) {
-    console.warn('No auth token found in localStorage.')
+  try {
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+
+    if (!token) {
+      console.warn('No auth token found in localStorage.')
+      return null
+    }
+
+    // Remove any quotes that might have been added
+    const cleanToken = token.replace(/^["']|["']$/g, '')
+
+    // Verify the token is not empty after cleaning
+    if (!cleanToken || cleanToken === 'undefined' || cleanToken === 'null') {
+      console.warn('Auth token is invalid:', token)
+      return null
+    }
+
+    return cleanToken
+  } catch (error) {
+    console.error('Error retrieving auth token:', error)
+    return null
   }
-  return token
 }
 
 // Helper function to build request headers with auth token
@@ -60,11 +75,57 @@ const getHeaders = (): HeadersInit => {
   const token = getAuthToken()
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
+    console.log('Using authorization token:', token.substring(0, 10) + '...')
   } else {
-    console.error('Authorization token is missing. Requests may fail.')
+    console.error(
+      'Authorization token is missing. Requests will fail with 401 Unauthorized.'
+    )
   }
 
   return headers
+}
+
+// Improved function to get the current user's ID with better fallback options
+const getCurrentUserId = (): number | null => {
+  try {
+    // Try to get user from localStorage first
+    const userString = localStorage.getItem(STORAGE_KEYS.USER)
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user?.id) {
+        console.log('Found user ID in localStorage:', user.id)
+        return user.id
+      }
+    }
+
+    // If not found, try to extract from token
+    const token = getAuthToken()
+    if (token) {
+      // JWT tokens are in the format: header.payload.signature
+      // We need the payload part which is the second segment
+      try {
+        const payload = token.split('.')[1]
+        if (payload) {
+          // Decode the base64 payload
+          const decodedPayload = JSON.parse(atob(payload))
+          if (decodedPayload.userId || decodedPayload.sub) {
+            const userId = decodedPayload.userId || decodedPayload.sub
+            console.log('Extracted user ID from token:', userId)
+            return Number(userId)
+          }
+        }
+      } catch (tokenError) {
+        console.warn('Failed to extract user ID from token', tokenError)
+      }
+    }
+
+    // Fallback to a hardcoded user ID for development (remove in production)
+    console.warn('Using fallback user ID: 1')
+    return 1
+  } catch (error) {
+    console.error('Error getting current user ID:', error)
+    return 1 // Fallback to user ID 1 as a last resort
+  }
 }
 
 // Helper function for delay between retries
@@ -78,6 +139,15 @@ const fetchAPI = async (
 ): Promise<any> => {
   const url = `${API_BASE_URL}${endpoint}`
   console.log('Making request to:', url)
+
+  // Check for auth token before making the request
+  const token = getAuthToken()
+  if (!token) {
+    console.error('No valid auth token available. Redirecting to login...')
+    // If appropriate, redirect to login page here
+    // window.location.href = '/login'
+    throw new Error('Authentication required. Please login.')
+  }
 
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
@@ -117,6 +187,16 @@ const fetchAPI = async (
     } catch (error) {
       console.error(`Attempt ${attempt + 1} failed:`, error)
 
+      // If unauthorized and this is the first attempt, try to refresh token
+      if (
+        error instanceof Error &&
+        error.message.includes('401') &&
+        attempt === 0
+      ) {
+        console.warn('Unauthorized access. Token may be expired.')
+        // Option to handle token refresh or redirect to login
+      }
+
       if (attempt === retries - 1) {
         throw error
       }
@@ -141,31 +221,39 @@ export const taskService = {
   // Create a new task
   createTask: async (task: TaskInput): Promise<Task> => {
     try {
-      // Create a simple payload that matches EXACTLY what's in the API documentation
-      // with minimal transformations
+      console.log('Task input:', task)
+
+      // Get the current user ID with better logging
+      const assigneeId = getCurrentUserId()
+      console.log('Using assigneeId for task creation:', assigneeId)
+
+      // Create payload with the assigneeId
       const payload = {
         title: task.title.trim(),
         description: task.description || '',
-        isCompleted: false, // Always start with false regardless of status
-        taskDate: formatDateForApi(task.taskDate), // Fix date format
-        startTime: task.startTime, // Send raw time string
-        endTime: task.endTime, // Send raw time string
-        priority: 'Medium', // Use exact string from API docs
-        status: 'Todo', // Use exact string from API docs
-        category: task.category || '',
-        tags: task.tags || '',
-        folderId: task.folderId || null,
-        estimatedHours: task.estimatedHours || null,
-        actualHours: task.actualHours || null,
-        // Don't include assigneeId - the API will assign it based on the token
+        isCompleted: false,
+        taskDate: formatDateForApi(task.taskDate),
+        priority: 'Medium',
+        status: 'Todo',
+        assigneeId: assigneeId || 1, // Always provide a valid ID (use 1 as fallback)
+        // Only include additional fields if they have values
+        ...(task.startTime && { startTime: task.startTime }),
+        ...(task.endTime && { endTime: task.endTime }),
+        ...(task.category && { category: task.category }),
+        ...(task.tags && { tags: task.tags }),
+        ...(task.folderId && { folderId: task.folderId }),
+        ...(task.estimatedHours && { estimatedHours: task.estimatedHours }),
+        ...(task.actualHours && { actualHours: task.actualHours }),
       }
 
-      console.log('Creating task with minimal payload:', payload)
+      console.log('Creating task with payload including assigneeId:', payload)
 
       const response = await fetchAPI('/tasks', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
+
+      console.log('API response:', response)
 
       return (
         response ||

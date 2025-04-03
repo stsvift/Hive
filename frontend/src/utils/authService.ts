@@ -36,6 +36,94 @@ export interface PasswordChangeRequest {
   newPassword: string
 }
 
+// Helper function to parse JWT token
+const parseToken = (token: string): any => {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('Error parsing token', error)
+    return null
+  }
+}
+
+// Improved validateUserExists function to handle newly registered users better
+// Define this before isAuthenticated to avoid reference issues
+export const validateUserExists = async (): Promise<boolean> => {
+  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+  if (!token) {
+    throw { message: 'No authentication token found', status: 401 }
+  }
+
+  try {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5173/api'
+
+    // For freshly registered users, first try to get user info from API
+    try {
+      const profileResponse = await fetch(`${API_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (profileResponse.ok) {
+        console.log(
+          'User validation succeeded: account exists and token is valid'
+        )
+        return true
+      }
+    } catch (profileError) {
+      console.warn(
+        'Error checking user profile, trying validate endpoint',
+        profileError
+      )
+    }
+
+    // Make a lightweight request to verify the user exists
+    const response = await fetch(`${API_URL}/users/validate`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    // If response is not ok, the user likely doesn't exist anymore
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.warn('User account not found on server')
+        throw { message: 'User account not found', status: 404 }
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        console.warn('Authentication token invalid or expired')
+        throw { message: 'Authentication failed', status: 401 }
+      }
+
+      // For other errors, log but don't invalidate the token yet
+      // This handles temporary server issues
+      console.warn(`Server returned ${response.status} status code`)
+      return true // Still return true to prevent logout on temporary issues
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error validating user existence:', error)
+    // Only throw if we're certain the error is due to the user not existing
+    if (error.status === 404 || error.status === 401) {
+      throw error
+    }
+    // For network errors etc., don't invalidate the token
+    return true
+  }
+}
+
 // User registration
 export const register = async (
   userData: RegisterRequest
@@ -85,10 +173,40 @@ export const register = async (
       throw new Error(errorMessage)
     }
 
-    // Store auth token in localStorage
-    if (responseData.token) {
-      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, responseData.token)
+    // Modified block: Handle registration success even without token
+    if (!responseData.token) {
+      console.log(
+        'No token in registration response - proceeding with auto-login'
+      )
+
+      // Some APIs require a separate login after registration
+      try {
+        // Attempt auto-login with the registration credentials
+        const loginResponse = await login({
+          email: userData.email,
+          password: userData.password,
+        })
+
+        console.log('Auto-login after registration successful')
+        return loginResponse // Return the login response which includes token
+      } catch (loginError) {
+        console.error('Auto-login after registration failed:', loginError)
+        // Create a minimal response without token - the UI will handle login redirect
+        return {
+          token: '', // Empty token signals registration worked but requires separate login
+          user: {
+            id: 'pending',
+            name: userData.name,
+            email: userData.email,
+          },
+        }
+      }
     }
+
+    // Normal flow when token is present in registration response
+    console.log('Registration successful with token')
+    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, responseData.token)
+    console.log('Authentication token stored after registration')
 
     // Normalize the user data structure
     if (responseData.user) {
@@ -103,6 +221,23 @@ export const register = async (
       // If avatar is missing but avatarUrl exists, use that
       if (!responseData.user.avatar && responseData.user.avatarUrl) {
         responseData.user.avatar = responseData.user.avatarUrl
+      }
+    } else {
+      // If user data is missing from response but we have a token, create minimal user object
+      responseData.user = {
+        id: 'pending', // Will be replaced by proper ID after token validation
+        name: userData.name,
+        email: userData.email,
+      }
+
+      // Try to extract user info from token
+      try {
+        const tokenData = parseToken(responseData.token)
+        if (tokenData && tokenData.sub) {
+          responseData.user.id = tokenData.sub
+        }
+      } catch (error) {
+        console.warn('Could not extract user data from token', error)
       }
     }
 
@@ -324,7 +459,7 @@ export const updateUserPreferences = async (preferences: any): Promise<any> => {
     const response = await fetch(`${apiUrl}/user/profile`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -406,20 +541,39 @@ export const isAuthenticated = (): boolean => {
       // If token has expiration time, check if it's expired
       if (payload.exp) {
         const expirationTime = payload.exp * 1000 // Convert to milliseconds
-        const currentTime = Date.now()
-
-        if (currentTime > expirationTime) {
-          console.log('Token expired, logging out')
+        if (Date.now() >= expirationTime) {
+          console.warn('Token expired')
+          localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
           return false
         }
       }
-    } catch (error) {
-      // If we can't parse the token, we'll still consider the user authenticated
-      // This handles cases where the token structure might be different
-      console.warn('Could not parse token, but continuing with authentication')
-    }
 
-    return true
+      // Safety check - do we have validateUserExists function?
+      if (typeof validateUserExists === 'function') {
+        // Verify user still exists
+        validateUserExists().catch(error => {
+          console.error('User validation failed:', error)
+          // If validation explicitly fails with 404 or unauthorized, clear the token
+          if (error.status === 404 || error.status === 401) {
+            console.warn(
+              'User account no longer exists or is invalid, removing token'
+            )
+            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+            // Reload the app to force login
+            window.location.reload()
+          }
+        })
+      } else {
+        console.warn(
+          'validateUserExists function not available - skipping validation'
+        )
+      }
+
+      return true
+    } catch (error) {
+      console.error('Error parsing token:', error)
+      return false
+    }
   } catch (error) {
     console.error('Error in isAuthenticated:', error)
     return false
@@ -427,12 +581,15 @@ export const isAuthenticated = (): boolean => {
 }
 
 // Change user password - Fix the request format
-export const changePassword = async (data: { currentPassword: string; newPassword: string }) => {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-  
+export const changePassword = async (data: {
+  currentPassword: string
+  newPassword: string
+}) => {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+
   if (!token) {
-    throw new Error('Не авторизован');
+    throw new Error('Не авторизован')
   }
 
   try {
@@ -440,19 +597,73 @@ export const changePassword = async (data: { currentPassword: string; newPasswor
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(data)
-    });
+      body: JSON.stringify(data),
+    })
 
     if (!response.ok) {
-      throw new Error(`Ошибка ${response.status}: Не удалось изменить пароль`);
+      throw new Error(`Ошибка ${response.status}: Не удалось изменить пароль`)
     }
 
-    const result = await response.json();
-    return result;
+    const result = await response.json()
+    return result
   } catch (error) {
-    console.error('Password change error:', error);
-    throw error;
+    console.error('Password change error:', error)
+    throw error
+  }
+}
+
+// Add this new function at the end of the file
+/**
+ * Safe initialization function for auth service that can be called early in the app lifecycle
+ * without causing reference errors
+ */
+export const initAuthService = () => {
+  // Return helper functions that safely handle validation
+  return {
+    checkAuth: () => {
+      try {
+        return isAuthenticated()
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+        return false
+      }
+    },
+    validateSession: async () => {
+      try {
+        const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+        if (!token) {
+          return false
+        }
+
+        // Basic token validity check without calling validateUserExists
+        const tokenParts = token.split('.')
+        if (tokenParts.length !== 3) {
+          console.warn('Invalid token format')
+          return false
+        }
+
+        try {
+          const base64Url = token.split('.')[1]
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+          const payload = JSON.parse(window.atob(base64))
+
+          if (payload.exp && Date.now() >= payload.exp * 1000) {
+            console.warn('Token expired')
+            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+            return false
+          }
+
+          return true
+        } catch (error) {
+          console.error('Error parsing token:', error)
+          return false
+        }
+      } catch (error) {
+        console.error('Session validation error:', error)
+        return false
+      }
+    },
   }
 }

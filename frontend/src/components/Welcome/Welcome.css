@@ -26,10 +26,12 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   width: 90%;
-  max-width: 700px;
-  padding: 40px;
+  max-width: 650px; /* Reduced from 700px */
+  padding: 30px; /* Reduced from 40px */
   text-align: center;
   overflow: hidden;
+  max-height: 85vh; /* Add max-height to ensure it fits on screen */
+  overflow-y: auto; /* Add scrolling if content exceeds height */
 }
 
 .dark .welcome-container {
@@ -38,21 +40,21 @@
 }
 
 .welcome-logo {
-  margin-bottom: 30px;
+  margin-bottom: 20px; /* Reduced from 30px */
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px; /* Reduced from 16px */
 }
 
 .welcome-logo img {
-  width: 60px;
-  height: 60px;
+  width: 50px; /* Reduced from 60px */
+  height: 50px; /* Reduced from 60px */
 }
 
 .welcome-logo h1 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2.2rem; /* Reduced from 2.5rem */
   color: var(--color-primary);
 }
 
@@ -60,7 +62,7 @@
   height: 4px;
   background-color: var(--color-gray-light);
   border-radius: 2px;
-  margin-bottom: 30px;
+  margin-bottom: 20px; /* Reduced from 30px */
   overflow: hidden;
 }
 
@@ -139,7 +141,8 @@
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-top: 30px;
+  margin-top: 25px; /* Reduced from 30px */
+  perspective: 1000px;
 }
 
 .welcome-button {
@@ -150,30 +153,96 @@
   transition: all var(--transition-fast);
   border: none;
   font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.welcome-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-button:hover::before {
+  transform: translateY(0);
 }
 
 .welcome-button.primary {
   background-color: var(--color-primary);
   color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .welcome-button.primary:hover {
   background-color: var(--color-primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(255, 152, 0, 0.3);
 }
 
-.welcome-button.primary:disabled {
-  background-color: var(--color-gray);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+.welcome-button.primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.2);
 }
 
 .welcome-button.secondary {
   background-color: transparent;
   color: var(--text-gray);
   border: 1px solid var(--color-gray-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-button.secondary:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-button.secondary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-button .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  z-index: -1;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.welcome-button span {
+  display: inline-block;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-button:active span {
+  transform: scale(0.95);
+}
+
+.welcome-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .dark .welcome-button.secondary {
@@ -181,17 +250,38 @@
   border-color: var(--color-gray-dark);
 }
 
-.welcome-button.secondary:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
 .dark .welcome-button.secondary:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-.welcome-button.secondary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.dark .welcome-button.primary:hover {
+  box-shadow: 0 6px 12px rgba(255, 152, 0, 0.2);
+}
+
+.welcome-buttons .welcome-button:nth-child(1) {
+  animation: buttonEnter 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) 0.1s
+    backwards;
+}
+
+.welcome-buttons .welcome-button:nth-child(2) {
+  animation: buttonEnter 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) 0.2s
+    backwards;
+}
+
+.welcome-buttons .welcome-button:nth-child(3) {
+  animation: buttonEnter 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) 0.3s
+    backwards;
+}
+
+@keyframes buttonEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .welcome-input-group {
@@ -814,18 +904,37 @@
   border-radius: 4px;
 }
 
+/* Style for coming soon label */
+.coming-soon-label {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #5c6bc0; /* blue indigo color */
+  background-color: rgba(92, 107, 192, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .workspace-option.disabled {
   opacity: 0.9;
   cursor: default;
 }
 
-.workspace-option.disabled:hover {
-  background-color: rgba(255, 152, 0, 0.05);
+/* Style for coming soon items */
+.workspace-option.coming-soon {
+  opacity: 0.7;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.workspace-option.coming-soon:hover {
+  background-color: transparent;
   transform: none;
 }
 
-.dark .workspace-option.disabled:hover {
-  background-color: rgba(255, 152, 0, 0.1);
+.dark .workspace-option.coming-soon:hover {
+  background-color: transparent;
 }
 
 /* Login and Registration specific styles */
@@ -887,6 +996,13 @@
 .dark .register-error {
   background-color: rgba(244, 67, 54, 0.2);
   color: #ff6b6b;
+}
+
+/* Success message styling */
+.login-success {
+  background-color: rgba(76, 175, 80, 0.2) !important;
+  border: 1px solid #4caf50 !important;
+  color: #2e7d32 !important;
 }
 
 /* Style adjustments for mobile */
@@ -1027,6 +1143,7 @@
     width: 100%;
     border-radius: var(--border-radius);
     box-shadow: none;
+    max-height: 90vh; /* Ensure it's not too large on small screens */
   }
 
   .welcome-screen {
@@ -1089,9 +1206,9 @@
 /* Handle landscape orientation on mobile */
 @media (max-height: 600px) and (orientation: landscape) {
   .welcome-container {
-    max-height: 90vh;
+    max-height: 95vh; /* Increased to make better use of landscape layout */
     overflow-y: auto;
-    padding: 15px;
+    padding: 15px 20px;
   }
 
   .welcome-logo {
@@ -1188,5 +1305,54 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Specific styles for workspace selection step */
+.welcome-container.workspace-selection {
+  max-width: 600px; /* Reduced from 700px */
+  padding: 30px; /* Reduced from 40px */
+}
+
+.workspace-selection .workspace-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px; /* Reduced from 15px */
+  margin-bottom: 25px; /* Reduced from 30px */
+}
+
+.workspace-selection .workspace-option {
+  padding: 12px; /* Reduced from 15px */
+  gap: 10px; /* Reduced from 12px */
+}
+
+.workspace-selection .workspace-icon {
+  width: 32px; /* Reduced from 36px */
+  height: 32px; /* Reduced from 36px */
+  border-radius: 6px; /* Reduced from 8px */
+  font-size: 14px; /* Reduced from 16px */
+}
+
+.workspace-selection .workspace-details h4 {
+  font-size: 0.95rem; /* Reduced from 1rem */
+}
+
+.workspace-selection .workspace-details p {
+  font-size: 0.75rem; /* Reduced from 0.8rem */
+}
+
+/* Adjust mobile styles too for workspace selection */
+@media (max-width: 768px) {
+  .welcome-container.workspace-selection {
+    padding: 20px 15px;
+    max-width: 90%;
+  }
+
+  .workspace-selection .workspace-options {
+    gap: 8px;
+  }
+
+  .workspace-selection .workspace-option {
+    padding: 10px;
   }
 }

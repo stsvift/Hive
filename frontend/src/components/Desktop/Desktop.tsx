@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { eventBus, EVENTS } from '../../utils/eventBus'
 import {
   getCurrentTheme,
   getCurrentWallpaper,
@@ -13,7 +14,6 @@ import AppWindow from '../AppWindow/AppWindow'
 import DesktopApps from '../DesktopApps/DesktopApps'
 import Dock from '../Dock/Dock'
 import './Desktop.css'
-import { eventBus, EVENTS } from '../../utils/eventBus'
 
 interface Position {
   x: number
@@ -203,21 +203,22 @@ const Desktop: React.FC<DesktopProps> = ({ theme, onThemeChange }) => {
     setActiveAppId(appId)
   }
 
-  // Закрытие приложения
+  // Ensure this function is properly defined
   const handleAppClose = (appId: string) => {
-    const newOpenApps = openApps.filter(id => id !== appId)
-    setOpenApps(newOpenApps)
+    console.log('Closing app:', appId) // Add logging to debug
 
-    // Удаляем из списка свернутых, если оно там было
-    if (minimizedApps.includes(appId)) {
-      setMinimizedApps(minimizedApps.filter(id => id !== appId))
+    setOpenApps(prevApps => prevApps.filter(id => id !== appId))
+
+    if (activeAppId === appId) {
+      setActiveAppId(null)
     }
 
-    // Если закрыли активное приложение, активируем последнее открытое
-    if (activeAppId === appId && newOpenApps.length > 0) {
-      setActiveAppId(newOpenApps[newOpenApps.length - 1])
-    } else if (newOpenApps.length === 0) {
-      setActiveAppId(null)
+    // Remove from minimized apps if it was minimized
+    setMinimizedApps(prevApps => prevApps.filter(id => id !== appId))
+
+    // Notify via EventBus if needed
+    if (eventBusInitialized) {
+      eventBus.publish(EVENTS.APP_CLOSED, { appId })
     }
   }
 
@@ -452,6 +453,7 @@ const Desktop: React.FC<DesktopProps> = ({ theme, onThemeChange }) => {
           minimizedApps={minimizedApps}
           receivingApp={receivingDockItem}
           onItemClick={handleAppClick}
+          onItemClose={handleAppClose} // Ensure this prop is passed correctly
         />
       </div>
     </div>

@@ -12,6 +12,7 @@ interface Task {
   title: string
   description: string
   priority: 'low' | 'medium' | 'high'
+  status: 'todo' | 'in_progress' | 'done' // Make sure status types are consistent
   dueDate?: string
   tags: string[]
   category?: string
@@ -53,6 +54,24 @@ const TasksApp: React.FC = () => {
   const [isDirty, setIsDirty] = useState(false)
   const [editedTask, setEditedTask] = useState<Task | null>(null)
 
+  const [loadingStartTime, setLoadingStartTime] = useState<number>(Date.now())
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
+  const minimumLoadingTime = 2000 // 2 секунды минимального отображения
+
+  // Add validation state - update to specifically track which input has an error
+  const [formErrors, setFormErrors] = useState<{
+    dueDate?: string
+    startTime?: boolean // Track start time field error
+    endTime?: boolean // Track end time field error
+    timeRange?: string // Message for time range error
+  }>({})
+
+  // Add new state to track validation errors for existing tasks
+  const [editTaskErrors, setEditTaskErrors] = useState<{
+    dueDate?: string
+    timeRange?: string
+  }>({})
+
   // Инициализируем editedTask когда selectedTask меняется
   useEffect(() => {
     if (selectedTask) {
@@ -66,8 +85,26 @@ const TasksApp: React.FC = () => {
 
   // Fetch tasks from API when component mounts
   useEffect(() => {
+    setLoadingStartTime(Date.now())
     fetchTasks()
   }, [])
+
+  useEffect(() => {
+    if (!isLoading && showLoadingAnimation) {
+      const elapsedTime = Date.now() - loadingStartTime
+
+      if (elapsedTime < minimumLoadingTime) {
+        const remainingTime = minimumLoadingTime - elapsedTime
+        const timer = setTimeout(() => {
+          setShowLoadingAnimation(false)
+        }, remainingTime)
+
+        return () => clearTimeout(timer)
+      } else {
+        setShowLoadingAnimation(false)
+      }
+    }
+  }, [isLoading, loadingStartTime, showLoadingAnimation])
 
   // Enhanced fetch tasks function with better error messaging
   const fetchTasks = async () => {
@@ -172,9 +209,84 @@ const TasksApp: React.FC = () => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
 
+  // Update validation function to specifically mark which time field has an error
+  const validateTaskForm = () => {
+    const errors: {
+      dueDate?: string
+      startTime?: boolean
+      endTime?: boolean
+      timeRange?: string
+    } = {}
+
+    // Check if date is in the past (improved validation)
+    if (newTask.dueDate) {
+      try {
+        const selectedDate = new Date(newTask.dueDate)
+        selectedDate.setHours(0, 0, 0, 0)
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (selectedDate < today) {
+          errors.dueDate = 'Нельзя создать задачу на прошедшую дату'
+          console.log(
+            'Date validation failed: date is in the past',
+            selectedDate,
+            today
+          )
+        }
+      } catch (error) {
+        console.error('Error validating date:', error)
+        errors.dueDate = 'Неверный формат даты'
+      }
+    }
+
+    // Check if end time is before start time
+    if (newTask.startTime && newTask.endTime) {
+      const startParts = newTask.startTime.split(':').map(Number)
+      const endParts = newTask.endTime.split(':').map(Number)
+
+      if (startParts.length >= 2 && endParts.length >= 2) {
+        const startMinutes = startParts[0] * 60 + startParts[1]
+        const endMinutes = endParts[0] * 60 + endParts[1]
+
+        if (endMinutes < startMinutes) {
+          errors.startTime = true // Mark start time field
+          errors.endTime = true // Mark end time field
+          errors.timeRange =
+            'Время окончания не может быть раньше времени начала'
+        }
+      }
+    }
+
+    console.log('Form validation errors:', errors)
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  // Updated function to validate time immediately when changed
+  const validateTimeRange = (startTime: string, endTime: string): boolean => {
+    if (!startTime || !endTime) return true
+
+    const startParts = startTime.split(':').map(Number)
+    const endParts = endTime.split(':').map(Number)
+
+    if (startParts.length < 2 || endParts.length < 2) return true
+
+    const startMinutes = startParts[0] * 60 + startParts[1]
+    const endMinutes = endParts[0] * 60 + endParts[1]
+
+    return endMinutes >= startMinutes
+  }
+
   // Создание новой задачи
   const handleCreateTask = async () => {
     if (!newTask.title.trim()) {
+      return
+    }
+
+    // Run validation before proceeding
+    if (!validateTaskForm()) {
       return
     }
 
@@ -182,27 +294,32 @@ const TasksApp: React.FC = () => {
     setApiError(null)
 
     try {
-      // Prepare the task data
+      // Prepare the task data with correct format that matches API
       const taskData = {
         title: newTask.title.trim(),
         description: newTask.description || '',
-        status: newTask.status || 'todo',
-        priority: newTask.priority,
+        status: 'Todo', // Use correct format for the API
+        priority: 'Medium', // Use correct format for the API
         taskDate: newTask.dueDate || null,
         startTime: newTask.startTime || null,
         endTime: newTask.endTime || null,
         tags: newTask.tags.length > 0 ? newTask.tags.join(', ') : '',
-        isCompleted: newTask.status === 'done',
+        isCompleted: false, // Always false for new tasks
         assigneeId: null,
-        category: null,
+        category: newTask.category || '',
         estimatedHours: null,
         actualHours: null,
         folderId: null,
       }
 
-      console.log('Sending task data:', taskData)
+      console.log('Creating task with exact API-expected data:', taskData)
 
       const createdTask = await taskService.createTask(taskData)
+
+      if (!createdTask) {
+        throw new Error('Failed to create task - response was empty')
+      }
+
       const formattedTask = apiTaskToTaskModel(createdTask)
       setTasks([formattedTask, ...tasks])
       setIsAddingTask(false)
@@ -216,7 +333,7 @@ const TasksApp: React.FC = () => {
     } catch (error) {
       console.error('Error creating task:', error)
       const errorMessage =
-        error instanceof Error ? error.message : 'Failed to create task'
+        error instanceof Error ? error.message : 'Unknown error occurred'
       setApiError(`Failed to create task: ${errorMessage}`)
     } finally {
       setIsUpdating(false)
@@ -567,10 +684,81 @@ const TasksApp: React.FC = () => {
   const handleUpdateTaskLocally = (updatedFields: Partial<Task>) => {
     if (!editedTask) return
 
-    // Обновляем локальное состояние
-    const updatedTask = { ...editedTask, ...updatedFields }
+    // Validate the date if it's being updated
+    if ('dueDate' in updatedFields) {
+      const newDate = updatedFields.dueDate
+
+      // Check if date is in the past
+      if (newDate) {
+        const selectedDate = new Date(newDate)
+        selectedDate.setHours(0, 0, 0, 0)
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (selectedDate < today) {
+          // Set error and don't update the date
+          setEditTaskErrors(prev => ({
+            ...prev,
+            dueDate: 'Нельзя выбрать прошедшую дату',
+          }))
+          return // Prevent updating with past date
+        } else {
+          // Clear date error if date is valid
+          setEditTaskErrors(prev => ({
+            ...prev,
+            dueDate: undefined,
+          }))
+        }
+      }
+    }
+
+    // Validate time consistency if either startTime or endTime is being updated
+    if ('startTime' in updatedFields || 'endTime' in updatedFields) {
+      const startTime =
+        'startTime' in updatedFields
+          ? updatedFields.startTime
+          : editedTask.startTime
+
+      const endTime =
+        'endTime' in updatedFields ? updatedFields.endTime : editedTask.endTime
+
+      if (startTime && endTime) {
+        // Check time validity
+        if (isEndTimeBeforeStartTime(startTime, endTime)) {
+          setEditTaskErrors(prev => ({
+            ...prev,
+            timeRange: 'Время окончания не может быть раньше времени начала',
+          }))
+          return // Prevent updating with invalid time range
+        } else {
+          // Clear time error if times are valid
+          setEditTaskErrors(prev => ({
+            ...prev,
+            timeRange: undefined,
+          }))
+        }
+      }
+    }
+
+    // Proceed with update if validation passed
+    const updatedTask = {
+      ...editedTask,
+      ...updatedFields,
+      // Make sure isDirty is set
+      isDirty: true,
+    }
+
     setEditedTask(updatedTask)
     setIsDirty(true)
+
+    // Make sure we also update the task in the tasks array
+    setTasks(tasks =>
+      tasks.map(t => (t.id === updatedTask.id ? updatedTask : t))
+    )
+
+    // Always set the global flag for unsaved changes
+    setHasUnsavedChanges(true)
   }
 
   // В коде рендеринга для деталей задачи (Task Details) добавляем кнопку сохранения
@@ -668,16 +856,26 @@ const TasksApp: React.FC = () => {
 
           <div className="task-meta-item">
             <label>Срок выполнения</label>
-            <input
-              type="date"
-              value={formatDateForInput(editedTask.dueDate)}
-              onChange={e =>
-                handleUpdateTaskLocally({
-                  dueDate: e.target.value || undefined,
-                })
-              }
-              disabled={isUpdating}
-            />
+            <div className="input-wrapper">
+              <input
+                type="date"
+                value={formatDateForInput(editedTask.dueDate)}
+                onChange={e =>
+                  handleUpdateTaskLocally({
+                    dueDate: e.target.value || undefined,
+                  })
+                }
+                className={editTaskErrors.dueDate ? 'error-input' : ''}
+                min={new Date().toISOString().split('T')[0]} // Set minimum date to today
+                disabled={isUpdating}
+              />
+              {editTaskErrors.dueDate && (
+                <div className="time-field-indicator">⚠️</div>
+              )}
+            </div>
+            {editTaskErrors.dueDate && (
+              <div className="form-error">{editTaskErrors.dueDate}</div>
+            )}
           </div>
 
           <div className="task-meta-item">
@@ -690,6 +888,7 @@ const TasksApp: React.FC = () => {
                   startTime: e.target.value || '',
                 })
               }
+              className={editTaskErrors.timeRange ? 'error-input' : ''}
               disabled={isUpdating}
             />
           </div>
@@ -704,10 +903,17 @@ const TasksApp: React.FC = () => {
                   endTime: e.target.value || '',
                 })
               }
+              className={editTaskErrors.timeRange ? 'error-input' : ''}
               disabled={isUpdating}
             />
           </div>
         </div>
+
+        {editTaskErrors.timeRange && (
+          <div className="form-error time-error">
+            {editTaskErrors.timeRange}
+          </div>
+        )}
 
         <div className="task-description-container">
           <label>Описание</label>
@@ -767,34 +973,149 @@ const TasksApp: React.FC = () => {
     )
   }
 
+  // Add validation to the form input handlers
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value
+
+    console.log('Date changed to:', newDate)
+    setNewTask({ ...newTask, dueDate: newDate })
+
+    // Validate the new date immediately
+    try {
+      if (newDate) {
+        const selectedDate = new Date(newDate)
+        selectedDate.setHours(0, 0, 0, 0)
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (selectedDate < today) {
+          // Set date error
+          setFormErrors(prev => ({
+            ...prev,
+            dueDate: 'Нельзя создать задачу на прошедшую дату',
+          }))
+          console.log('Setting date error - past date')
+        } else {
+          // Clear date error
+          setFormErrors(prev => ({
+            ...prev,
+            dueDate: undefined,
+          }))
+          console.log('Clearing date error - valid date')
+        }
+      } else {
+        // Date field is empty, clear error
+        setFormErrors(prev => ({
+          ...prev,
+          dueDate: undefined,
+        }))
+      }
+    } catch (error) {
+      console.error('Error in date validation:', error)
+      setFormErrors(prev => ({
+        ...prev,
+        dueDate: 'Неверный формат даты',
+      }))
+    }
+  }
+
+  // Update handle start time change to validate immediately
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartTime = e.target.value
+    setNewTask({ ...newTask, startTime: newStartTime })
+
+    // Validate immediately if both times are set
+    if (newTask.endTime) {
+      const isValid = validateTimeRange(newStartTime, newTask.endTime)
+
+      if (isValid) {
+        // Clear errors if valid
+        setFormErrors(prev => ({
+          ...prev,
+          startTime: undefined,
+          endTime: undefined,
+          timeRange: undefined,
+        }))
+      } else {
+        // Set errors if invalid
+        setFormErrors(prev => ({
+          ...prev,
+          startTime: true,
+          endTime: true,
+          timeRange: 'Время окончания не может быть раньше времени начала',
+        }))
+      }
+    }
+  }
+
+  // Update handle end time change to validate immediately
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEndTime = e.target.value
+    setNewTask({ ...newTask, endTime: newEndTime })
+
+    // Validate immediately if both times are set
+    if (newTask.startTime) {
+      const isValid = validateTimeRange(newTask.startTime, newEndTime)
+
+      if (isValid) {
+        // Clear errors if valid
+        setFormErrors(prev => ({
+          ...prev,
+          startTime: undefined,
+          endTime: undefined,
+          timeRange: undefined,
+        }))
+      } else {
+        // Set errors if invalid
+        setFormErrors(prev => ({
+          ...prev,
+          startTime: true,
+          endTime: true,
+          timeRange: 'Время окончания не может быть раньше времени начала',
+        }))
+      }
+    }
+  }
+
+  // Add a debug function to log form errors state
+  const logFormState = () => {
+    console.log('Current form state:', {
+      title: newTask.title,
+      dueDate: newTask.dueDate,
+      formErrors,
+      hasErrors: Object.keys(formErrors).length > 0,
+      titleValid: newTask.title.trim().length > 0,
+      canCreate:
+        newTask.title.trim().length > 0 && Object.keys(formErrors).length === 0,
+    })
+  }
+
   return (
     <div className="tasks-app">
-      {/* Анимация загрузки при первом входе */}
-      {isLoading && (
+      {showLoadingAnimation && (
         <div className="tasks-loading-overlay">
           <div className="tasks-loading-content">
             <div className="tasks-animation-container">
-              {/* Плавающие частицы */}
-              <div className="task-particle"></div>
-              <div className="task-particle"></div>
+              {/* Эффект парящих задач - оставляем только основные иконки */}
+              <div className="task-icon-wrapper">
+                <i className="fas fa-tasks floating-icon"></i>
+                <i className="fas fa-check-circle floating-icon"></i>
+              </div>
+
+              {/* Оставляем только 2 частицы */}
               <div className="task-particle"></div>
               <div className="task-particle"></div>
 
-              {/* Плавающие иконки */}
+              {/* Оставляем только 2 плавающие иконки */}
               <div className="floating-task-icon">
                 <i className="fas fa-clipboard-check"></i>
               </div>
               <div className="floating-task-icon">
-                <i className="fas fa-tasks"></i>
-              </div>
-              <div className="floating-task-icon">
                 <i className="fas fa-calendar-check"></i>
               </div>
-              <div className="floating-task-icon">
-                <i className="fas fa-check-circle"></i>
-              </div>
 
-              {/* Анимация доски задач */}
+              {/* Анимация доски задач - оставляем без изменений */}
               <div className="task-board">
                 <div className="task-board-bg"></div>
                 <div className="task-board-content">
@@ -827,17 +1148,14 @@ const TasksApp: React.FC = () => {
                 </div>
               </div>
             </div>
-
             <div className="loading-text">Загружаем ваши задачи</div>
-
-            <div className="progress-container">
-              <div className="progress-bar"></div>
-            </div>
-
             <div className="loading-dots">
               <div className="loading-dot"></div>
               <div className="loading-dot"></div>
               <div className="loading-dot"></div>
+            </div>
+            <div className="progress-container">
+              <div className="progress-bar"></div>
             </div>
           </div>
         </div>
@@ -948,14 +1266,48 @@ const TasksApp: React.FC = () => {
 
                 <div className="task-meta-item">
                   <label>Срок:</label>
-                  <input
-                    type="date"
-                    value={formatDateForInput(selectedTask.dueDate)}
-                    onChange={e =>
-                      handleLocalTaskChange('dueDate', e.target.value)
-                    }
-                    disabled={isUpdating}
-                  />
+                  <div className="input-wrapper">
+                    <input
+                      type="date"
+                      value={formatDateForInput(selectedTask.dueDate)}
+                      onChange={e => {
+                        // Validate date first
+                        const newDate = e.target.value
+                        if (newDate) {
+                          const selectedDate = new Date(newDate)
+                          const today = new Date()
+
+                          // Reset times to compare just dates
+                          selectedDate.setHours(0, 0, 0, 0)
+                          today.setHours(0, 0, 0, 0)
+
+                          if (selectedDate < today) {
+                            setEditTaskErrors(prev => ({
+                              ...prev,
+                              dueDate: 'Нельзя выбрать прошедшую дату',
+                            }))
+                            return // Don't update with invalid date
+                          } else {
+                            setEditTaskErrors(prev => ({
+                              ...prev,
+                              dueDate: undefined,
+                            }))
+                          }
+                        }
+
+                        handleLocalTaskChange('dueDate', e.target.value)
+                      }}
+                      className={editTaskErrors.dueDate ? 'error-input' : ''}
+                      min={new Date().toISOString().split('T')[0]} // Set minimum date to today
+                      disabled={isUpdating}
+                    />
+                    {editTaskErrors.dueDate && (
+                      <div className="time-field-indicator">⚠️</div>
+                    )}
+                  </div>
+                  {editTaskErrors.dueDate && (
+                    <div className="form-error">{editTaskErrors.dueDate}</div>
+                  )}
                 </div>
               </div>
 
@@ -1110,12 +1462,16 @@ const TasksApp: React.FC = () => {
                   <input
                     type="date"
                     value={newTask.dueDate || ''}
-                    onChange={e =>
-                      setNewTask({ ...newTask, dueDate: e.target.value })
-                    }
-                    className="form-control"
+                    onChange={handleDateChange}
+                    className={`form-control ${
+                      formErrors.dueDate ? 'error-input' : ''
+                    }`}
+                    min={new Date().toISOString().split('T')[0]} // Set minimum date to today
                     disabled={isUpdating}
                   />
+                  {formErrors.dueDate && (
+                    <div className="form-error">{formErrors.dueDate}</div>
+                  )}
                 </div>
               </div>
 
@@ -1123,32 +1479,44 @@ const TasksApp: React.FC = () => {
               <div className="form-row">
                 <div className="form-group half">
                   <label>Время начала:</label>
-                  <input
-                    type="time"
-                    value={newTask.startTime || ''}
-                    onChange={e =>
-                      setNewTask({
-                        ...newTask,
-                        startTime: e.target.value,
-                      })
-                    }
-                    className="form-control"
-                    disabled={isUpdating}
-                  />
+                  <div className="input-wrapper">
+                    <input
+                      type="time"
+                      value={newTask.startTime || ''}
+                      onChange={handleStartTimeChange}
+                      className={`form-control ${
+                        formErrors.startTime ? 'error-input' : ''
+                      }`}
+                      disabled={isUpdating}
+                    />
+                    {formErrors.startTime && (
+                      <div className="time-field-indicator">⚠️</div>
+                    )}
+                  </div>
                 </div>
                 <div className="form-group half">
                   <label>Время окончания:</label>
-                  <input
-                    type="time"
-                    value={newTask.endTime || ''}
-                    onChange={e =>
-                      setNewTask({ ...newTask, endTime: e.target.value })
-                    }
-                    className="form-control"
-                    disabled={isUpdating}
-                  />
+                  <div className="input-wrapper">
+                    <input
+                      type="time"
+                      value={newTask.endTime || ''}
+                      onChange={handleEndTimeChange}
+                      className={`form-control ${
+                        formErrors.endTime ? 'error-input' : ''
+                      }`}
+                      disabled={isUpdating}
+                    />
+                    {formErrors.endTime && (
+                      <div className="time-field-indicator">⚠️</div>
+                    )}
+                  </div>
                 </div>
               </div>
+              {formErrors.timeRange && (
+                <div className="form-error time-error">
+                  {formErrors.timeRange}
+                </div>
+              )}
 
               <div className="form-group">
                 <label>Теги:</label>
@@ -1198,8 +1566,16 @@ const TasksApp: React.FC = () => {
                 </button>
                 <button
                   className="btn-create"
-                  onClick={handleCreateTask}
-                  disabled={isUpdating || !newTask.title.trim()}
+                  onClick={() => {
+                    logFormState() // Log state before attempting to create
+                    handleCreateTask()
+                  }}
+                  disabled={
+                    isUpdating ||
+                    !newTask.title.trim() ||
+                    !!formErrors.dueDate ||
+                    !!formErrors.timeRange
+                  }
                 >
                   {isUpdating ? (
                     <>
@@ -1599,14 +1975,52 @@ const TasksApp: React.FC = () => {
 
                       <div className="task-meta-item">
                         <label>Срок:</label>
-                        <input
-                          type="date"
-                          value={formatDateForInput(selectedTask.dueDate)}
-                          onChange={e =>
-                            handleLocalTaskChange('dueDate', e.target.value)
-                          }
-                          disabled={isUpdating}
-                        />
+                        <div className="input-wrapper">
+                          <input
+                            type="date"
+                            value={formatDateForInput(selectedTask.dueDate)}
+                            onChange={e => {
+                              // Validate date first
+                              const newDate = e.target.value
+                              if (newDate) {
+                                const selectedDate = new Date(newDate)
+                                const today = new Date()
+
+                                // Reset times to compare just dates
+                                selectedDate.setHours(0, 0, 0, 0)
+                                today.setHours(0, 0, 0, 0)
+
+                                if (selectedDate < today) {
+                                  setEditTaskErrors(prev => ({
+                                    ...prev,
+                                    dueDate: 'Нельзя выбрать прошедшую дату',
+                                  }))
+                                  return // Don't update with invalid date
+                                } else {
+                                  setEditTaskErrors(prev => ({
+                                    ...prev,
+                                    dueDate: undefined,
+                                  }))
+                                }
+                              }
+
+                              handleLocalTaskChange('dueDate', e.target.value)
+                            }}
+                            className={
+                              editTaskErrors.dueDate ? 'error-input' : ''
+                            }
+                            min={new Date().toISOString().split('T')[0]} // Set minimum date to today
+                            disabled={isUpdating}
+                          />
+                          {editTaskErrors.dueDate && (
+                            <div className="time-field-indicator">⚠️</div>
+                          )}
+                        </div>
+                        {editTaskErrors.dueDate && (
+                          <div className="form-error">
+                            {editTaskErrors.dueDate}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1758,12 +2172,16 @@ const TasksApp: React.FC = () => {
                         <input
                           type="date"
                           value={newTask.dueDate || ''}
-                          onChange={e =>
-                            setNewTask({ ...newTask, dueDate: e.target.value })
-                          }
-                          className="form-control"
+                          onChange={handleDateChange}
+                          className={`form-control ${
+                            formErrors.dueDate ? 'error-input' : ''
+                          }`}
+                          min={new Date().toISOString().split('T')[0]} // Set minimum date to today
                           disabled={isUpdating}
                         />
+                        {formErrors.dueDate && (
+                          <div className="form-error">{formErrors.dueDate}</div>
+                        )}
                       </div>
                     </div>
 
@@ -1771,32 +2189,44 @@ const TasksApp: React.FC = () => {
                     <div className="form-row">
                       <div className="form-group half">
                         <label>Время начала:</label>
-                        <input
-                          type="time"
-                          value={newTask.startTime || ''}
-                          onChange={e =>
-                            setNewTask({
-                              ...newTask,
-                              startTime: e.target.value,
-                            })
-                          }
-                          className="form-control"
-                          disabled={isUpdating}
-                        />
+                        <div className="input-wrapper">
+                          <input
+                            type="time"
+                            value={newTask.startTime || ''}
+                            onChange={handleStartTimeChange}
+                            className={`form-control ${
+                              formErrors.startTime ? 'error-input' : ''
+                            }`}
+                            disabled={isUpdating}
+                          />
+                          {formErrors.startTime && (
+                            <div className="time-field-indicator">⚠️</div>
+                          )}
+                        </div>
                       </div>
                       <div className="form-group half">
                         <label>Время окончания:</label>
-                        <input
-                          type="time"
-                          value={newTask.endTime || ''}
-                          onChange={e =>
-                            setNewTask({ ...newTask, endTime: e.target.value })
-                          }
-                          className="form-control"
-                          disabled={isUpdating}
-                        />
+                        <div className="input-wrapper">
+                          <input
+                            type="time"
+                            value={newTask.endTime || ''}
+                            onChange={handleEndTimeChange}
+                            className={`form-control ${
+                              formErrors.endTime ? 'error-input' : ''
+                            }`}
+                            disabled={isUpdating}
+                          />
+                          {formErrors.endTime && (
+                            <div className="time-field-indicator">⚠️</div>
+                          )}
+                        </div>
                       </div>
                     </div>
+                    {formErrors.timeRange && (
+                      <div className="form-error time-error">
+                        {formErrors.timeRange}
+                      </div>
+                    )}
 
                     <div className="form-group">
                       <label>Теги:</label>
@@ -1848,8 +2278,16 @@ const TasksApp: React.FC = () => {
                       </button>
                       <button
                         className="btn-create"
-                        onClick={handleCreateTask}
-                        disabled={isUpdating || !newTask.title.trim()}
+                        onClick={() => {
+                          logFormState() // Log state before attempting to create
+                          handleCreateTask()
+                        }}
+                        disabled={
+                          isUpdating ||
+                          !newTask.title.trim() ||
+                          !!formErrors.dueDate ||
+                          !!formErrors.timeRange
+                        }
                       >
                         {isUpdating ? (
                           <>

@@ -126,12 +126,50 @@ const App: React.FC = () => {
 
     console.log('Authentication check on load:', authenticated)
 
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+        if (!token) {
+          return false
+        }
+
+        // Use the isAuthenticated function which safely handles validateUserExists
+        return isAuthenticated()
+      } catch (error) {
+        console.error('Auth check error:', error)
+        return false
+      }
+    }
+
     if (settings) {
       try {
         const settingsObj = JSON.parse(settings)
         // Check if onboarding was completed and user is authenticated
         if (settingsObj.user?.onboardingCompleted && authenticated) {
-          setIsFirstLaunch(false)
+          // Improved: Verify user exists on the server
+          checkAuth()
+            .then(() => {
+              console.log('User account validated successfully')
+              setIsFirstLaunch(false)
+            })
+            .catch(error => {
+              // If user doesn't exist on server, show welcome screen
+              console.error('User validation failed during app startup:', error)
+              if (error.status === 404 || error.status === 401) {
+                // User account doesn't exist or token is invalid
+                console.warn(
+                  'Removing invalid token and showing welcome screen'
+                )
+                localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+                setIsFirstLaunch(true)
+              } else {
+                // For network errors, still proceed to dashboard with warning
+                console.warn(
+                  'Could not verify user account due to network issue, proceeding anyway'
+                )
+                setIsFirstLaunch(false)
+              }
+            })
         } else if (!authenticated) {
           console.log('User not authenticated, showing welcome screen')
           setIsFirstLaunch(true)

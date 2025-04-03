@@ -31,13 +31,15 @@ export const priorityToString = (
 }
 
 // Map string priority values to API numeric values
-export const stringToPriority = (priority: string | number): number => {
-  if (typeof priority === 'number') {
-    if (priority >= 1 && priority <= 3) return priority
-    return 2 // Default to medium
-  }
+export const stringToPriority = (
+  priority: string | undefined | null
+): number => {
+  if (!priority) return 2 // Default to medium (2)
 
-  switch (priority.toLowerCase()) {
+  const lowerPriority =
+    typeof priority === 'string' ? priority.toLowerCase() : ''
+
+  switch (lowerPriority) {
     case 'low':
       return 1
     case 'high':
@@ -94,13 +96,13 @@ export const statusToString = (
 export const stringToStatus = (status: string): string => {
   switch (status?.toLowerCase()) {
     case 'todo':
-      return 'К выполнению'
+      return 'Todo'
     case 'in_progress':
-      return 'В процессе'
+      return 'InProgress'
     case 'done':
-      return 'Завершенные'
+      return 'Done'
     default:
-      return 'К выполнению'
+      return 'Todo'
   }
 }
 
@@ -133,16 +135,16 @@ export const formatDate = (date: string | Date): string => {
 
 // Format datetime for display with better time formatting
 export const formatDateTime = (date: string | Date): string => {
-  // Check if the date is valid
   if (!date) return ''
 
-  // Create Date objects
   const dateObj = new Date(date)
+
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date'
+  }
+
   const now = new Date()
-
-  // Validate the date
-  if (isNaN(dateObj.getTime())) return ''
-
   const isToday =
     dateObj.getDate() === now.getDate() &&
     dateObj.getMonth() === now.getMonth() &&
@@ -184,17 +186,10 @@ export const isTaskInFolder = (
   // Также проверяем parentFolderId, который может использоваться в некоторых API
   const taskParentFolderId = task.parentFolderId || task.parent_folder_id
 
-  // Приводим к строкам для корректного сравнения
-  const normalizedFolderId = String(folderId)
-  const normalizedTaskFolderId = taskFolderId ? String(taskFolderId) : null
-  const normalizedParentFolderId = taskParentFolderId
-    ? String(taskParentFolderId)
-    : null
-
-  // Проверяем совпадение с любым из идентификаторов
+  // Проверяем все возможные соответствия
   return (
-    normalizedTaskFolderId === normalizedFolderId ||
-    normalizedParentFolderId === normalizedFolderId
+    (taskFolderId && String(taskFolderId) === String(folderId)) ||
+    (taskParentFolderId && String(taskParentFolderId) === String(folderId))
   )
 }
 
@@ -342,5 +337,123 @@ export const taskModelToApiTask = (task: any): any => {
     actualHours: task.actualHours || null,
     startTime: task.startTime || null,
     endTime: task.endTime || null,
+  }
+}
+
+// Helper function to capitalize first letter
+const capitalizeFirstLetter = (str: string | null | undefined): string => {
+  if (!str) return 'Todo'
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+}
+
+// Function to normalize status
+export const normalizedStatus = (status: string): string => {
+  const statusLower = status.toLowerCase()
+  if (statusLower === 'to do' || statusLower === 'todo') return 'todo'
+  if (statusLower === 'in progress' || statusLower === 'in_progress')
+    return 'in_progress'
+  if (
+    statusLower === 'done' ||
+    statusLower === 'completed' ||
+    statusLower === 'complete'
+  )
+    return 'done'
+  return 'todo' // Default to 'todo' if status is unknown
+}
+
+// Add new utility functions for validation
+
+// Convert time string (HH:MM) to minutes
+export const timeStringToMinutes = (
+  timeString: string | null | undefined
+): number => {
+  if (!timeString) return 0
+
+  const parts = timeString.split(':').map(Number)
+  if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return 0
+
+  return parts[0] * 60 + parts[1]
+}
+
+// Enhanced time validation functions
+
+// Check if an end time is before a start time with more robust checking
+export const isEndTimeBeforeStartTime = (
+  startTime: string | null | undefined,
+  endTime: string | null | undefined
+): boolean => {
+  // If either time is missing, we can't validate
+  if (!startTime || !endTime) return false
+
+  // Parse time strings to get minutes
+  const startMinutes = timeStringToMinutes(startTime)
+  const endMinutes = timeStringToMinutes(endTime)
+
+  // Return true if end time is earlier than start time
+  return endMinutes < startMinutes
+}
+
+// Helper function to get readable time format from minutes
+export const formatMinutesToTime = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  return `${hours.toString().padStart(2, '0')}:${mins
+    .toString()
+    .padStart(2, '0')}`
+}
+
+// Function to suggest valid end time based on start time
+export const suggestEndTime = (startTime: string): string => {
+  if (!startTime) return ''
+
+  const startMinutes = timeStringToMinutes(startTime)
+  // Default meeting/task length: 60 minutes
+  const suggestedEndMinutes = startMinutes + 60
+
+  return formatMinutesToTime(suggestedEndMinutes)
+}
+
+// More robust date validation function
+export const isValidDate = (dateString: string | null | undefined): boolean => {
+  if (!dateString) return false
+
+  try {
+    const date = new Date(dateString)
+    return !isNaN(date.getTime())
+  } catch (error) {
+    console.error('Invalid date format:', dateString, error)
+    return false
+  }
+}
+
+// Improved function to check if a date is in the past
+export const isDateInPast = (
+  dateString: string | null | undefined
+): boolean => {
+  if (!dateString) return false
+
+  try {
+    const inputDate = new Date(dateString)
+    if (isNaN(inputDate.getTime())) {
+      console.warn('Invalid date provided to isDateInPast:', dateString)
+      return false
+    }
+
+    // Reset time to midnight for proper day comparison
+    inputDate.setHours(0, 0, 0, 0)
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    console.log('Date comparison:', {
+      inputDate: inputDate.toISOString(),
+      today: today.toISOString(),
+      isPast: inputDate < today,
+    })
+
+    return inputDate < today
+  } catch (error) {
+    console.error('Error in isDateInPast:', error)
+    return false
   }
 }

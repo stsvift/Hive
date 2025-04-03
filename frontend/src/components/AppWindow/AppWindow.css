@@ -149,7 +149,7 @@
   }
 }
 
-.dark @keyframes window-appear {
+@keyframes window-appear-dark {
   from {
     opacity: 0;
     transform: scale(0.95) translateY(10px);
@@ -161,6 +161,10 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
       0 0 0 1px rgba(255, 255, 255, 0.05);
   }
+}
+
+.dark .app-window {
+  animation: window-appear-dark var(--transition-medium) forwards;
 }
 
 /* Новая, чистая и простая анимация скрытия */

@@ -84,10 +84,15 @@ const CalendarApp: React.FC = () => {
     'month'
   )
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   // Добавляем флаг для отслеживания первоначальной загрузки
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
+
+  // Добавляем состояние для минимального времени загрузки
+  const [loadingStartTime, setLoadingStartTime] = useState<number>(Date.now())
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
+  const minimumLoadingTime = 2000 // 2 секунды минимального отображения
 
   // State to track tasks that have been converted to calendar events
   const [syncedTaskIds, setSyncedTaskIds] = useState<Set<string>>(new Set())
@@ -98,8 +103,29 @@ const CalendarApp: React.FC = () => {
 
   // Fetch tasks when component mounts
   useEffect(() => {
+    setLoadingStartTime(Date.now()) // Запоминаем время начала загрузки
     fetchTasks()
   }, [])
+
+  // Эффект для контроля минимального времени отображения загрузочного экрана
+  useEffect(() => {
+    if (!isLoading && showLoadingAnimation) {
+      const elapsedTime = Date.now() - loadingStartTime
+
+      if (elapsedTime < minimumLoadingTime) {
+        // Если прошло меньше минимального времени, устанавливаем таймер
+        const remainingTime = minimumLoadingTime - elapsedTime
+        const timer = setTimeout(() => {
+          setShowLoadingAnimation(false)
+        }, remainingTime)
+
+        return () => clearTimeout(timer)
+      } else {
+        // Если прошло достаточно времени, скрываем анимацию сразу
+        setShowLoadingAnimation(false)
+      }
+    }
+  }, [isLoading, loadingStartTime, showLoadingAnimation])
 
   // Also refresh tasks when the view or date changes
   useEffect(() => {
@@ -1414,8 +1440,8 @@ const CalendarApp: React.FC = () => {
 
   return (
     <div className="calendar-app">
-      {/* Показываем анимацию загрузки только при первой загрузке или при явном обновлении */}
-      {isLoading && !initialLoadComplete && (
+      {/* Изменяем условие отображения анимации загрузки */}
+      {showLoadingAnimation && (
         <div className="calendar-loading-overlay">
           <div className="calendar-loading-content">
             <div className="calendar-animation-container">
@@ -1455,12 +1481,12 @@ const CalendarApp: React.FC = () => {
         </div>
       )}
 
-      {/* Для последующих загрузок (при смене представлений) показываем простой индикатор */}
-      {isLoading && initialLoadComplete && (
+      {/* Удаляем отдельный индикатор загрузки, используя только один загрузочный экран */}
+      {/* {isLoading && initialLoadComplete && (
         <div className="simple-loading-indicator">
           <i className="fas fa-circle-notch fa-spin"></i>
         </div>
-      )}
+      )} */}
 
       {/* Display error message if there is one */}
       {error && (

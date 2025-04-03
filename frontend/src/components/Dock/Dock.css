@@ -303,3 +303,64 @@
 }
 
 /* Удаляем дублирующиеся анимации */
+
+/* Context menu for dock items */
+.dock-context-menu {
+  position: fixed;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  min-width: 140px;
+  padding: 8px 0;
+  z-index: 1000;
+  transform-origin: top left;
+  animation: contextMenuAppear 0.15s ease-out forwards;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  pointer-events: auto; /* Ensure clicks are captured */
+}
+
+.dark .dock-context-menu {
+  background-color: rgba(40, 44, 52, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes contextMenuAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.menu-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dark);
+  white-space: nowrap;
+  user-select: none; /* Prevent text selection */
+}
+
+.dark .menu-item {
+  color: var(--text-light);
+}
+
+.menu-item:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+}
+
+.menu-item i {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+}

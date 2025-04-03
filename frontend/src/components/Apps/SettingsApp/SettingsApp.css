@@ -677,6 +677,20 @@ input:disabled + .toggle-slider {
   text-decoration: none; /* Ensure links don't have underlines */
 }
 
+/* Add styles for the about-badge-link class */
+.about-badge-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit color from parent */
+  transition: color 0.2s ease;
+}
+
+.about-badge-link:hover {
+  color: var(--color-primary); /* Change color on hover */
+}
+
 .dark .about-badge {
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--text-secondary-dark);
@@ -3627,7 +3641,7 @@ input:disabled + .toggle-slider {
   top: 50%;
   right: -2px;
   transform: translateY(-50%);
-  background-color: var(--color-primary);
+  background-color: var (--color-primary);
   animation: pulseDecoration 3s infinite ease-in-out 1.5s;
 }
 

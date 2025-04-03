@@ -18,6 +18,11 @@ const NotesApp: React.FC = () => {
   // Буфер для хранения локальных изменений перед сохранением
   const [editedNote, setEditedNote] = useState<Note | null>(null)
 
+  // Улучшенная логика загрузочного экрана
+  const [loadingStartTime, setLoadingStartTime] = useState<number>(Date.now())
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
+  const minimumLoadingTime = 2000 // Снижаем до 2 секунд для лучшего UX
+
   // Цвета для заметок
   const noteColors = [
     '#FFEAA7', // Светло-медовый
@@ -27,8 +32,6 @@ const NotesApp: React.FC = () => {
     '#E1BEE7', // Фиолетовый
     '#FFCC80', // Персиковый
   ]
-
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false)
 
   // Add a resize listener to detect mobile vs desktop mode
   useEffect(() => {
@@ -48,8 +51,30 @@ const NotesApp: React.FC = () => {
 
   // Fetch notes from API
   useEffect(() => {
+    // Сохраняем время начала загрузки
+    setLoadingStartTime(Date.now())
     fetchNotes()
   }, [])
+
+  // Упрощенный эффект для контроля минимального времени отображения загрузки
+  useEffect(() => {
+    if (!isLoading && showLoadingAnimation) {
+      const elapsedTime = Date.now() - loadingStartTime
+
+      if (elapsedTime < minimumLoadingTime) {
+        // Если прошло меньше минимального времени, устанавливаем таймер для скрытия анимации
+        const remainingTime = minimumLoadingTime - elapsedTime
+        const timer = setTimeout(() => {
+          setShowLoadingAnimation(false)
+        }, remainingTime)
+
+        return () => clearTimeout(timer)
+      } else {
+        // Если прошло достаточно времени, скрываем анимацию сразу
+        setShowLoadingAnimation(false)
+      }
+    }
+  }, [isLoading, loadingStartTime, showLoadingAnimation])
 
   // Инициализируем editedNote когда activeNote меняется
   useEffect(() => {
@@ -87,7 +112,6 @@ const NotesApp: React.FC = () => {
       setError(errorMessage)
     } finally {
       setIsLoading(false)
-      setInitialLoadComplete(true)
     }
   }
 
@@ -264,8 +288,7 @@ const NotesApp: React.FC = () => {
 
   return (
     <div className="notes-app">
-      {/* Улучшенная анимация загрузки при первом входе */}
-      {isLoading && (
+      {showLoadingAnimation && (
         <div className="notes-loading-overlay">
           <div className="notes-loading-content">
             <div className="notes-animation-container">

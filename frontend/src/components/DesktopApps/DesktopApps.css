@@ -119,25 +119,31 @@
   }
 
   .desktop-apps-grid {
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(80px, 1fr)
+    ); /* Increased from 60px to 80px */
+    gap: 20px; /* Increased from 15px to 20px for better spacing between larger icons */
   }
 
   .desktop-app-item {
-    width: 60px;
+    width: 80px; /* Increased from 60px to 80px */
   }
 
   .desktop-app-icon {
-    width: 50px;
-    height: 50px;
+    width: 70px; /* Increased from 50px to 70px */
+    height: 70px; /* Increased from 50px to 70px */
+    border-radius: 18px; /* Increased from 15px to 18px for larger icons */
   }
 
   .desktop-app-icon i {
-    font-size: 20px;
+    font-size: 26px; /* Increased from 20px to 26px */
   }
 
   .desktop-app-title {
-    font-size: 11px;
+    font-size: 12px; /* Slightly increased from 11px to 12px */
+    margin-top: 6px; /* Added margin-top for better spacing */
+    padding: 4px 8px; /* Slightly increased padding for better visibility */
   }
 }
 
@@ -145,5 +151,27 @@
   .desktop-apps-container {
     top: 15px;
     left: 15px;
+  }
+
+  /* Make icons even larger on very small screens */
+  .desktop-apps-grid {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(90px, 1fr)
+    ); /* Further increased to 90px */
+    gap: 15px; /* Slightly reduced gap to fit more icons */
+  }
+
+  .desktop-app-item {
+    width: 90px; /* Increased to 90px */
+  }
+
+  .desktop-app-icon {
+    width: 80px; /* Increased to 80px */
+    height: 80px; /* Increased to 80px */
+  }
+
+  .desktop-app-icon i {
+    font-size: 28px; /* Increased to 28px */
   }
 }

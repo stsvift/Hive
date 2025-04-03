@@ -41,15 +41,9 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
     }
   }, [])
 
-  // Apply theme and accent color immediately for preview
-  useEffect(() => {
-    // Always keep welcome-screen in light mode regardless of selection
-    const welcomeScreen = document.querySelector('.welcome-screen')
-    if (welcomeScreen) {
-      welcomeScreen.classList.remove('dark') // Always keep welcome screen light
-    }
-
-    const selectedColor = accentColors.find(c => c.id === selectedAccent)
+  // Extract apply accent color logic to a separate function for reuse
+  const applyAccentColor = (accentId: string) => {
+    const selectedColor = accentColors.find(c => c.id === accentId)
     if (selectedColor) {
       document.documentElement.style.setProperty(
         '--color-primary',
@@ -64,6 +58,18 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
         selectedColor.darkColor || ''
       )
     }
+  }
+
+  // Apply theme and accent color immediately for preview
+  useEffect(() => {
+    // Always keep welcome-screen in light mode regardless of selection
+    const welcomeScreen = document.querySelector('.welcome-screen')
+    if (welcomeScreen) {
+      welcomeScreen.classList.remove('dark') // Always keep welcome screen light
+    }
+
+    // Apply the accent color using the extracted function
+    applyAccentColor(selectedAccent)
   }, [selectedAccent]) // selectedTheme is not used to update actual styles
 
   const nextStep = async () => {
@@ -124,8 +130,29 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
 
       const response = await register(userData)
 
-      // Регистрация успешна
-      console.log('Регистрация успешна:', response)
+      // Modified block: Handle registration response with or without token
+      if (!response.token) {
+        console.log('Registration successful but login required')
+
+        // Show a different screen asking user to login after registration
+        setStep(step) // Stay on current step
+        setMode('login') // Switch to login mode
+        setRegisterError('') // Clear any errors
+        setIsLoading(false)
+
+        // Pre-fill the login form
+        setEmail(userData.email)
+        setPassword('') // For security, don't prefill password
+
+        // Show a message about successful registration
+        setLoginError(
+          'Регистрация успешна! Пожалуйста, войдите с вашими учетными данными.'
+        )
+        return
+      }
+
+      // Регистрация успешна с токеном
+      console.log('Регистрация успешна с получением токена:', response)
       setIsAuthenticated(true)
       if (response.user?.id) {
         setUserId(response.user.id)
@@ -155,6 +182,15 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
       } else if (errorMessage.includes('validation')) {
         displayError =
           'Введены некорректные данные. Пожалуйста, проверьте форму регистрации.'
+      } else if (errorMessage.includes('token')) {
+        // Handle token-specific error differently now
+        displayError =
+          'Регистрация завершена, но требуется отдельный вход в систему. Пожалуйста, войдите с вашими учетными данными.'
+
+        // Auto switch to login mode
+        setMode('login')
+        setEmail(userData.email)
+        setPassword('')
       }
 
       setRegisterError(displayError)
@@ -262,6 +298,10 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
 
     // Save appearance settings only - no user data
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settingsObj))
+
+    // Apply the accent color before completing
+    const savedAccent = settingsObj.appearance.accent || 'orange'
+    applyAccentColor(savedAccent)
 
     // Custom favicon restoration if needed
     const currentFavicon = localStorage.getItem(STORAGE_KEYS.CUSTOM_FAVICON)
@@ -390,12 +430,14 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
       name: 'Проекты',
       icon: 'briefcase',
       description: 'Управление рабочими проектами',
+      comingSoon: true, // Add this flag for coming soon items
     },
     {
       id: 'files',
       name: 'Файлы',
       icon: 'folder',
       description: 'Управление файлами и документами',
+      comingSoon: true, // Add this flag for coming soon items
     },
     {
       id: 'settings',
@@ -428,6 +470,28 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
   }
 
   const progressPercentage = (step / 4) * 100
+
+  // Add a new function to animate button clicks with ripple effect
+  const animateButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const button = event.currentTarget
+    const ripple = document.createElement('span')
+    const rect = button.getBoundingClientRect()
+
+    const size = Math.max(rect.width, rect.height)
+    const x = event.clientX - rect.left - size / 2
+    const y = event.clientY - rect.top - size / 2
+
+    ripple.className = 'ripple'
+    ripple.style.width = ripple.style.height = `${size}px`
+    ripple.style.left = `${x}px`
+    ripple.style.top = `${y}px`
+
+    button.appendChild(ripple)
+
+    setTimeout(() => {
+      ripple.remove()
+    }, 600)
+  }
 
   const renderWelcomeScreen = () => (
     <div className="welcome-step fade-in">
@@ -466,14 +530,16 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
         <button
           className="welcome-button primary"
           onClick={() => setMode('register')}
+          onMouseDown={animateButtonClick}
         >
-          Зарегистрироваться
+          <span>Зарегистрироваться</span>
         </button>
         <button
           className="welcome-button secondary"
           onClick={() => setMode('login')}
+          onMouseDown={animateButtonClick}
         >
-          Войти в систему
+          <span>Войти в систему</span>
         </button>
       </div>
     </div>
@@ -484,7 +550,15 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
       <h2>Вход в HiveOS</h2>
       <p>Введите ваши данные для входа в систему</p>
 
-      {loginError && <div className="login-error">{loginError}</div>}
+      {loginError && (
+        <div
+          className={`login-error ${
+            loginError.includes('успешна') ? 'login-success' : ''
+          }`}
+        >
+          {loginError}
+        </div>
+      )}
 
       <div className="welcome-input-group">
         <label htmlFor="email-input">Email</label>
@@ -516,15 +590,17 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           className="welcome-button secondary"
           onClick={() => setMode('welcome')}
           disabled={isLoading}
+          onMouseDown={animateButtonClick}
         >
-          Назад
+          <span>Назад</span>
         </button>
         <button
           className="welcome-button primary"
           onClick={handleLogin}
           disabled={isLoading || !email.trim() || !password.trim()}
+          onMouseDown={animateButtonClick}
         >
-          {isLoading ? 'Входим...' : 'Войти'}
+          <span>{isLoading ? 'Входим...' : 'Войти'}</span>
         </button>
       </div>
 
@@ -611,8 +687,9 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
                 className="welcome-button secondary"
                 onClick={() => setMode('welcome')}
                 disabled={isLoading}
+                onMouseDown={animateButtonClick}
               >
-                Назад
+                <span>Назад</span>
               </button>
               <button
                 className="welcome-button primary"
@@ -624,8 +701,9 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
                   !password.trim() ||
                   !confirmPassword.trim()
                 }
+                onMouseDown={animateButtonClick}
               >
-                {isLoading ? 'Регистрация...' : 'Продолжить'}
+                <span>{isLoading ? 'Регистрация...' : 'Продолжить'}</span>
               </button>
             </div>
           </div>
@@ -648,15 +726,23 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
                   key={option.id}
                   className={`workspace-option ${
                     selectedWorkspace.includes(option.id) ? 'selected' : ''
-                  } ${option.id === 'settings' ? 'disabled' : ''}`}
-                  onClick={() => toggleWorkspaceOption(option.id)}
+                  } ${option.id === 'settings' ? 'disabled' : ''} ${
+                    option.comingSoon ? 'coming-soon disabled' : ''
+                  }`}
+                  onClick={() =>
+                    !option.comingSoon && toggleWorkspaceOption(option.id)
+                  }
                 >
                   <div className="workspace-checkbox">
                     <input
                       type="checkbox"
                       checked={selectedWorkspace.includes(option.id)}
                       onChange={() => toggleWorkspaceOption(option.id)}
-                      disabled={option.id === 'settings' || isLoading}
+                      disabled={
+                        option.id === 'settings' ||
+                        option.comingSoon ||
+                        isLoading
+                      }
                     />
                   </div>
                   <div className="workspace-icon">
@@ -669,6 +755,9 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
                       <small className="required-app">
                         Обязательное приложение
                       </small>
+                    )}
+                    {option.comingSoon && (
+                      <small className="coming-soon-label">Скоро</small>
                     )}
                   </div>
                 </div>
@@ -687,15 +776,19 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
                 className="welcome-button secondary"
                 onClick={prevStep}
                 disabled={isLoading}
+                onMouseDown={animateButtonClick}
               >
-                Назад
+                <span>Назад</span>
               </button>
               <button
                 className="welcome-button primary"
                 onClick={completeRegistration}
                 disabled={isLoading}
+                onMouseDown={animateButtonClick}
               >
-                {isLoading ? 'Сохранение...' : 'Завершить настройку'}
+                <span>
+                  {isLoading ? 'Сохранение...' : 'Завершить настройку'}
+                </span>
               </button>
             </div>
           </div>
@@ -778,15 +871,17 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
             className="welcome-button secondary"
             onClick={prevStep}
             disabled={isLoading}
+            onMouseDown={animateButtonClick}
           >
-            Назад
+            <span>Назад</span>
           </button>
           <button
             className="welcome-button primary"
             onClick={nextStep}
             disabled={isLoading}
+            onMouseDown={animateButtonClick}
           >
-            Далее
+            <span>Далее</span>
           </button>
         </div>
       </div>
